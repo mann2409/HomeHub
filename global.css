@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global font family using Inter */
+* {
+  font-family: Inter_400Regular;
+}
