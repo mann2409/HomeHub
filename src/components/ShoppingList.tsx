@@ -59,10 +59,7 @@ export default function ShoppingList() {
   return (
     <>
       <Card className="mb-4">
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-lg font-semibold text-gray-900">
-            Shopping List
-          </Text>
+        <View className="flex-row items-center justify-end mb-4">
           <Pressable
             onPress={() => setShowAddModal(true)}
             className="w-8 h-8 bg-primary rounded-full items-center justify-center"
@@ -72,22 +69,22 @@ export default function ShoppingList() {
         </View>
 
         {/* Summary Stats */}
-        <View className="bg-green-50 rounded-lg p-4 mb-4">
+        <View className="bg-white/20 rounded-lg p-4 mb-4">
           <View className="flex-row items-center justify-between">
             <View>
-              <Text className="text-sm text-green-600 font-medium">
+              <Text className="text-sm text-white/80 font-medium">
                 Estimated Total
               </Text>
-              <Text className="text-2xl font-bold text-green-900">
+              <Text className="text-2xl font-bold text-white">
                 ${totalCost.toFixed(2)}
               </Text>
             </View>
             <View className="items-end">
-              <Text className="text-xs text-green-600">
+              <Text className="text-xs text-white/80">
                 {pendingCount} pending • {completedCount} completed
               </Text>
-              <View className="w-12 h-12 bg-green-100 rounded-full items-center justify-center mt-1">
-                <Ionicons name="basket" size={24} color="#059669" />
+              <View className="w-12 h-12 bg-white/20 rounded-full items-center justify-center mt-1">
+                <Ionicons name="basket" size={24} color="rgba(255, 255, 255, 0.8)" />
               </View>
             </View>
           </View>
@@ -102,9 +99,9 @@ export default function ShoppingList() {
             <Ionicons 
               name={showCompleted ? "eye-off" : "eye"} 
               size={16} 
-              color="#6B7280" 
+              color="rgba(255, 255, 255, 0.8)" 
             />
-            <Text className="text-sm text-gray-600 ml-2">
+            <Text className="text-sm text-white/80 ml-2">
               {showCompleted ? "Hide" : "Show"} completed
             </Text>
           </Pressable>
@@ -114,8 +111,8 @@ export default function ShoppingList() {
               onPress={clearCompleted}
               className="flex-row items-center"
             >
-              <Ionicons name="trash-outline" size={16} color="#EF4444" />
-              <Text className="text-sm text-red-600 ml-1">
+              <Ionicons name="trash-outline" size={16} color="#F86D70" />
+              <Text className="text-sm text-[#F86D70] ml-1">
                 Clear completed
               </Text>
             </Pressable>
@@ -125,11 +122,11 @@ export default function ShoppingList() {
         {/* Shopping List */}
         {sections.length === 0 ? (
           <View className="items-center justify-center py-8">
-            <Ionicons name="basket-outline" size={48} color="#D1D5DB" />
-            <Text className="text-gray-500 text-center mt-2">
+            <Ionicons name="basket-outline" size={48} color="rgba(255, 255, 255, 0.6)" />
+            <Text className="text-white/80 text-center mt-2">
               Your shopping list is empty
             </Text>
-            <Text className="text-gray-400 text-center text-sm">
+            <Text className="text-white/60 text-center text-sm">
               Add items to get started
             </Text>
           </View>
@@ -152,10 +149,10 @@ export default function ShoppingList() {
                     backgroundColor: categoryColors.shoppingCategories[section.category] 
                   }}
                 />
-                <Text className="text-sm font-semibold text-gray-700">
+                <Text className="text-sm font-semibold text-white">
                   {section.title}
                 </Text>
-                <Text className="text-xs text-gray-500 ml-2">
+                <Text className="text-xs text-white/80 ml-2">
                   ({section.data.length})
                 </Text>
               </View>

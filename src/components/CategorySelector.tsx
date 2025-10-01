@@ -58,7 +58,7 @@ const categoryConfig = {
 export default function CategorySelector({ value, onChange, className }: CategorySelectorProps) {
   return (
     <View className={cn("mb-4", className)}>
-      <Text className="text-sm font-semibold text-gray-900 mb-3">
+      <Text className="text-sm font-semibold text-white mb-3">
         Category
       </Text>
       <ScrollView 
@@ -76,12 +76,12 @@ export default function CategorySelector({ value, onChange, className }: Categor
                 key={category}
                 onPress={() => onChange(category)}
                 className={cn(
-                  "items-center justify-center py-3 px-4 rounded-xl border-2 min-w-20",
-                  isSelected ? "border-opacity-100" : "border-gray-200"
+                  "items-center justify-center py-3 px-4 rounded-xl border min-w-20",
+                  isSelected ? "border-opacity-100" : "border-white/20"
                 )}
                 style={{
-                  backgroundColor: isSelected ? config.bgColor : "#FFFFFF",
-                  borderColor: isSelected ? config.color : "#E5E7EB",
+                  backgroundColor: isSelected ? `${config.color}20` : "rgba(255, 255, 255, 0.05)",
+                  borderColor: isSelected ? config.color : "rgba(255, 255, 255, 0.2)",
                 }}
                 accessibilityLabel={`Select ${config.label} category`}
                 accessibilityRole="button"
@@ -90,7 +90,7 @@ export default function CategorySelector({ value, onChange, className }: Categor
                 <View 
                   className="w-8 h-8 rounded-full items-center justify-center mb-2"
                   style={{ 
-                    backgroundColor: isSelected ? config.color : "#F3F4F6" 
+                    backgroundColor: isSelected ? config.color : "rgba(255, 255, 255, 0.1)" 
                   }}
                 >
                   <Ionicons 
@@ -102,7 +102,7 @@ export default function CategorySelector({ value, onChange, className }: Categor
                 <Text 
                   className={cn(
                     "text-xs font-medium text-center",
-                    isSelected ? "text-gray-900" : "text-gray-600"
+                    isSelected ? "text-white" : "text-white/60"
                   )}
                   numberOfLines={1}
                 >

@@ -26,10 +26,7 @@ export default function CalendarTasksModule() {
   return (
     <>
       <Card className="mb-4">
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-lg font-semibold text-gray-900">
-            Calendar & Tasks
-          </Text>
+        <View className="flex-row items-center justify-end mb-4">
           <Pressable
             onPress={() => setShowAddModal(true)}
             className="w-8 h-8 bg-primary rounded-full items-center justify-center"
@@ -43,8 +40,8 @@ export default function CalendarTasksModule() {
           onDateSelect={setSelectedDate}
         />
 
-        <View className="border-t border-gray-100 pt-4">
-          <Text className="text-base font-medium text-gray-900 mb-3">
+        <View className="border-t border-white/20 pt-4">
+          <Text className="text-base font-medium text-white mb-3">
             Tasks for {selectedDate.toLocaleDateString()}
           </Text>
           

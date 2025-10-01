@@ -42,22 +42,22 @@ export default function HorizontalCalendar({ selectedDate, onDateSelect }: Horiz
       <View className="flex-row items-center justify-between mb-3">
         <Pressable
           onPress={goToPreviousWeek}
-          className="w-8 h-8 items-center justify-center rounded-full bg-gray-100"
+          className="w-8 h-8 items-center justify-center rounded-full bg-white/20"
         >
-          <Text className="text-gray-600 font-semibold">‹</Text>
+          <Text className="text-white font-semibold">‹</Text>
         </Pressable>
         
         <Pressable onPress={goToToday}>
-          <Text className="text-lg font-semibold text-gray-900">
+          <Text className="text-lg font-semibold text-white/80">
             {format(currentWeek, "MMMM yyyy")}
           </Text>
         </Pressable>
         
         <Pressable
           onPress={goToNextWeek}
-          className="w-8 h-8 items-center justify-center rounded-full bg-gray-100"
+          className="w-8 h-8 items-center justify-center rounded-full bg-white/20"
         >
-          <Text className="text-gray-600 font-semibold">›</Text>
+          <Text className="text-white font-semibold">›</Text>
         </Pressable>
       </View>
 
@@ -90,8 +90,8 @@ export default function HorizontalCalendar({ selectedDate, onDateSelect }: Horiz
               className={cn(
                 "items-center justify-center w-12 h-16 mx-1 rounded-full overflow-hidden",
                 isSelected && "",
-                !isSelected && isCurrentDay && "bg-blue-50 border border-primary",
-                !isSelected && !isCurrentDay && "bg-gray-50"
+                !isSelected && isCurrentDay && "bg-white/20 border border-white/40",
+                !isSelected && !isCurrentDay && "bg-white/10"
               )}
             >
               {isSelected && (
@@ -108,8 +108,8 @@ export default function HorizontalCalendar({ selectedDate, onDateSelect }: Horiz
                 className={cn(
                   "text-xs font-medium mb-1",
                   isSelected && "text-white",
-                  !isSelected && isCurrentDay && "text-primary",
-                  !isSelected && !isCurrentDay && "text-gray-600"
+                  !isSelected && isCurrentDay && "text-white",
+                  !isSelected && !isCurrentDay && "text-white/80"
                 )}
               >
                 {format(day, "EEE")}
@@ -118,8 +118,8 @@ export default function HorizontalCalendar({ selectedDate, onDateSelect }: Horiz
                 className={cn(
                   "text-lg font-semibold",
                   isSelected && "text-white",
-                  !isSelected && isCurrentDay && "text-primary",
-                  !isSelected && !isCurrentDay && "text-gray-900"
+                  !isSelected && isCurrentDay && "text-white",
+                  !isSelected && !isCurrentDay && "text-white"
                 )}
               >
                 {format(day, "d")}

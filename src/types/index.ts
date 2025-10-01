@@ -6,6 +6,9 @@ export interface Task {
   dueDate?: Date;
   category: TaskCategory;
   priority: Priority;
+  recurring?: RecurrenceRule;
+  parentTaskId?: string; // For tracking recurring task instances
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +37,9 @@ export interface Meal {
   servings?: number;
   prepTime?: number;
   category: MealCategory;
+  notes?: string;
+  dietaryBadges?: DietaryBadge[];
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +52,7 @@ export interface Expense {
   date: Date;
   paymentMethod?: PaymentMethod;
   tags?: string[];
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,6 +67,7 @@ export interface ShoppingItem {
   completed: boolean;
   priority: Priority;
   notes?: string;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -125,6 +133,7 @@ export type ExpenseCategory =
   | "health" 
   | "shopping" 
   | "home" 
+  | "education" 
   | "other";
 
 export type PaymentMethod = 
@@ -185,6 +194,7 @@ export interface Note {
   category: NoteCategory;
   tags?: string[];
   pinned: boolean;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -207,3 +217,15 @@ export type NoteCategory =
   | "reminders" 
   | "shopping" 
   | "other";
+
+export type DietaryBadge = 
+  | "vegetarian" 
+  | "vegan" 
+  | "gluten-free" 
+  | "dairy-free" 
+  | "nut-free" 
+  | "keto" 
+  | "paleo" 
+  | "halal" 
+  | "kosher" 
+  | "kids-friendly";

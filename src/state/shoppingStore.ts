@@ -5,7 +5,9 @@ import { ShoppingItem, ShoppingCategory } from "../types";
 
 interface ShoppingState {
   items: ShoppingItem[];
-  addItem: (item: Omit<ShoppingItem, "id" | "createdAt" | "updatedAt">) => void;
+  userId: string | null;
+  setUserId: (userId: string | null) => void;
+  addItem: (item: Omit<ShoppingItem, "id" | "createdAt" | "updatedAt" | "userId">) => void;
   updateItem: (id: string, updates: Partial<ShoppingItem>) => void;
   deleteItem: (id: string) => void;
   toggleItem: (id: string) => void;
@@ -16,6 +18,7 @@ interface ShoppingState {
   getPendingItems: () => ShoppingItem[];
   clearCompleted: () => void;
   autoCategorizeName: (name: string) => ShoppingCategory;
+  clearUserData: () => void;
 }
 
 const categoryKeywords: Record<ShoppingCategory, string[]> = {
@@ -33,12 +36,19 @@ const useShoppingStore = create<ShoppingState>()(
   persist(
     (set, get) => ({
       items: [],
+      userId: null,
+
+      setUserId: (userId) => set({ userId }),
 
       addItem: (itemData) => {
+        const { userId } = get();
+        if (!userId) return;
+
         const newItem: ShoppingItem = {
           ...itemData,
           id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
           category: itemData.category || get().autoCategorizeName(itemData.name),
+          userId,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -48,9 +58,12 @@ const useShoppingStore = create<ShoppingState>()(
       },
 
       updateItem: (id, updates) => {
+        const { userId } = get();
+        if (!userId) return;
+
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === id
+            item.id === id && item.userId === userId
               ? { ...item, ...updates, updatedAt: new Date() }
               : item
           ),
@@ -58,15 +71,21 @@ const useShoppingStore = create<ShoppingState>()(
       },
 
       deleteItem: (id) => {
+        const { userId } = get();
+        if (!userId) return;
+
         set((state) => ({
-          items: state.items.filter((item) => item.id !== id),
+          items: state.items.filter((item) => item.id !== id || item.userId !== userId),
         }));
       },
 
       toggleItem: (id) => {
+        const { userId } = get();
+        if (!userId) return;
+
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === id
+            item.id === id && item.userId === userId
               ? { ...item, completed: !item.completed, updatedAt: new Date() }
               : item
           ),
@@ -74,11 +93,19 @@ const useShoppingStore = create<ShoppingState>()(
       },
 
       getItemsByCategory: (category) => {
-        return get().items.filter((item) => item.category === category);
+        const { items, userId } = get();
+        if (!userId) return [];
+        return items.filter((item) => item.category === category && item.userId === userId);
       },
 
       getCategorizedItems: () => {
-        const items = get().items;
+        const { items, userId } = get();
+        if (!userId) return {
+          produce: [], dairy: [], meat: [], pantry: [], frozen: [],
+          household: [], personal_care: [], other: [],
+        };
+        
+        const userItems = items.filter(item => item.userId === userId);
         const categorized: Record<ShoppingCategory, ShoppingItem[]> = {
           produce: [],
           dairy: [],
@@ -90,7 +117,7 @@ const useShoppingStore = create<ShoppingState>()(
           other: [],
         };
 
-        items.forEach((item) => {
+        userItems.forEach((item) => {
           categorized[item.category].push(item);
         });
 
@@ -98,23 +125,39 @@ const useShoppingStore = create<ShoppingState>()(
       },
 
       getTotalEstimatedCost: () => {
-        return get().items.reduce((total, item) => {
-          return total + (item.estimatedPrice || 0) * item.quantity;
-        }, 0);
+        const { items, userId } = get();
+        if (!userId) return 0;
+        
+        return items
+          .filter(item => item.userId === userId)
+          .reduce((total, item) => {
+            return total + (item.estimatedPrice || 0) * item.quantity;
+          }, 0);
       },
 
       getCompletedItems: () => {
-        return get().items.filter((item) => item.completed);
+        const { items, userId } = get();
+        if (!userId) return [];
+        return items.filter((item) => item.completed && item.userId === userId);
       },
 
       getPendingItems: () => {
-        return get().items.filter((item) => !item.completed);
+        const { items, userId } = get();
+        if (!userId) return [];
+        return items.filter((item) => !item.completed && item.userId === userId);
       },
 
       clearCompleted: () => {
+        const { userId } = get();
+        if (!userId) return;
+
         set((state) => ({
-          items: state.items.filter((item) => !item.completed),
+          items: state.items.filter((item) => !item.completed || item.userId !== userId),
         }));
+      },
+
+      clearUserData: () => {
+        set({ items: [], userId: null });
       },
 
       autoCategorizeName: (name) => {
@@ -132,6 +175,10 @@ const useShoppingStore = create<ShoppingState>()(
     {
       name: "shopping-storage",
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ 
+        items: state.items.filter(item => item.userId === state.userId),
+        userId: state.userId 
+      }),
     }
   )
 );

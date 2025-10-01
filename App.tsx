@@ -7,6 +7,7 @@ import useSettingsStore from "./src/state/settingsStore";
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
 
 import AppNavigator from "./src/navigation/AppNavigator";
+import AuthWrapper from "./src/components/AuthWrapper";
 
 /*
 IMPORTANT NOTICE: DO NOT REMOVE
@@ -43,7 +44,9 @@ export default function App() {
     <GestureHandlerRootView className={isDark ? "flex-1 dark bg-neutral-900" : "flex-1 bg-neutral-50"} style={{ fontFamily: "Inter_400Regular" }}>
       <SafeAreaProvider>
         <NavigationContainer>
-          <AppNavigator />
+          <AuthWrapper>
+            <AppNavigator />
+          </AuthWrapper>
           <StatusBar style={isDark ? "light" : "dark"} />
         </NavigationContainer>
       </SafeAreaProvider>

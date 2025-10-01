@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Meal, MealType } from "../types";
+import { LinearGradient } from "expo-linear-gradient";
+import { Meal, MealType, DietaryBadge } from "../types";
 import { cn } from "../utils/cn";
 import useSettingsStore from "../state/settingsStore";
 
@@ -21,83 +22,169 @@ export default function MealCard({ meal, mealType, onPress }: MealCardProps) {
     snack: "Snack",
   };
 
-  const mealTypeIcons = {
-    breakfast: "sunny",
-    lunch: "partly-sunny",
-    dinner: "moon",
-    snack: "cafe",
-  } as const;
-
   const getMealTypeColor = (type: MealType) => {
     const colors = {
-      breakfast: "#F59E0B",
-      lunch: "#10B981",
-      dinner: "#8B5CF6",
-      snack: "#EC4899",
+      breakfast: ["#FCE38A", "#F38181"], // Gold to coral
+      lunch: ["#36D1C4", "#96E6A1"], // Teal to green
+      dinner: ["#9B5DE5", "#661AE6"], // Purple gradient
+      snack: ["#FFB347", "#FFCC5C"], // Orange gradient
     };
     return colors[type];
   };
 
+  const getMealTypeIcon = (type: MealType) => {
+    const icons = {
+      breakfast: "sunny",
+      lunch: "restaurant",
+      dinner: "moon",
+      snack: "cafe",
+    };
+    return icons[type];
+  };
+
+  const getDietaryBadgeIcon = (badge: DietaryBadge) => {
+    const icons: Record<DietaryBadge, string> = {
+      "vegetarian": "leaf",
+      "vegan": "leaf-outline",
+      "gluten-free": "nutrition",
+      "dairy-free": "water",
+      "nut-free": "close-circle",
+      "keto": "flame",
+      "paleo": "fitness",
+      "halal": "moon",
+      "kosher": "star",
+      "kids-friendly": "happy",
+    };
+    return icons[badge];
+  };
+
+  const gradientColors = getMealTypeColor(mealType);
+  
   return (
-    <Pressable
-      onPress={onPress}
-      className={cn(
-        "bg-white border border-gray-200 rounded-lg p-3 min-h-[80px] justify-center",
-        !meal && "border-dashed border-gray-300"
-      )}
+    <Pressable 
+      onPress={onPress} 
+      className="min-h-[100px]"
+      style={{
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 5,
+        overflow: 'hidden',
+      }}
     >
       {meal ? (
-        <View>
-          <View className="flex-row items-center mb-2">
-            <View
-              className="w-3 h-3 rounded-full mr-2"
-              style={{ backgroundColor: categoryColors.mealCategories[meal.category] }}
-            />
-            <Text className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-              {mealTypeLabels[mealType]}
-            </Text>
+        <LinearGradient
+          colors={gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="p-4 min-h-[100px] justify-between"
+          style={{ 
+            borderRadius: 24,
+            overflow: 'hidden' 
+          }}
+        >
+          {/* Header with meal type and note indicator */}
+          <View className="flex-row items-center justify-between mb-2">
+            <View className="flex-row items-center">
+              <Ionicons 
+                name={getMealTypeIcon(mealType) as any} 
+                size={16} 
+                color="#FFFFFF" 
+              />
+              <Text className="text-xs font-medium text-white/90 uppercase tracking-wide ml-2">
+                {mealTypeLabels[mealType]}
+              </Text>
+            </View>
+            {meal.notes && (
+              <Ionicons name="document-text" size={14} color="#FFFFFF" opacity={0.8} />
+            )}
           </View>
           
-          <Text className="text-sm font-semibold text-gray-900 mb-1">
+          {/* Meal name */}
+          <Text className="text-base font-bold text-white mb-1" numberOfLines={2}>
             {meal.name}
           </Text>
           
+          {/* Description */}
           {meal.description && (
-            <Text className="text-xs text-gray-600 line-clamp-2">
+            <Text className="text-xs text-white/80 line-clamp-2 mb-2">
               {meal.description}
             </Text>
           )}
           
-          <View className="flex-row items-center justify-between mt-2">
-            {meal.prepTime && (
-              <View className="flex-row items-center">
-                <Ionicons name="time-outline" size={12} color="#6B7280" />
-                <Text className="text-xs text-gray-500 ml-1">
-                  {meal.prepTime}m
-                </Text>
-              </View>
-            )}
+          {/* Dietary badges */}
+          {meal.dietaryBadges && meal.dietaryBadges.length > 0 && (
+            <View className="flex-row flex-wrap gap-1 mb-2">
+              {meal.dietaryBadges.slice(0, 3).map((badge, index) => (
+                <View 
+                  key={index} 
+                  className="bg-white/30 rounded-full px-2 py-0.5 flex-row items-center"
+                >
+                  <Ionicons 
+                    name={getDietaryBadgeIcon(badge) as any} 
+                    size={10} 
+                    color="#FFFFFF" 
+                  />
+                  <Text className="text-[10px] text-white ml-1 capitalize">
+                    {badge.replace('-', ' ')}
+                  </Text>
+                </View>
+              ))}
+              {meal.dietaryBadges.length > 3 && (
+                <View className="bg-white/30 rounded-full px-2 py-0.5">
+                  <Text className="text-[10px] text-white">
+                    +{meal.dietaryBadges.length - 3}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+          
+          {/* Footer with prep time and servings */}
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center space-x-3">
+              {meal.prepTime && (
+                <View className="flex-row items-center">
+                  <Ionicons name="time-outline" size={14} color="#FFFFFF" />
+                  <Text className="text-xs text-white/90 ml-1 font-medium">
+                    {meal.prepTime}m
+                  </Text>
+                </View>
+              )}
+              
+              {meal.servings && (
+                <View className="flex-row items-center">
+                  <Ionicons name="people-outline" size={14} color="#FFFFFF" />
+                  <Text className="text-xs text-white/90 ml-1 font-medium">
+                    {meal.servings}
+                  </Text>
+                </View>
+              )}
+            </View>
             
-            {meal.servings && (
-              <View className="flex-row items-center">
-                <Ionicons name="people-outline" size={12} color="#6B7280" />
-                <Text className="text-xs text-gray-500 ml-1">
-                  {meal.servings}
-                </Text>
-              </View>
-            )}
+            {/* Tap to edit indicator */}
+            <Ionicons name="chevron-forward" size={14} color="#FFFFFF" opacity={0.6} />
           </View>
-        </View>
+        </LinearGradient>
       ) : (
-        <View className="items-center justify-center">
+        <View 
+          className="bg-white/10 border-2 border-dashed border-white/30 rounded-3xl p-4 min-h-[100px] justify-center items-center"
+          style={{
+            shadowColor: "transparent",
+          }}
+        >
           <Ionicons
-            name={mealTypeIcons[mealType]}
-            size={24}
-            color={getMealTypeColor(mealType)}
+            name={getMealTypeIcon(mealType) as any}
+            size={32}
+            color="#FFFFFF"
             style={{ opacity: 0.5 }}
           />
-          <Text className="text-xs text-gray-500 mt-2 text-center">
+          <Text className="text-sm text-white/80 mt-2 text-center font-medium">
             Add {mealTypeLabels[mealType]}
+          </Text>
+          <Text className="text-xs text-white/60 mt-1 text-center">
+            Tap to plan
           </Text>
         </View>
       )}

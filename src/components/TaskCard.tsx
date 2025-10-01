@@ -33,8 +33,8 @@ export default function TaskCard({ task, onToggle, onPress, onDelete }: TaskCard
     <Pressable
       onPress={() => onPress?.(task)}
       className={cn(
-        "bg-white rounded-lg p-3 mb-2 border-l-4 shadow-sm",
-        task.completed && "opacity-60"
+        "bg-white/20 rounded-xl p-3 mb-2 border-l-4",
+        task.completed && "opacity-50"
       )}
       style={{ borderLeftColor: categoryColor }}
     >
@@ -44,7 +44,7 @@ export default function TaskCard({ task, onToggle, onPress, onDelete }: TaskCard
             <Text
               className={cn(
                 "text-base font-medium flex-1",
-                task.completed ? "text-gray-500 line-through" : "text-gray-900"
+                task.completed ? "text-white/50 line-through" : "text-white"
               )}
             >
               {task.title}
@@ -60,7 +60,7 @@ export default function TaskCard({ task, onToggle, onPress, onDelete }: TaskCard
             <Text
               className={cn(
                 "text-sm mb-2",
-                task.completed ? "text-gray-400" : "text-gray-600"
+                task.completed ? "text-white/40" : "text-white/60"
               )}
             >
               {task.description}
@@ -73,13 +73,13 @@ export default function TaskCard({ task, onToggle, onPress, onDelete }: TaskCard
                 className="w-3 h-3 rounded-full mr-2"
                 style={{ backgroundColor: categoryColor }}
               />
-              <Text className="text-xs text-gray-500 capitalize">
+              <Text className="text-xs text-white/70 capitalize">
                 {task.category}
               </Text>
             </View>
             
             {task.dueDate && (
-              <Text className="text-xs text-gray-500">
+              <Text className="text-xs text-white/70">
                 {format(new Date(task.dueDate), "h:mm a")}
               </Text>
             )}
@@ -93,7 +93,7 @@ export default function TaskCard({ task, onToggle, onPress, onDelete }: TaskCard
               "w-6 h-6 rounded-full border-2 items-center justify-center mr-2",
               task.completed
                 ? "bg-primary border-primary"
-                : "border-gray-300 bg-white"
+                : "border-white/30 bg-white/10"
             )}
           >
             {task.completed && (
@@ -106,7 +106,7 @@ export default function TaskCard({ task, onToggle, onPress, onDelete }: TaskCard
               className="w-6 h-6 items-center justify-center"
               accessibilityLabel="Delete task"
             >
-              <Ionicons name="trash-outline" size={18} color="#9CA3AF" />
+              <Ionicons name="trash-outline" size={18} color="rgba(255, 255, 255, 0.6)" />
             </Pressable>
           )}
         </View>

@@ -96,7 +96,12 @@ export default function QuickNoteModal({ visible, onClose, note }: QuickNoteModa
       visible={visible}
       onClose={handleClose}
       title={isEditing ? "Edit Note" : "Quick Note"}
-      size="md"
+      navigationMode={true}
+      rightButton={{
+        title: isEditing ? "Save" : "Save",
+        onPress: handleSave,
+        disabled: !content.trim()
+      }}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <Input
@@ -117,20 +122,21 @@ export default function QuickNoteModal({ visible, onClose, note }: QuickNoteModa
         />
 
         <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Category
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={category}
               onValueChange={(value) => setCategory(value as NoteCategory)}
             >
-              <Picker.Item label="Personal" value="personal" />
-              <Picker.Item label="Work" value="work" />
-              <Picker.Item label="Ideas" value="ideas" />
-              <Picker.Item label="Reminders" value="reminders" />
-              <Picker.Item label="Shopping" value="shopping" />
-              <Picker.Item label="Other" value="other" />
+              <Picker.Item color="#FFFFFF" label="Personal" value="personal" />
+              <Picker.Item color="#FFFFFF" label="Work" value="work" />
+              <Picker.Item color="#FFFFFF" label="Ideas" value="ideas" />
+              <Picker.Item color="#FFFFFF" label="Reminders" value="reminders" />
+              <Picker.Item color="#FFFFFF" label="Shopping" value="shopping" />
+              <Picker.Item color="#FFFFFF" label="Other" value="other" />
             </Picker>
           </View>
         </View>
@@ -154,18 +160,12 @@ export default function QuickNoteModal({ visible, onClose, note }: QuickNoteModa
           </View>
         )}
 
-        <View className="flex-row mb-4">
+        <View className="mb-4">
           <Button
             title="Cancel"
             variant="outline"
             onPress={handleClose}
-            className="flex-1 mr-3"
-          />
-          <Button
-            title={isEditing ? "Save Changes" : "Save Note"}
-            onPress={handleSave}
-            disabled={!content.trim()}
-            className="flex-1"
+            className="w-full"
           />
         </View>
 

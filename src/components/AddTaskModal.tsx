@@ -4,8 +4,9 @@ import Modal from "./Modal";
 import Input from "./Input";
 import PrioritySelector from "./PrioritySelector";
 import CategorySelector from "./CategorySelector";
+import RepeatSelector from "./RepeatSelector";
 import Toast from "./Toast";
-import { TaskCategory, Priority } from "../types";
+import { TaskCategory, Priority, RecurrenceRule } from "../types";
 import useTaskStore from "../state/taskStore";
 
 interface AddTaskModalProps {
@@ -21,6 +22,7 @@ export default function AddTaskModal({ visible, onClose, initialDate }: AddTaskM
   const [category, setCategory] = useState<TaskCategory>("personal");
   const [priority, setPriority] = useState<Priority>("medium");
   const [dueDate, setDueDate] = useState(initialDate || new Date());
+  const [recurring, setRecurring] = useState<RecurrenceRule | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [titleError, setTitleError] = useState("");
   const [showToast, setShowToast] = useState(false);
@@ -48,6 +50,7 @@ export default function AddTaskModal({ visible, onClose, initialDate }: AddTaskM
     setCategory("personal");
     setPriority("medium");
     setDueDate(initialDate || new Date());
+    setRecurring(undefined);
   };
 
   const validateForm = () => {
@@ -77,6 +80,7 @@ export default function AddTaskModal({ visible, onClose, initialDate }: AddTaskM
         dueDate,
         category,
         priority,
+        recurring,
       });
 
       resetForm();
@@ -161,6 +165,11 @@ export default function AddTaskModal({ visible, onClose, initialDate }: AddTaskM
         <PrioritySelector
           value={priority}
           onChange={setPriority}
+        />
+
+        <RepeatSelector
+          value={recurring}
+          onChange={setRecurring}
         />
       </ScrollView>
       </Modal>

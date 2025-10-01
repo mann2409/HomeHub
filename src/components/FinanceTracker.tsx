@@ -3,7 +3,6 @@ import { View, Text, Pressable, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { format, subDays } from "date-fns";
 import Card from "./Card";
-import GlassCard from "./GlassCard";
 import CircularChart from "./CircularChart";
 import BarChart from "./BarChart";
 import AddExpenseModal from "./AddExpenseModal";
@@ -50,6 +49,9 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
     const dateKey = date.toISOString().split("T")[0];
     chartData[format(date, "MMM d")] = dailySpending[dateKey] || 0;
   }
+  
+  console.log("FinanceTracker dailySpending:", dailySpending);
+  console.log("FinanceTracker chartData:", chartData);
 
   const handleExpensePress = (expense: Expense) => {
     setSelectedExpense(expense);
@@ -58,11 +60,8 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
 
   return (
     <>
-      <GlassCard className="mb-4">
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-lg font-semibold text-white">
-            Finance Tracker
-          </Text>
+      <Card className="mb-4">
+        <View className="flex-row items-center justify-end mb-4">
           <View className="flex-row items-center">
             <Pressable
               onPress={async () => {
@@ -75,31 +74,30 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
               }}
               className="w-8 h-8 rounded-full items-center justify-center mr-2 overflow-hidden"
             >
-              <Ionicons name="download" size={18} color="#374151" />
+              <Ionicons name="download" size={18} color="#FFFFFF" />
             </Pressable>
             <Pressable
               onPress={() => setShowAddModal(true)}
-              className="w-8 h-8 rounded-full items-center justify-center overflow-hidden"
+              className="w-8 h-8 bg-primary rounded-full items-center justify-center"
             >
-              <View className="absolute inset-0 rounded-full" style={{ backgroundColor: "transparent" }} />
-              <Ionicons name="add" size={20} color="#3B82F6" />
+              <Ionicons name="add" size={20} color="#FFFFFF" />
             </Pressable>
           </View>
         </View>
 
         {/* Weekly Total */}
-        <View className="bg-white/60 rounded-xl p-4 mb-4">
+        <View className="bg-white/20 rounded-xl p-4 mb-4">
           <View className="flex-row items-center justify-between">
             <View>
-              <Text className="text-sm text-blue-600 font-medium">
+              <Text className="text-sm text-white/80 font-medium">
                 This Week
               </Text>
-              <Text className="text-2xl font-bold text-blue-900">
+              <Text className="text-2xl font-bold text-white">
                 ${weeklyTotal.toFixed(2)}
               </Text>
             </View>
-            <View className="w-12 h-12 bg-blue-100 rounded-full items-center justify-center">
-              <Ionicons name="wallet" size={24} color="#1D4ED8" />
+            <View className="w-12 h-12 bg-white/20 rounded-full items-center justify-center">
+              <Ionicons name="wallet" size={24} color="rgba(255, 255, 255, 0.8)" />
             </View>
           </View>
         </View>
@@ -108,7 +106,7 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
         <View>
           {/* Category Spending - Pie Chart */}
           <View className="mb-6">
-            <Text className="text-base font-medium text-gray-200 mb-3">
+            <Text className="text-base font-medium text-white mb-3">
               Spending by Category
             </Text>
             <CircularChart 
@@ -119,7 +117,7 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
 
           {/* Daily Spending - Bar Chart */}
           <View>
-            <Text className="text-base font-medium text-gray-200 mb-3">
+            <Text className="text-base font-medium text-white mb-3">
               Daily Spending (Last 7 Days)
             </Text>
             <BarChart 
@@ -130,12 +128,12 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
 
         {/* Recent Expenses */}
         {showRecent && (
-          <View className="mt-6 pt-4 border-t border-gray-100">
-            <Text className="text-base font-medium text-gray-200 mb-3">
+          <View className="mt-6 pt-4 border-t border-white/20">
+            <Text className="text-base font-medium text-white mb-3">
               Recent Expenses
             </Text>
             {recentExpenses.length === 0 ? (
-              <Text className="text-gray-500 text-center py-4">
+              <Text className="text-white/60 text-center py-4">
                 No expenses yet
               </Text>
             ) : (
@@ -144,17 +142,17 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
                   <Pressable
                     key={expense.id}
                     onPress={() => handleExpensePress(expense)}
-                    className="flex-row items-center justify-between py-3 border-b border-gray-100"
+                    className="flex-row items-center justify-between py-3 border-b border-white/20"
                   >
                     <View className="flex-1">
-                      <Text className="text-sm font-medium text-gray-900">
+                      <Text className="text-sm font-medium text-white">
                         {expense.description}
                       </Text>
-                      <Text className="text-xs text-gray-500 capitalize">
+                      <Text className="text-xs text-white/60 capitalize">
                         {expense.category} • {format(new Date(expense.date), "MMM d")}
                       </Text>
                     </View>
-                    <Text className="text-sm font-semibold text-gray-900">
+                    <Text className="text-sm font-semibold text-white">
                       ${expense.amount.toFixed(2)}
                     </Text>
                   </Pressable>
@@ -165,29 +163,29 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
         )}
 
         {/* Quick Stats */}
-        <View className="mt-6 pt-4 border-t border-gray-100">
+        <View className="mt-6 pt-4 border-t border-white/20">
           <View className="flex-row justify-between">
             <View className="items-center">
-              <Text className="text-xs text-gray-500">Daily Avg</Text>
-              <Text className="text-sm font-semibold text-gray-900">
+              <Text className="text-xs text-white/60">Daily Avg</Text>
+              <Text className="text-sm font-semibold text-white">
                 ${(weeklyTotal / 7).toFixed(2)}
               </Text>
             </View>
             <View className="items-center">
-              <Text className="text-xs text-gray-500">Highest Day</Text>
-              <Text className="text-sm font-semibold text-gray-900">
+              <Text className="text-xs text-white/60">Highest Day</Text>
+              <Text className="text-sm font-semibold text-white">
                 ${Math.max(...Object.values(chartData)).toFixed(2)}
               </Text>
             </View>
             <View className="items-center">
-              <Text className="text-xs text-gray-500">Categories</Text>
-              <Text className="text-sm font-semibold text-gray-900">
+              <Text className="text-xs text-white/60">Categories</Text>
+              <Text className="text-sm font-semibold text-white">
                 {Object.values(categorySpending).filter(amount => amount > 0).length}
               </Text>
             </View>
           </View>
         </View>
-      </GlassCard>
+      </Card>
 
       <AddExpenseModal
         visible={showAddModal}

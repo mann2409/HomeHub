@@ -95,52 +95,55 @@ export default function EditTaskModal({ visible, onClose, task }: EditTaskModalP
         />
 
         <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Category
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={category}
               onValueChange={(value) => setCategory(value as TaskCategory)}
             >
-              <Picker.Item label="Personal" value="personal" />
-              <Picker.Item label="Work" value="work" />
-              <Picker.Item label="Health" value="health" />
-              <Picker.Item label="Home" value="home" />
-              <Picker.Item label="Shopping" value="shopping" />
-              <Picker.Item label="Finance" value="finance" />
-              <Picker.Item label="Other" value="other" />
+              <Picker.Item color="#FFFFFF" label="Personal" value="personal" />
+              <Picker.Item color="#FFFFFF" label="Work" value="work" />
+              <Picker.Item color="#FFFFFF" label="Health" value="health" />
+              <Picker.Item color="#FFFFFF" label="Home" value="home" />
+              <Picker.Item color="#FFFFFF" label="Shopping" value="shopping" />
+              <Picker.Item color="#FFFFFF" label="Finance" value="finance" />
+              <Picker.Item color="#FFFFFF" label="Other" value="other" />
             </Picker>
           </View>
         </View>
 
         <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Priority
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={priority}
               onValueChange={(value) => setPriority(value as Priority)}
             >
-              <Picker.Item label="Low" value="low" />
-              <Picker.Item label="Medium" value="medium" />
-              <Picker.Item label="High" value="high" />
+              <Picker.Item color="#FFFFFF" label="Low" value="low" />
+              <Picker.Item color="#FFFFFF" label="Medium" value="medium" />
+              <Picker.Item color="#FFFFFF" label="High" value="high" />
             </Picker>
           </View>
         </View>
 
         <View className="mb-6">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Status
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={completed}
               onValueChange={(value) => setCompleted(value)}
             >
-              <Picker.Item label="Pending" value={false} />
-              <Picker.Item label="Completed" value={true} />
+              <Picker.Item color="#FFFFFF" label="Pending" value={false} />
+              <Picker.Item color="#FFFFFF" label="Completed" value={true} />
             </Picker>
           </View>
         </View>

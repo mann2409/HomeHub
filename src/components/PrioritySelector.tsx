@@ -37,7 +37,7 @@ const priorityConfig = {
 export default function PrioritySelector({ value, onChange, className }: PrioritySelectorProps) {
   return (
     <View className={cn("mb-4", className)}>
-      <Text className="text-sm font-semibold text-gray-900 mb-3">
+      <Text className="text-sm font-semibold text-white mb-3">
         Priority
       </Text>
       <View className="flex-row space-x-3">
@@ -50,12 +50,12 @@ export default function PrioritySelector({ value, onChange, className }: Priorit
               key={priority}
               onPress={() => onChange(priority)}
               className={cn(
-                "flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl border-2",
-                isSelected ? "border-opacity-100" : "border-gray-200"
+                "flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl border",
+                isSelected ? "border-opacity-100" : "border-white/20"
               )}
               style={{
-                backgroundColor: isSelected ? config.bgColor : "#F9FAFB",
-                borderColor: isSelected ? config.borderColor : "#E5E7EB",
+                backgroundColor: isSelected ? `${config.color}20` : "rgba(255, 255, 255, 0.05)",
+                borderColor: isSelected ? config.borderColor : "rgba(255, 255, 255, 0.2)",
               }}
               accessibilityLabel={`Set priority to ${config.label}`}
               accessibilityRole="button"
@@ -64,13 +64,13 @@ export default function PrioritySelector({ value, onChange, className }: Priorit
               <Ionicons 
                 name={config.icon} 
                 size={16} 
-                color={isSelected ? config.color : "#6B7280"} 
+                color={isSelected ? config.color : "rgba(255, 255, 255, 0.6)"} 
                 style={{ marginRight: 6 }}
               />
               <Text 
                 className={cn(
                   "text-sm font-medium",
-                  isSelected ? "text-gray-900" : "text-gray-600"
+                  isSelected ? "text-white" : "text-white/60"
                 )}
               >
                 {config.label}

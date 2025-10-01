@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Pressable } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { Ionicons } from "@expo/vector-icons";
 import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
-import { Meal, MealType, MealCategory } from "../types";
+import { Meal, MealType, MealCategory, DietaryBadge } from "../types";
 import useMealStore from "../state/mealStore";
 
 interface EditMealModalProps {
@@ -22,6 +23,19 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
   const [prepTime, setPrepTime] = useState("");
   const [servings, setServings] = useState("");
   const [ingredients, setIngredients] = useState("");
+  const [notes, setNotes] = useState("");
+  const [selectedBadges, setSelectedBadges] = useState<DietaryBadge[]>([]);
+
+  const dietaryBadges: DietaryBadge[] = [
+    "vegetarian",
+    "vegan",
+    "gluten-free",
+    "dairy-free",
+    "nut-free",
+    "keto",
+    "paleo",
+    "kids-friendly",
+  ];
 
   useEffect(() => {
     if (meal) {
@@ -32,6 +46,8 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
       setPrepTime(meal.prepTime?.toString() || "");
       setServings(meal.servings?.toString() || "");
       setIngredients(meal.ingredients?.join(", ") || "");
+      setNotes(meal.notes || "");
+      setSelectedBadges(meal.dietaryBadges || []);
     }
   }, [meal]);
 
@@ -43,6 +59,8 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
     setPrepTime("");
     setServings("");
     setIngredients("");
+    setNotes("");
+    setSelectedBadges([]);
   };
 
   const handleSave = () => {
@@ -61,6 +79,8 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
       servings: servings ? parseInt(servings) : undefined,
       prepTime: prepTime ? parseInt(prepTime) : undefined,
       category,
+      notes: notes.trim() || undefined,
+      dietaryBadges: selectedBadges.length > 0 ? selectedBadges : undefined,
     });
 
     resetForm();
@@ -80,6 +100,14 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
     onClose();
   };
 
+  const toggleBadge = (badge: DietaryBadge) => {
+    if (selectedBadges.includes(badge)) {
+      setSelectedBadges(selectedBadges.filter(b => b !== badge));
+    } else {
+      setSelectedBadges([...selectedBadges, badge]);
+    }
+  };
+
   if (!meal) return null;
 
   return (
@@ -87,9 +115,21 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
       visible={visible}
       onClose={handleClose}
       title="Edit Meal"
-      size="md"
+      navigationMode={true}
+      leftButton={{
+        title: "Cancel",
+        onPress: handleClose,
+      }}
+      rightButton={{
+        title: "Save",
+        onPress: handleSave,
+        disabled: !name.trim(),
+      }}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+      >
         <Input
           label="Meal Name"
           value={name}
@@ -108,39 +148,77 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
         />
 
         <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Meal Type
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={mealType}
               onValueChange={(value) => setMealType(value as MealType)}
             >
-              <Picker.Item label="Breakfast" value="breakfast" />
-              <Picker.Item label="Lunch" value="lunch" />
-              <Picker.Item label="Dinner" value="dinner" />
-              <Picker.Item label="Snack" value="snack" />
+              <Picker.Item color="#FFFFFF" label="Breakfast" value="breakfast" />
+              <Picker.Item color="#FFFFFF" label="Lunch" value="lunch" />
+              <Picker.Item color="#FFFFFF" label="Dinner" value="dinner" />
+              <Picker.Item color="#FFFFFF" label="Snack" value="snack" />
             </Picker>
           </View>
         </View>
 
         <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Category
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={category}
               onValueChange={(value) => setCategory(value as MealCategory)}
             >
-              <Picker.Item label="Healthy" value="healthy" />
-              <Picker.Item label="Quick" value="quick" />
-              <Picker.Item label="Comfort" value="comfort" />
-              <Picker.Item label="Vegetarian" value="vegetarian" />
-              <Picker.Item label="Vegan" value="vegan" />
-              <Picker.Item label="Protein" value="protein" />
-              <Picker.Item label="Other" value="other" />
+              <Picker.Item color="#FFFFFF" label="Healthy" value="healthy" />
+              <Picker.Item color="#FFFFFF" label="Quick" value="quick" />
+              <Picker.Item color="#FFFFFF" label="Comfort" value="comfort" />
+              <Picker.Item color="#FFFFFF" label="Vegetarian" value="vegetarian" />
+              <Picker.Item color="#FFFFFF" label="Vegan" value="vegan" />
+              <Picker.Item color="#FFFFFF" label="Protein" value="protein" />
+              <Picker.Item color="#FFFFFF" label="Other" value="other" />
             </Picker>
+          </View>
+        </View>
+
+        {/* Dietary Badges */}
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-white mb-2">
+            Dietary Badges (Optional)
+          </Text>
+          <View className="flex-row flex-wrap gap-2">
+            {dietaryBadges.map((badge) => (
+              <Pressable
+                key={badge}
+                onPress={() => toggleBadge(badge)}
+                className={`rounded-full px-3 py-2 flex-row items-center ${
+                  selectedBadges.includes(badge) 
+                    ? 'bg-primary' 
+                    : 'bg-white/5 border border-white/20'
+                }`}
+              >
+                <Text 
+                  className={`text-xs font-medium capitalize ${
+                    selectedBadges.includes(badge) ? 'text-white' : 'text-white/60'
+                  }`}
+                >
+                  {badge.replace('-', ' ')}
+                </Text>
+                {selectedBadges.includes(badge) && (
+                  <Ionicons 
+                    name="checkmark-circle" 
+                    size={14} 
+                    color="#FFFFFF" 
+                    style={{ marginLeft: 4 }} 
+                  />
+                )}
+              </Pressable>
+            ))}
           </View>
         </View>
 
@@ -175,28 +253,24 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
           numberOfLines={3}
         />
 
-        <View className="flex-row mb-4">
+        <Input
+          label="Notes (Optional)"
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Special notes (e.g., 'Surprise: Grandma visiting!')"
+          multiline
+          numberOfLines={2}
+        />
+
+        <View className="mt-6">
           <Button
-            title="Cancel"
+            title="Delete Meal"
             variant="outline"
-            onPress={handleClose}
-            className="flex-1 mr-3"
-          />
-          <Button
-            title="Save Changes"
-            onPress={handleSave}
-            disabled={!name.trim()}
-            className="flex-1"
+            onPress={handleDelete}
+            className="border-red-200 bg-red-50"
+            textClassName="text-red-600"
           />
         </View>
-
-        <Button
-          title="Delete Meal"
-          variant="outline"
-          onPress={handleDelete}
-          className="border-red-200 bg-red-50"
-          textClassName="text-red-600"
-        />
       </ScrollView>
     </Modal>
   );

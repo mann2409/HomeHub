@@ -12,11 +12,16 @@ import useMealStore from "../state/mealStore";
 import useFinanceStore from "../state/financeStore";
 import useShoppingStore from "../state/shoppingStore";
 import useNoteStore from "../state/noteStore";
+import { useAuthStore } from "../state/authStore";
+import { exportAllDataToJson } from "../utils/export";
 
-export default function SettingsScreen() {
+interface SettingsScreenProps {
+  onClose?: () => void;
+}
+
+export default function SettingsScreen({ onClose }: SettingsScreenProps) {
   const insets = useSafeAreaInsets();
   const { 
-    theme, 
     notifications, 
     moduleVisibility,
     weatherLocation,
@@ -24,6 +29,8 @@ export default function SettingsScreen() {
     updateSettings, 
     updateModuleVisibility 
   } = useSettingsStore();
+  
+  const { logout, user, userName } = useAuthStore();
 
   // Data stores for export/import
   const { tasks } = useTaskStore();
@@ -35,9 +42,6 @@ export default function SettingsScreen() {
   const [newWeatherLocation, setNewWeatherLocation] = useState(weatherLocation || "");
   const [newCurrency, setNewCurrency] = useState(currency || "USD");
 
-  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
-    updateSettings({ theme: newTheme });
-  };
 
   const handleNotificationToggle = (key: keyof typeof notifications) => {
     updateSettings({
@@ -62,20 +66,25 @@ export default function SettingsScreen() {
     Alert.alert("Success", "Currency updated successfully!");
   };
 
-  const handleExportData = () => {
-    const exportData = {
-      tasks,
-      meals,
-      expenses,
-      items,
-      notes,
-      exportDate: new Date().toISOString(),
-      version: "1.0.0"
-    };
-    
-    // In a real app, this would save to file or share
-    console.log("Export data:", JSON.stringify(exportData, null, 2));
-    Alert.alert("Export Complete", "Your data has been exported to the console. In a real app, this would save to a file or share with other apps.");
+  const handleExportData = async () => {
+    try {
+      const exportData = {
+        tasks,
+        meals,
+        expenses,
+        shoppingItems: items,
+        notes,
+      };
+      
+      const fileUri = await exportAllDataToJson(exportData);
+      Alert.alert(
+        "Export Complete", 
+        "Your data has been exported successfully! The file has been saved and is ready to share or backup."
+      );
+    } catch (error) {
+      console.error("Export failed:", error);
+      Alert.alert("Export Failed", "There was an error exporting your data. Please try again.");
+    }
   };
 
   const handleClearAllData = () => {
@@ -96,71 +105,63 @@ export default function SettingsScreen() {
     );
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              console.error("Logout error:", error);
+              Alert.alert("Error", "Failed to sign out. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <GradientBackground style={{ paddingTop: insets.top }}>
+      {/* Close button for modal */}
+      {onClose && (
+        <View className="absolute top-4 right-4 z-10">
+          <Pressable
+            onPress={onClose}
+            className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+          >
+            <Ionicons name="close" size={20} color="#FFFFFF" />
+          </Pressable>
+        </View>
+      )}
+      
       <ScrollView 
         className="flex-1" 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
       >
         <View className="p-4">
-          <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+          <Text className="text-2xl font-bold text-white/80 mb-6">
             Settings
           </Text>
 
-          {/* Theme Settings */}
-          <Card className="mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Appearance
-            </Text>
-            
-            <View>
-              {[
-                { key: "light", label: "Light", icon: "sunny" },
-                { key: "dark", label: "Dark", icon: "moon" },
-                { key: "system", label: "System", icon: "phone-portrait" },
-              ].map((option) => (
-                <Pressable
-                  key={option.key}
-                  onPress={() => handleThemeChange(option.key as any)}
-                  className="flex-row items-center justify-between py-2"
-                >
-                  <View className="flex-row items-center">
-                    <Ionicons 
-                      name={option.icon as any} 
-                      size={20} 
-                      color="#6B7280" 
-                    />
-                    <Text className="text-base text-gray-900 dark:text-gray-100 ml-3">
-                      {option.label}
-                    </Text>
-                  </View>
-                  <View
-                    className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
-                      theme === option.key
-                        ? "border-primary bg-primary"
-                        : "border-gray-300 dark:border-neutral-600"
-                    }`}
-                  >
-                    {theme === option.key && (
-                      <View className="w-2 h-2 rounded-full bg-white" />
-                    )}
-                  </View>
-                </Pressable>
-              ))}
-            </View>
-          </Card>
 
           {/* Module Visibility */}
           <Card className="mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">
               Dashboard Modules
             </Text>
             
             <View>
               {Object.entries(moduleVisibility).map(([module, visible]) => (
                 <View key={module} className="flex-row items-center justify-between py-2">
-                  <Text className="text-base text-gray-900 dark:text-gray-100 capitalize">
+                  <Text className="text-base text-white capitalize">
                     {module.replace(/([A-Z])/g, " $1").trim()}
                   </Text>
                   <Switch
@@ -176,14 +177,14 @@ export default function SettingsScreen() {
 
           {/* Notifications */}
           <Card className="mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">
               Notifications
             </Text>
             
             <View>
               {Object.entries(notifications).map(([key, enabled]) => (
                 <View key={key} className="flex-row items-center justify-between py-2">
-                  <Text className="text-base text-gray-900 dark:text-gray-100 capitalize">
+                  <Text className="text-base text-white capitalize">
                     {key} Notifications
                   </Text>
                   <Switch
@@ -199,12 +200,11 @@ export default function SettingsScreen() {
 
           {/* Weather & Location */}
           <Card className="mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">
               Weather & Location
             </Text>
             
             <Input
-              label="Weather Location"
               value={newWeatherLocation}
               onChangeText={setNewWeatherLocation}
               placeholder="Enter city name (e.g., New York, NY)"
@@ -220,7 +220,7 @@ export default function SettingsScreen() {
 
           {/* Currency */}
           <Card className="mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">
               Currency
             </Text>
             
@@ -229,6 +229,7 @@ export default function SettingsScreen() {
               value={newCurrency}
               onChangeText={setNewCurrency}
               placeholder="USD, EUR, GBP, etc."
+              labelClassName="text-white/80"
             />
             
             <Button
@@ -241,13 +242,34 @@ export default function SettingsScreen() {
 
           {/* Data Management */}
           <Card className="mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">
               Data Management
             </Text>
             
+            <View className="mb-4">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="cloud-done" size={20} color="#10B981" />
+                <Text className="text-sm text-white/80 ml-2">
+                  Data is automatically saved to your device
+                </Text>
+              </View>
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="shield-checkmark" size={20} color="#3B82F6" />
+                <Text className="text-sm text-white/80 ml-2">
+                  All data is stored locally and encrypted
+                </Text>
+              </View>
+              <View className="flex-row items-center">
+                <Ionicons name="download" size={20} color="#8B5CF6" />
+                <Text className="text-sm text-white/80 ml-2">
+                  Export creates a JSON backup file
+                </Text>
+              </View>
+            </View>
+            
             <View>
               <Button
-                title="Export All Data"
+                title="Export All Data as JSON"
                 variant="outline"
                 onPress={handleExportData}
                 className="mb-2"
@@ -262,31 +284,67 @@ export default function SettingsScreen() {
               />
             </View>
             
-            <Text className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-              Export creates a backup of all your data. Clear all data permanently removes everything.
+            <Text className="text-xs text-white/60 mt-3">
+              Export creates a complete backup of all your data as a JSON file that you can save or share. Clear all data permanently removes everything from your device.
             </Text>
+          </Card>
+
+          {/* Account */}
+          <Card className="mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">
+              Account
+            </Text>
+            
+            <View className="mb-4">
+              <View className="flex-row items-center mb-3">
+                <Ionicons name="person" size={20} color="#FFFFFF" />
+                <Text className="text-white ml-3">
+                  {userName || "No name"}
+                </Text>
+              </View>
+              <View className="flex-row items-center mb-3">
+                <Ionicons name="mail" size={20} color="#FFFFFF" />
+                <Text className="text-white/80 ml-3">
+                  {user?.email || "No email"}
+                </Text>
+              </View>
+              <View className="flex-row items-center">
+                <Ionicons name="shield-checkmark" size={20} color="#10B981" />
+                <Text className="text-white/80 ml-3">
+                  Account verified
+                </Text>
+              </View>
+            </View>
+            
+            <Button
+              title="Sign Out"
+              variant="outline"
+              onPress={handleLogout}
+              className="border-red-500/30 bg-red-500/10"
+              textClassName="text-red-400"
+            />
           </Card>
 
           {/* About */}
           <Card>
-            <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">
               About
             </Text>
             
             <View>
               <View className="flex-row items-center justify-between py-2">
-                <Text className="text-base text-gray-900 dark:text-gray-100">Version</Text>
-                <Text className="text-base text-gray-600 dark:text-gray-300">1.0.0</Text>
+                <Text className="text-base text-white">Version</Text>
+                <Text className="text-base text-white/80">1.0.0</Text>
               </View>
               
               <View className="flex-row items-center justify-between py-2">
-                <Text className="text-base text-gray-900 dark:text-gray-100">Build</Text>
-                <Text className="text-base text-gray-600 dark:text-gray-300">2025.01.01</Text>
+                <Text className="text-base text-white">Build</Text>
+                <Text className="text-base text-white/80">2025.01.01</Text>
               </View>
               
               <View className="flex-row items-center justify-between py-2">
-                <Text className="text-base text-gray-900 dark:text-gray-100">Total Items</Text>
-                <Text className="text-base text-gray-600 dark:text-gray-300">
+                <Text className="text-base text-white">Total Items</Text>
+                <Text className="text-base text-white/80">
                   {tasks.length + meals.length + expenses.length + items.length + notes.length}
                 </Text>
               </View>

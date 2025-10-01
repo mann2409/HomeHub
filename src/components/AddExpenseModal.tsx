@@ -92,7 +92,7 @@ export default function AddExpenseModal({ visible, onClose }: AddExpenseModalPro
 
         {/* Date */}
         <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 mb-2">Date</Text>
+          <Text className="text-sm font-medium text-white mb-2">Date</Text>
           <Pressable
             onPress={() => {
               if (Platform.OS === "android") {
@@ -107,9 +107,9 @@ export default function AddExpenseModal({ visible, onClose }: AddExpenseModalPro
                 setShowDatePicker(true);
               }
             }}
-            className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3"
+            className="bg-white/5 border border-white/20 rounded-lg px-4 py-3"
           >
-            <Text className="text-gray-900">{format(date, "PPP")}</Text>
+            <Text className="text-white">{format(date, "PPP")}</Text>
           </Pressable>
           {Platform.OS === "ios" && showDatePicker && (
             <DateTimePicker
@@ -125,40 +125,43 @@ export default function AddExpenseModal({ visible, onClose }: AddExpenseModalPro
         </View>
 
         <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Category
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={category}
               onValueChange={(value) => setCategory(value as ExpenseCategory)}
             >
-              <Picker.Item label="Food" value="food" />
-              <Picker.Item label="Transport" value="transport" />
-              <Picker.Item label="Utilities" value="utilities" />
-              <Picker.Item label="Entertainment" value="entertainment" />
-              <Picker.Item label="Health" value="health" />
-              <Picker.Item label="Shopping" value="shopping" />
-              <Picker.Item label="Home" value="home" />
-              <Picker.Item label="Other" value="other" />
+              <Picker.Item color="#FFFFFF" label="Food" value="food" />
+              <Picker.Item color="#FFFFFF" label="Transport" value="transport" />
+              <Picker.Item color="#FFFFFF" label="Utilities" value="utilities" />
+              <Picker.Item color="#FFFFFF" label="Entertainment" value="entertainment" />
+              <Picker.Item color="#FFFFFF" label="Health" value="health" />
+              <Picker.Item color="#FFFFFF" label="Shopping" value="shopping" />
+              <Picker.Item color="#FFFFFF" label="Home" value="home" />
+              <Picker.Item color="#FFFFFF" label="Education and training" value="education" />
+              <Picker.Item color="#FFFFFF" label="Other" value="other" />
             </Picker>
           </View>
         </View>
 
         <View className="mb-6">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Payment Method
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={paymentMethod}
               onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
             >
-              <Picker.Item label="Card" value="card" />
-              <Picker.Item label="Cash" value="cash" />
-              <Picker.Item label="Bank Transfer" value="bank_transfer" />
-              <Picker.Item label="Digital Wallet" value="digital_wallet" />
-              <Picker.Item label="Other" value="other" />
+              <Picker.Item color="#FFFFFF" label="Card" value="card" />
+              <Picker.Item color="#FFFFFF" label="Cash" value="cash" />
+              <Picker.Item color="#FFFFFF" label="Bank Transfer" value="bank_transfer" />
+              <Picker.Item color="#FFFFFF" label="Digital Wallet" value="digital_wallet" />
+              <Picker.Item color="#FFFFFF" label="Other" value="other" />
             </Picker>
           </View>
         </View>

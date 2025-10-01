@@ -34,13 +34,13 @@ export default function DateTimeDisplay() {
 
   return (
     <View>
-      <Text className="text-lg font-semibold text-gray-900">
+      <Text className="text-lg font-semibold text-white">
         {formatDayOfWeek(currentTime)}
       </Text>
-      <Text className="text-sm text-gray-600">
+      <Text className="text-sm text-white/80">
         {formatDate(currentTime)}
       </Text>
-      <Text className="text-sm text-gray-600">
+      <Text className="text-sm text-white/80">
         {formatTime(currentTime)}
       </Text>
     </View>

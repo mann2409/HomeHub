@@ -4,10 +4,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserSettings, CategoryColors } from "../types";
 
 interface SettingsState extends UserSettings {
+  userId: string | null;
+  setUserId: (userId: string | null) => void;
   updateSettings: (updates: Partial<UserSettings>) => void;
   resetSettings: () => void;
   updateModuleVisibility: (module: keyof UserSettings["moduleVisibility"], visible: boolean) => void;
   updateCategoryColor: (category: string, color: string) => void;
+  clearUserData: () => void;
 }
 
 const defaultCategoryColors: CategoryColors = {
@@ -89,6 +92,9 @@ const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       ...defaultSettings,
+      userId: null,
+
+      setUserId: (userId) => set({ userId }),
 
       updateSettings: (updates) => {
         set((state) => ({
@@ -128,10 +134,18 @@ const useSettingsStore = create<SettingsState>()(
           categoryColors: updatedColors,
         });
       },
+
+      clearUserData: () => {
+        set({ ...defaultSettings, userId: null });
+      },
     }),
     {
       name: "settings-storage",
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ 
+        ...state,
+        userId: state.userId 
+      }),
     }
   )
 );

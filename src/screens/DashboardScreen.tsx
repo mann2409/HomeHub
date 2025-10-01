@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import GradientBackground from "../components/GradientBackground";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import HeaderSection from "../components/HeaderSection";
-import CalendarTasksModule from "../components/CalendarTasksModule";
-import FinanceTracker from "../components/FinanceTracker";
+import AppHeader from "../components/AppHeader";
+import DailySummarySimple from "../components/DailySummarySimple";
+import QuickStats from "../components/QuickStats";
+// import MotivationalWidget from "../components/MotivationalWidget";
+import NotificationsWidget from "../components/NotificationsWidget";
 import QuickAccessGrid from "../components/QuickAccessGrid";
-import ContextAwareFAB from "../components/ContextAwareFAB";
 import AddTaskModal from "../components/AddTaskModal";
 import AddExpenseModal from "../components/AddExpenseModal";
 import AddShoppingItemModal from "../components/AddShoppingItemModal";
@@ -21,60 +22,38 @@ export default function DashboardScreen() {
   const [showMealModal, setShowMealModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
 
-  const fabActions = [
-    {
-      id: "add_task",
-      label: "Add Task",
-      icon: "checkmark-circle" as const,
-      color: "#3B82F6",
-      onPress: () => setShowTaskModal(true),
-    },
-    {
-      id: "add_expense",
-      label: "Add Expense",
-      icon: "card" as const,
-      color: "#EF4444",
-      onPress: () => setShowExpenseModal(true),
-    },
-    {
-      id: "add_shopping",
-      label: "Shopping Item",
-      icon: "basket" as const,
-      color: "#10B981",
-      onPress: () => setShowShoppingModal(true),
-    },
-    {
-      id: "add_meal",
-      label: "Add Meal",
-      icon: "restaurant" as const,
-      color: "#8B5CF6",
-      onPress: () => setShowMealModal(true),
-    },
-    {
-      id: "quick_note",
-      label: "Quick Note",
-      icon: "document-text" as const,
-      color: "#F59E0B",
-      onPress: () => setShowNoteModal(true),
-    },
-  ];
 
   return (
-    <GradientBackground style={{ paddingTop: insets.top }}>
+    <GradientBackground>
+      <AppHeader title="Dashboard" />
       <ScrollView 
         className="flex-1" 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         <View className="p-4">
-          <Text className="text-2xl font-bold text-gray-100 mb-6">
-            HomeBoard
-          </Text>
           
-          <HeaderSection />
-          <CalendarTasksModule />
-          <FinanceTracker showRecent={false} />
-          <QuickAccessGrid />
+          {/* Daily Summary - Today's focus */}
+          <DailySummarySimple />
+          
+          {/* Quick Stats - Financial and shopping overview */}
+          <QuickStats />
+          
+          {/* Motivational Widget - Achievements and progress */}
+          {/* <MotivationalWidget /> */}
+          
+          {/* Notifications - Urgent items and alerts */}
+          {/* <View className="mb-4">
+            <Text className="text-lg font-semibold text-gray-100 mb-3">
+              Notifications
+            </Text>
+            <NotificationsWidget />
+          </View> */}
+          
+          {/* Quick Actions */}
+          <View className="mb-4">
+            <QuickAccessGrid />
+          </View>
         </View>
       </ScrollView>
       

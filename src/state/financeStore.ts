@@ -5,7 +5,9 @@ import { Expense, ExpenseCategory } from "../types";
 
 interface FinanceState {
   expenses: Expense[];
-  addExpense: (expense: Omit<Expense, "id" | "createdAt" | "updatedAt">) => void;
+  userId: string | null;
+  setUserId: (userId: string | null) => void;
+  addExpense: (expense: Omit<Expense, "id" | "createdAt" | "updatedAt" | "userId">) => void;
   updateExpense: (id: string, updates: Partial<Expense>) => void;
   deleteExpense: (id: string) => void;
   getExpensesByDate: (date: Date) => Expense[];
@@ -16,17 +18,25 @@ interface FinanceState {
   getDailySpending: (days: number) => Record<string, number>;
   getCategorySpending: (startDate: Date, endDate: Date) => Record<ExpenseCategory, number>;
   getRecentExpenses: (limit?: number) => Expense[];
+  clearUserData: () => void;
 }
 
 const useFinanceStore = create<FinanceState>()(
   persist(
     (set, get) => ({
       expenses: [],
+      userId: null,
+
+      setUserId: (userId) => set({ userId }),
 
       addExpense: (expenseData) => {
+        const { userId } = get();
+        if (!userId) return;
+
         const newExpense: Expense = {
           ...expenseData,
           id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
+          userId,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -36,9 +46,12 @@ const useFinanceStore = create<FinanceState>()(
       },
 
       updateExpense: (id, updates) => {
+        const { userId } = get();
+        if (!userId) return;
+
         set((state) => ({
           expenses: state.expenses.map((expense) =>
-            expense.id === id
+            expense.id === id && expense.userId === userId
               ? { ...expense, ...updates, updatedAt: new Date() }
               : expense
           ),
@@ -46,17 +59,23 @@ const useFinanceStore = create<FinanceState>()(
       },
 
       deleteExpense: (id) => {
+        const { userId } = get();
+        if (!userId) return;
+
         set((state) => ({
-          expenses: state.expenses.filter((expense) => expense.id !== id),
+          expenses: state.expenses.filter((expense) => expense.id !== id || expense.userId !== userId),
         }));
       },
 
       getExpensesByDate: (date) => {
-        const expenses = get().expenses;
+        const { expenses, userId } = get();
+        if (!userId) return [];
+        
+        const userExpenses = expenses.filter(expense => expense.userId === userId);
         const targetDate = new Date(date);
         targetDate.setHours(0, 0, 0, 0);
         
-        return expenses.filter((expense) => {
+        return userExpenses.filter((expense) => {
           const expenseDate = new Date(expense.date);
           expenseDate.setHours(0, 0, 0, 0);
           return expenseDate.getTime() === targetDate.getTime();
@@ -64,20 +83,25 @@ const useFinanceStore = create<FinanceState>()(
       },
 
       getExpensesByDateRange: (startDate, endDate) => {
-        const expenses = get().expenses;
+        const { expenses, userId } = get();
+        if (!userId) return [];
+        
+        const userExpenses = expenses.filter(expense => expense.userId === userId);
         const start = new Date(startDate);
         const end = new Date(endDate);
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
         
-        return expenses.filter((expense) => {
+        return userExpenses.filter((expense) => {
           const expenseDate = new Date(expense.date);
           return expenseDate >= start && expenseDate <= end;
         });
       },
 
       getExpensesByCategory: (category) => {
-        return get().expenses.filter((expense) => expense.category === category);
+        const { expenses, userId } = get();
+        if (!userId) return [];
+        return expenses.filter((expense) => expense.category === category && expense.userId === userId);
       },
 
       getTotalSpending: (startDate, endDate) => {
@@ -134,14 +158,26 @@ const useFinanceStore = create<FinanceState>()(
       },
 
       getRecentExpenses: (limit = 5) => {
-        return get().expenses
+        const { expenses, userId } = get();
+        if (!userId) return [];
+        
+        return expenses
+          .filter(expense => expense.userId === userId)
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
           .slice(0, limit);
+      },
+
+      clearUserData: () => {
+        set({ expenses: [], userId: null });
       },
     }),
     {
       name: "finance-storage",
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ 
+        expenses: state.expenses.filter(expense => expense.userId === state.userId),
+        userId: state.userId 
+      }),
     }
   )
 );

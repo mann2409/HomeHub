@@ -114,22 +114,23 @@ export default function AddShoppingItemModal({ visible, onClose }: AddShoppingIt
         </View>
 
         <View className="mb-4">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
+          <Text className="text-sm font-medium text-white mb-2">
             Category
           </Text>
-          <View className="bg-gray-50 border border-gray-200 rounded-lg">
+          <View className="bg-white/5 border border-white/20 rounded-lg">
             <Picker
+              style={{ color: "#FFFFFF" }}
               selectedValue={category}
               onValueChange={(value) => setCategory(value as ShoppingCategory)}
             >
-              <Picker.Item label="Produce" value="produce" />
-              <Picker.Item label="Dairy" value="dairy" />
-              <Picker.Item label="Meat" value="meat" />
-              <Picker.Item label="Pantry" value="pantry" />
-              <Picker.Item label="Frozen" value="frozen" />
-              <Picker.Item label="Household" value="household" />
-              <Picker.Item label="Personal Care" value="personal_care" />
-              <Picker.Item label="Other" value="other" />
+              <Picker.Item color="#FFFFFF" label="Produce" value="produce" />
+              <Picker.Item color="#FFFFFF" label="Dairy" value="dairy" />
+              <Picker.Item color="#FFFFFF" label="Meat" value="meat" />
+              <Picker.Item color="#FFFFFF" label="Pantry" value="pantry" />
+              <Picker.Item color="#FFFFFF" label="Frozen" value="frozen" />
+              <Picker.Item color="#FFFFFF" label="Household" value="household" />
+              <Picker.Item color="#FFFFFF" label="Personal Care" value="personal_care" />
+              <Picker.Item color="#FFFFFF" label="Other" value="other" />
             </Picker>
           </View>
         </View>
@@ -145,17 +146,18 @@ export default function AddShoppingItemModal({ visible, onClose }: AddShoppingIt
             />
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 mb-2">
+            <Text className="text-sm font-medium text-white mb-2">
               Priority
             </Text>
-            <View className="bg-gray-50 border border-gray-200 rounded-lg">
+            <View className="bg-white/5 border border-white/20 rounded-lg">
               <Picker
+              style={{ color: "#FFFFFF" }}
                 selectedValue={priority}
                 onValueChange={(value) => setPriority(value as Priority)}
               >
-                <Picker.Item label="Low" value="low" />
-                <Picker.Item label="Medium" value="medium" />
-                <Picker.Item label="High" value="high" />
+                <Picker.Item color="#FFFFFF" label="Low" value="low" />
+                <Picker.Item color="#FFFFFF" label="Medium" value="medium" />
+                <Picker.Item color="#FFFFFF" label="High" value="high" />
               </Picker>
             </View>
           </View>

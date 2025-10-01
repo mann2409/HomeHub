@@ -44,8 +44,8 @@ export default function ShoppingItemCard({ item, onToggle, onPress }: ShoppingIt
     <Pressable
       onPress={() => onPress?.(item)}
       className={cn(
-        "bg-white rounded-lg p-3 mb-2 border-l-4 shadow-sm flex-row items-center",
-        item.completed && "opacity-60"
+        "bg-white/20 rounded-xl p-3 mb-2 border-l-4 flex-row items-center",
+        item.completed && "opacity-50"
       )}
       style={{ borderLeftColor: categoryColor }}
       {...responder.panHandlers}
@@ -57,7 +57,7 @@ export default function ShoppingItemCard({ item, onToggle, onPress }: ShoppingIt
           "w-6 h-6 rounded-full border-2 items-center justify-center mr-3",
           item.completed
             ? "bg-primary border-primary"
-            : "border-gray-300 bg-white"
+            : "border-white/30 bg-white/10"
         )}
       >
         {item.completed && (
@@ -71,7 +71,7 @@ export default function ShoppingItemCard({ item, onToggle, onPress }: ShoppingIt
           <Text
             className={cn(
               "text-base font-medium",
-              item.completed ? "text-gray-500 line-through" : "text-gray-900"
+              item.completed ? "text-white/50 line-through" : "text-white"
             )}
           >
             {item.name}
@@ -91,11 +91,11 @@ export default function ShoppingItemCard({ item, onToggle, onPress }: ShoppingIt
               className="w-3 h-3 rounded-full mr-2"
               style={{ backgroundColor: categoryColor }}
             />
-            <Text className="text-xs text-gray-500 capitalize">
+            <Text className="text-xs text-white/70 capitalize">
               {item.category.replace("_", " ")}
             </Text>
-            <Text className="text-xs text-gray-500 mx-2">•</Text>
-            <Text className="text-xs text-gray-500">
+            <Text className="text-xs text-white/70 mx-2">•</Text>
+            <Text className="text-xs text-white/70">
               {item.quantity} {item.unit || "pcs"}
             </Text>
           </View>
@@ -104,7 +104,7 @@ export default function ShoppingItemCard({ item, onToggle, onPress }: ShoppingIt
             <Text
               className={cn(
                 "text-sm font-semibold",
-                item.completed ? "text-gray-400" : "text-gray-900"
+                item.completed ? "text-white/50" : "text-white"
               )}
             >
               ${totalPrice.toFixed(2)}
@@ -116,7 +116,7 @@ export default function ShoppingItemCard({ item, onToggle, onPress }: ShoppingIt
           <Text
             className={cn(
               "text-xs mt-1",
-              item.completed ? "text-gray-400" : "text-gray-600"
+              item.completed ? "text-white/40" : "text-white/60"
             )}
           >
             {item.notes}

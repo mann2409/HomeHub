@@ -11,6 +11,7 @@ interface InputProps extends TextInputProps {
   required?: boolean;
   maxLength?: number;
   showCharacterCount?: boolean;
+  labelClassName?: string;
 }
 
 export default function Input({
@@ -24,15 +25,16 @@ export default function Input({
   required = false,
   maxLength,
   showCharacterCount = false,
+  labelClassName,
   value,
   ...props
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const baseClasses = "border-2 rounded-xl text-gray-900 dark:text-gray-100 font-medium";
+  const baseClasses = "border rounded-xl text-white font-medium";
   
   const variantClasses = {
-    default: "bg-gray-50 dark:bg-neutral-800",
-    outlined: "bg-white dark:bg-neutral-800",
+    default: "bg-white/5",
+    outlined: "bg-white/5",
   };
 
   const sizeClasses = {
@@ -44,13 +46,13 @@ export default function Input({
   const getBorderColor = () => {
     if (error) return "border-red-500";
     if (isFocused) return "border-primary";
-    return "border-gray-200 dark:border-neutral-700";
+    return "border-white/20";
   };
 
   const getBackgroundColor = () => {
-    if (error) return "bg-red-50";
-    if (isFocused) return "bg-white dark:bg-neutral-800";
-    return variant === "outlined" ? "bg-white dark:bg-neutral-800" : "bg-gray-50 dark:bg-neutral-800";
+    if (error) return "bg-red-500/10";
+    if (isFocused) return "bg-white/10";
+    return "bg-white/5";
   };
 
   const characterCount = value ? value.toString().length : 0;
@@ -59,11 +61,11 @@ export default function Input({
     <View className="mb-6">
       {label && (
         <View className="flex-row items-center mb-3">
-          <Text className="text-sm font-semibold text-gray-900">
+          <Text className={cn("text-sm font-semibold text-white", labelClassName)}>
             {label}
           </Text>
           {required && (
-            <Text className="text-red-500 ml-1">*</Text>
+            <Text className="text-red-400 ml-1">*</Text>
           )}
         </View>
       )}
@@ -78,7 +80,7 @@ export default function Input({
           className
         )}
         style={style}
-        placeholderTextColor={isFocused ? "#9CA3AF" : "#9CA3AF"}
+        placeholderTextColor="rgba(255, 255, 255, 0.4)"
         value={value}
         maxLength={maxLength}
         onFocus={() => setIsFocused(true)}
@@ -89,13 +91,13 @@ export default function Input({
       <View className="flex-row justify-between items-center mt-2">
         <View className="flex-1">
           {error && (
-            <Text className="text-sm text-red-600">
+            <Text className="text-sm text-red-400">
               {error}
             </Text>
           )}
           
           {helperText && !error && (
-            <Text className="text-sm text-gray-500">
+            <Text className="text-sm text-white/60">
               {helperText}
             </Text>
           )}
@@ -104,7 +106,7 @@ export default function Input({
         {showCharacterCount && maxLength && (
           <Text className={cn(
             "text-xs",
-            characterCount > maxLength * 0.9 ? "text-orange-600" : "text-gray-400"
+            characterCount > maxLength * 0.9 ? "text-orange-400" : "text-white/50"
           )}>
             {characterCount}/{maxLength}
           </Text>

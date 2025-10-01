@@ -5,7 +5,7 @@ import DateTimeDisplay from "./DateTimeDisplay";
 import WeatherWidget from "./WeatherWidget";
 import UserAvatar from "./UserAvatar";
 import SettingsScreen from "../screens/SettingsScreen";
-import useAuthStore from "../state/authStore";
+import { useAuthStore } from "../state/authStore";
 
 export default function HeaderSection() {
   const [showSettings, setShowSettings] = useState(false);
@@ -19,7 +19,7 @@ export default function HeaderSection() {
     <>
       <View className="mb-6 overflow-hidden rounded-2xl">
         <LinearGradient
-          colors={["#0EA5E9", "#8B5CF6"]}
+          colors={["#2A2D3A", "#3A3D4A"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={{ padding: 16 }}
