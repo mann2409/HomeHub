@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useColorScheme } from "react-native";
 import useSettingsStore from "./src/state/settingsStore";
-import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
+// import { useFonts, Inter_300Light, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
 
 import AppNavigator from "./src/navigation/AppNavigator";
 import AuthWrapper from "./src/components/AuthWrapper";
@@ -34,19 +34,19 @@ export default function App() {
   const systemScheme = useColorScheme();
   const { theme } = useSettingsStore();
   const isDark = theme === "dark" || (theme === "system" && systemScheme === "dark");
-  const [fontsLoaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
+  // const [fontsLoaded] = useFonts({ Inter_300Light, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  // if (!fontsLoaded) {
+  //   return null;
+  // }
 
   return (
     <GestureHandlerRootView className={isDark ? "flex-1 dark bg-neutral-900" : "flex-1 bg-neutral-50"}>
       <SafeAreaProvider>
         <NavigationContainer>
-          <AuthWrapper>
+          {/* <AuthWrapper> */}
             <AppNavigator />
-          </AuthWrapper>
+          {/* </AuthWrapper> */}
           <StatusBar style={isDark ? "light" : "dark"} />
         </NavigationContainer>
       </SafeAreaProvider>

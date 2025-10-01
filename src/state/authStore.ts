@@ -7,8 +7,7 @@ import {
   signOut, 
   onAuthStateChanged,
   sendPasswordResetEmail,
-  User,
-  AuthError
+  User
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
@@ -46,9 +45,13 @@ export const useAuthStore = create<AuthState>()(
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           
           // Update the user's display name
-          await (userCredential.user as any).updateProfile({
-            displayName: name
-          });
+          try {
+            await (userCredential.user as any).updateProfile({
+              displayName: name
+            });
+          } catch (updateError) {
+            console.log('Could not update profile:', updateError);
+          }
           
           set({ 
             user: userCredential.user, 
@@ -56,10 +59,9 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true, 
             isLoading: false 
           });
-        } catch (error) {
-          const authError = error as AuthError;
+        } catch (error: any) {
           set({ 
-            error: authError.message, 
+            error: error.message || 'An error occurred', 
             isLoading: false 
           });
           throw error;
@@ -76,10 +78,9 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true, 
             isLoading: false 
           });
-        } catch (error) {
-          const authError = error as AuthError;
+        } catch (error: any) {
           set({ 
-            error: authError.message, 
+            error: error.message || 'An error occurred', 
             isLoading: false 
           });
           throw error;
@@ -91,10 +92,9 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true, error: null });
           await sendPasswordResetEmail(auth, email);
           set({ isLoading: false });
-        } catch (error) {
-          const authError = error as AuthError;
+        } catch (error: any) {
           set({ 
-            error: authError.message, 
+            error: error.message || 'An error occurred', 
             isLoading: false 
           });
           throw error;
@@ -111,10 +111,9 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false, 
             isLoading: false 
           });
-        } catch (error) {
-          const authError = error as AuthError;
+        } catch (error: any) {
           set({ 
-            error: authError.message, 
+            error: error.message || 'An error occurred', 
             isLoading: false 
           });
           throw error;
