@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { format } from "date-fns";
-import { Calendar, CheckCircle, AlertCircle } from "phosphor-react-native";
+import { Calendar, CheckCircle, WarningCircle } from "phosphor-react-native";
 import Card from "./Card";
 import useTaskStore from "../state/taskStore";
 import { useNavigation } from "@react-navigation/native";
@@ -125,9 +125,9 @@ export default function DailySummary() {
         const getIcon = (type: string) => {
           switch (type) {
             case "overdue":
-              return <AlertCircle size={16} weight="fill" color="#EF4444" />;
+              return <WarningCircle size={16} weight="fill" color="#EF4444" />;
             case "urgent":
-              return <AlertCircle size={16} weight="fill" color="#F59E0B" />;
+              return <WarningCircle size={16} weight="fill" color="#F59E0B" />;
             case "next":
               return <CheckCircle size={16} weight="regular" color="#3B82F6" />;
             default:

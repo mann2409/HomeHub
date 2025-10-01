@@ -51,7 +51,7 @@ export default function BarChart({ data, title }: BarChartProps) {
                   <View 
                     className="w-full rounded-t-lg"
                     style={{ 
-                      height: height > 0 ? heightPercentage : 4,
+                      height: height > 0 ? Number(heightPercentage) : 4,
                       backgroundColor: value > 0 ? 'rgba(59, 130, 246, 0.8)' : 'rgba(255, 255, 255, 0.1)',
                       minHeight: value > 0 ? 16 : 4,
                     }}

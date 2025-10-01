@@ -147,6 +147,7 @@ const useFinanceStore = create<FinanceState>()(
           health: 0,
           shopping: 0,
           home: 0,
+          education: 0,
           other: 0,
         };
         

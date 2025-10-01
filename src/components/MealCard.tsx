@@ -22,12 +22,12 @@ export default function MealCard({ meal, mealType, onPress }: MealCardProps) {
     snack: "Snack",
   };
 
-  const getMealTypeColor = (type: MealType) => {
+  const getMealTypeColor = (type: MealType): [string, string] => {
     const colors = {
-      breakfast: ["#FCE38A", "#F38181"], // Gold to coral
-      lunch: ["#36D1C4", "#96E6A1"], // Teal to green
-      dinner: ["#9B5DE5", "#661AE6"], // Purple gradient
-      snack: ["#FFB347", "#FFCC5C"], // Orange gradient
+      breakfast: ["#FCE38A", "#F38181"] as [string, string], // Gold to coral
+      lunch: ["#36D1C4", "#96E6A1"] as [string, string], // Teal to green
+      dinner: ["#9B5DE5", "#661AE6"] as [string, string], // Purple gradient
+      snack: ["#FFB347", "#FFCC5C"] as [string, string], // Orange gradient
     };
     return colors[type];
   };

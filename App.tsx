@@ -41,7 +41,7 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView className={isDark ? "flex-1 dark bg-neutral-900" : "flex-1 bg-neutral-50"} style={{ fontFamily: "Inter_400Regular" }}>
+    <GestureHandlerRootView className={isDark ? "flex-1 dark bg-neutral-900" : "flex-1 bg-neutral-50"}>
       <SafeAreaProvider>
         <NavigationContainer>
           <AuthWrapper>

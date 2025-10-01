@@ -148,13 +148,16 @@ const useTaskStore = create<TaskState>()(
         const startDate = new Date(parentTask.dueDate);
         const tasks: Task[] = [];
         
-        console.log(`generateRecurringTasks: Generating ${frequency} tasks from ${startDate.toDateString()} to ${endDate.toDateString()}`);
+        // Use provided endDate or default to 1 year from now
+        const defaultEndDate = endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+        
+        console.log(`generateRecurringTasks: Generating ${frequency} tasks from ${startDate.toDateString()} to ${defaultEndDate.toDateString()}`);
         
         let currentDate = startDate;
         let count = 0;
         const maxInstances = 50; // Prevent infinite generation
 
-        while (currentDate <= endDate && count < maxInstances) {
+        while (currentDate <= defaultEndDate && count < maxInstances) {
           // Skip the original date since it's already created
           if (count > 0) {
             const recurringTask: Task = {

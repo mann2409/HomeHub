@@ -26,7 +26,7 @@ export default function AppNavigator() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           const iconProps = { color, size: size + 4, weight: focused ? "fill" as const : "regular" as const };
-          const glowStyle = focused ? { textShadowColor: color, textShadowRadius: 8 } : undefined;
+          const glowStyle = focused ? { textShadowColor: color, textShadowRadius: 8 } as any : undefined;
           switch (route.name) {
             case "Dashboard":
               return <House {...iconProps} style={glowStyle} />;

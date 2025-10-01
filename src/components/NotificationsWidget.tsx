@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
-import { Bell, AlertCircle, Clock, CreditCard } from "phosphor-react-native";
+import { Bell, WarningCircle, Clock, CreditCard } from "phosphor-react-native";
 import Card from "./Card";
 import useTaskStore from "../state/taskStore";
 import useFinanceStore from "../state/financeStore";
@@ -24,7 +24,7 @@ export default function NotificationsWidget() {
       notifications.push({
         id: "overdue",
         type: "urgent",
-        icon: <AlertCircle size={16} weight="fill" color="#EF4444" />,
+        icon: <WarningCircle size={16} weight="fill" color="#EF4444" />,
         title: `${overdueTasks.length} overdue task${overdueTasks.length > 1 ? 's' : ''}`,
         message: "These need immediate attention",
         action: "View Tasks",

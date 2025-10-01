@@ -49,6 +49,7 @@ const defaultCategoryColors: CategoryColors = {
     health: "#EF4444",
     shopping: "#8B5CF6",
     home: "#F97316",
+    education: "#06B6D4",
     other: "#6B7280",
   },
   shoppingCategories: {

@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthState>()(
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           
           // Update the user's display name
-          await userCredential.user.updateProfile({
+          await (userCredential.user as any).updateProfile({
             displayName: name
           });
           
