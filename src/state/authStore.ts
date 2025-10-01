@@ -1,18 +1,19 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  User
-} from 'firebase/auth';
-import { auth } from '../config/firebase';
+// Temporarily disabled Firebase imports
+// import { 
+//   signInWithEmailAndPassword, 
+//   createUserWithEmailAndPassword, 
+//   signOut, 
+//   onAuthStateChanged,
+//   sendPasswordResetEmail,
+//   User
+// } from 'firebase/auth';
+// import { auth } from '../config/firebase';
 
 interface AuthState {
-  user: User | null;
+  user: any | null;
   userName: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -24,7 +25,7 @@ interface AuthState {
   forgotPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
-  setUser: (user: User | null) => void;
+  setUser: (user: any | null) => void;
   setUserName: (name: string | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -42,19 +43,12 @@ export const useAuthStore = create<AuthState>()(
       signUp: async (name: string, email: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
-          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           
-          // Update the user's display name
-          try {
-            await (userCredential.user as any).updateProfile({
-              displayName: name
-            });
-          } catch (updateError) {
-            console.log('Could not update profile:', updateError);
-          }
+          // Mock authentication - simulate API call
+          await new Promise(resolve => setTimeout(resolve, 1000));
           
           set({ 
-            user: userCredential.user, 
+            user: { uid: 'mock-user-id', email, displayName: name }, 
             userName: name,
             isAuthenticated: true, 
             isLoading: false 
@@ -71,10 +65,13 @@ export const useAuthStore = create<AuthState>()(
       signIn: async (email: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          
+          // Mock authentication - simulate API call
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           set({ 
-            user: userCredential.user, 
-            userName: userCredential.user.displayName,
+            user: { uid: 'mock-user-id', email, displayName: 'Mock User' }, 
+            userName: 'Mock User',
             isAuthenticated: true, 
             isLoading: false 
           });
@@ -90,7 +87,10 @@ export const useAuthStore = create<AuthState>()(
       forgotPassword: async (email: string) => {
         try {
           set({ isLoading: true, error: null });
-          await sendPasswordResetEmail(auth, email);
+          
+          // Mock password reset - simulate API call
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           set({ isLoading: false });
         } catch (error: any) {
           set({ 
@@ -104,7 +104,10 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         try {
           set({ isLoading: true, error: null });
-          await signOut(auth);
+          
+          // Mock logout - simulate API call
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
           set({ 
             user: null, 
             userName: null,
@@ -138,17 +141,8 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-// Initialize auth state listener
-onAuthStateChanged(auth, (user) => {
-  useAuthStore.getState().setUser(user);
+// Initialize auth state - mock user for testing
+setTimeout(() => {
   useAuthStore.getState().setLoading(false);
-  
-  // Sync user data across all stores
-  if (user) {
-    const { syncUserData } = require('../utils/userSync');
-    syncUserData(user.uid);
-  } else {
-    const { clearAllUserData } = require('../utils/userSync');
-    clearAllUserData();
-  }
-});
+  useAuthStore.getState().setUser(null);
+}, 1000);

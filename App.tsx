@@ -44,9 +44,9 @@ export default function App() {
     <GestureHandlerRootView className={isDark ? "flex-1 dark bg-neutral-900" : "flex-1 bg-neutral-50"}>
       <SafeAreaProvider>
         <NavigationContainer>
-          {/* <AuthWrapper> */}
+          <AuthWrapper>
             <AppNavigator />
-          {/* </AuthWrapper> */}
+          </AuthWrapper>
           <StatusBar style={isDark ? "light" : "dark"} />
         </NavigationContainer>
       </SafeAreaProvider>

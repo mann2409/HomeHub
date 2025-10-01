@@ -1,6 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+// Temporarily disabled Firebase configuration
+// import { initializeApp } from 'firebase/app';
+// import { getAuth } from 'firebase/auth';
+// import { getFirestore } from 'firebase/firestore';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -12,14 +13,10 @@ const firebaseConfig = {
   appId: "1:365181179617:web:ca985fd2082445c24609a0"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Auth
-const auth = getAuth(app);
-
-// Initialize Firestore
-const db = getFirestore(app);
+// Mock Firebase exports for development
+const auth = null;
+const db = null;
+const app = null;
 
 export { auth, db };
 export default app;
