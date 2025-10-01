@@ -1,18 +1,10 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  User
-} from 'firebase/auth';
 import { auth } from '../config/firebase';
 
 interface AuthState {
-  user: User | null;
+  user: any | null;
   userName: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -24,7 +16,7 @@ interface AuthState {
   forgotPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
-  setUser: (user: User | null) => void;
+  setUser: (user: any | null) => void;
   setUserName: (name: string | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -42,11 +34,11 @@ export const useAuthStore = create<AuthState>()(
       signUp: async (name: string, email: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
-          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const userCredential = await auth().createUserWithEmailAndPassword(email, password);
           
           // Update the user's display name
           try {
-            await (userCredential.user as any).updateProfile({
+            await userCredential.user.updateProfile({
               displayName: name
             });
           } catch (updateError) {
@@ -71,7 +63,7 @@ export const useAuthStore = create<AuthState>()(
       signIn: async (email: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const userCredential = await auth().signInWithEmailAndPassword(email, password);
           set({ 
             user: userCredential.user, 
             userName: userCredential.user.displayName,
@@ -90,7 +82,7 @@ export const useAuthStore = create<AuthState>()(
       forgotPassword: async (email: string) => {
         try {
           set({ isLoading: true, error: null });
-          await sendPasswordResetEmail(auth, email);
+          await auth().sendPasswordResetEmail(email);
           set({ isLoading: false });
         } catch (error: any) {
           set({ 
@@ -104,7 +96,7 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         try {
           set({ isLoading: true, error: null });
-          await signOut(auth);
+          await auth().signOut();
           set({ 
             user: null, 
             userName: null,
@@ -139,7 +131,7 @@ export const useAuthStore = create<AuthState>()(
 );
 
 // Initialize auth state listener
-onAuthStateChanged(auth, (user) => {
+auth().onAuthStateChanged((user) => {
   useAuthStore.getState().setUser(user);
   useAuthStore.getState().setLoading(false);
   
