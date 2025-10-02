@@ -34,30 +34,21 @@ export const useAuthStore = create<AuthState>()(
       signUp: async (name: string, email: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                full_name: name,
-              }
-            }
-          });
-
-          if (error) throw error;
-
-          if (data.user) {
-            set({ 
-              user: data.user, 
-              userName: name,
-              isAuthenticated: true,
-              isLoading: false 
-            });
-          }
-        } catch (error: any) {
+          // Store the user name locally instead of updating Firebase profile
+          // This avoids the updateProfile issue and still provides the functionality
+          
           set({ 
-            error: error.message || 'Sign up failed', 
+            user: userCredential.user, 
+            userName: name,
+            isAuthenticated: true, 
+            isLoading: false 
+          });
+        } catch (error: any) {
+          const authError = error as AuthError;
+          set({ 
+            error: authError.message, 
             isLoading: false 
           });
           throw error;
@@ -67,25 +58,18 @@ export const useAuthStore = create<AuthState>()(
       signIn: async (email: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
           
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-          if (error) throw error;
-
-          if (data.user) {
-            set({ 
-              user: data.user, 
-              userName: data.user.user_metadata?.full_name || data.user.email,
-              isAuthenticated: true,
-              isLoading: false 
-            });
-          }
-        } catch (error: any) {
           set({ 
-            error: error.message || 'Sign in failed', 
+            user: userCredential.user, 
+            userName: userCredential.user.displayName || userCredential.user.email,
+            isAuthenticated: true,
+            isLoading: false 
+          });
+        } catch (error: any) {
+          const authError = error as AuthError;
+          set({ 
+            error: authError.message, 
             isLoading: false 
           });
           throw error;

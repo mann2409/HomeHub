@@ -4,7 +4,7 @@ import { cn } from "../utils/cn";
 
 interface CardProps extends ViewProps {
   children: React.ReactNode;
-  variant?: "default" | "elevated" | "outlined" | "weather" | "lavender" | "aqua" | "mint" | "pink" | "coral";
+  variant?: "default" | "elevated" | "outlined" | "lavender" | "aqua" | "mint" | "pink" | "coral";
   padding?: "none" | "sm" | "md" | "lg";
 }
 
@@ -21,7 +21,6 @@ export default function Card({
     default: "bg-[#2A2D3A] shadow-lg",
     elevated: "bg-[#2A2D3A] shadow-lg",
     outlined: "bg-[#2A2D3A] border-2 border-[#2A2D3A] shadow-lg",
-    weather: "bg-[#2A2D3A] shadow-lg",
     lavender: "bg-[#2A2D3A] shadow-lg",
     aqua: "bg-[#2A2D3A] shadow-lg", 
     mint: "bg-[#2A2D3A] shadow-lg",

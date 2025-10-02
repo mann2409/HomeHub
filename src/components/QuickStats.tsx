@@ -85,7 +85,7 @@ export default function QuickStats() {
       </Card>
 
       {/* Today's Meals */}
-      <Card variant="weather" className="p-4">
+      <Card variant="default" className="p-4">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
             <ForkKnife size={20} weight="regular" color="#FFFFFF" />

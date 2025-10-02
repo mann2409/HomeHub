@@ -66,7 +66,6 @@ const defaultCategoryColors: CategoryColors = {
 
 const defaultSettings: UserSettings = {
   theme: "system",
-  weatherLocation: undefined,
   currency: "USD",
   dateFormat: "MM/dd/yyyy",
   weekStartsOn: 0, // Sunday
@@ -78,7 +77,6 @@ const defaultSettings: UserSettings = {
     shopping: true,
   },
   moduleVisibility: {
-    weather: true,
     calendar: true,
     tasks: true,
     meals: true,

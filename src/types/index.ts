@@ -72,19 +72,8 @@ export interface ShoppingItem {
   updatedAt: Date;
 }
 
-export interface WeatherData {
-  temperature: number;
-  condition: string;
-  icon: string;
-  humidity: number;
-  windSpeed: number;
-  location: string;
-  lastUpdated: Date;
-}
-
 export interface UserSettings {
   theme: "light" | "dark" | "system";
-  weatherLocation?: string;
   currency: string;
   dateFormat: string;
   weekStartsOn: number;
@@ -170,7 +159,6 @@ export interface NotificationSettings {
 }
 
 export interface ModuleVisibility {
-  weather: boolean;
   calendar: boolean;
   tasks: boolean;
   meals: boolean;

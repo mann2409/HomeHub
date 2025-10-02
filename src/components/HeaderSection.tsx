@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, Modal, Text } from "react-native";
 import DateTimeDisplay from "./DateTimeDisplay";
-import WeatherWidget from "./WeatherWidget";
 import UserAvatar from "./UserAvatar";
 import SettingsScreen from "../screens/SettingsScreen";
 import { useAuthStore } from "../state/authStore";
@@ -26,12 +25,9 @@ export default function HeaderSection() {
           <View className="flex-row items-start justify-between">
             {/* Left side - Date and Time */}
             <DateTimeDisplay />
-            {/* Right side - Weather and Avatar */}
+            {/* Right side - Avatar */}
             <View className="flex-row items-start">
-              <WeatherWidget />
-              <View className="ml-4">
-                <UserAvatar onPress={handleAvatarPress} />
-              </View>
+              <UserAvatar onPress={handleAvatarPress} />
             </View>
           </View>
       </View>

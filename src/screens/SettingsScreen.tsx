@@ -24,7 +24,6 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
   const { 
     notifications, 
     moduleVisibility,
-    weatherLocation,
     currency,
     updateSettings, 
     updateModuleVisibility 
@@ -39,7 +38,6 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
   const { items } = useShoppingStore();
   const { notes } = useNoteStore();
 
-  const [newWeatherLocation, setNewWeatherLocation] = useState(weatherLocation || "");
   const [newCurrency, setNewCurrency] = useState(currency || "USD");
 
 
@@ -56,10 +54,6 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
     updateModuleVisibility(module, !moduleVisibility[module]);
   };
 
-  const handleSaveWeatherLocation = () => {
-    updateSettings({ weatherLocation: newWeatherLocation });
-    Alert.alert("Success", "Weather location updated successfully!");
-  };
 
   const handleSaveCurrency = () => {
     updateSettings({ currency: newCurrency });
@@ -198,25 +192,6 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
             </View>
           </Card>
 
-          {/* Weather & Location */}
-          <Card className="mb-4">
-            <Text className="text-lg font-semibold text-white mb-4">
-              Weather & Location
-            </Text>
-            
-            <Input
-              value={newWeatherLocation}
-              onChangeText={setNewWeatherLocation}
-              placeholder="Enter city name (e.g., New York, NY)"
-            />
-            
-            <Button
-              title="Save Location"
-              onPress={handleSaveWeatherLocation}
-              className="mt-3"
-              disabled={!newWeatherLocation.trim()}
-            />
-          </Card>
 
           {/* Currency */}
           <Card className="mb-4">

@@ -100,16 +100,6 @@ A clean, minimalist React Native app for managing home tasks, calendar, meals, f
    bun android
    ```
 
-### Weather API Setup (Optional)
-
-The app includes mock weather data by default. To use real weather data:
-
-1. Get a free API key from [OpenWeatherMap](https://openweathermap.org/api)
-2. Update the API key in `src/services/weatherService.ts`:
-   ```typescript
-   const OPENWEATHER_API_KEY = "your_api_key_here";
-   ```
-
 ## Project Structure
 
 ```
@@ -131,10 +121,8 @@ src/
 │   ├── mealStore.ts    # Meal planning
 │   ├── financeStore.ts # Expense tracking
 │   ├── shoppingStore.ts # Shopping list
-│   ├── settingsStore.ts # App settings
-│   └── weatherStore.ts # Weather data
+│   └── settingsStore.ts # App settings
 ├── services/           # External services
-│   └── weatherService.ts
 ├── types/              # TypeScript interfaces
 │   └── index.ts
 ├── utils/              # Utility functions
