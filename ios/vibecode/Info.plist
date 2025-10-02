@@ -77,9 +77,5 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
-    <key>NSCalendarsUsageDescription</key>
-    <string>This app needs access to your calendar to manage tasks and events.</string>
-    <key>NSCalendarsFullAccessUsageDescription</key>
-    <string>This app needs full access to your calendar to create, read, update, and delete calendar events.</string>
   </dict>
 </plist>

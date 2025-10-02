@@ -9,11 +9,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.manishsandil.vibecode",
-      "infoPlist": {
-        "NSCalendarsUsageDescription": "This app needs access to your calendar to manage tasks and events.",
-        "NSCalendarsFullAccessUsageDescription": "This app needs full access to your calendar to create, read, update, and delete calendar events."
-      }
+      "bundleIdentifier": "com.manishsandil.vibecode"
     },
     "android": {
       "edgeToEdgeEnabled": true,
