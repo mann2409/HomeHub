@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Card from "./Card";
-import HorizontalCalendar from "./HorizontalCalendar";
+import MonthlyCalendar from "./MonthlyCalendar";
 import TaskList from "./TaskList";
 import AddTaskModal from "./AddTaskModal";
 import EditTaskModal from "./EditTaskModal";
@@ -35,7 +35,7 @@ export default function CalendarTasksModule() {
           </Pressable>
         </View>
 
-        <HorizontalCalendar
+        <MonthlyCalendar
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
         />
