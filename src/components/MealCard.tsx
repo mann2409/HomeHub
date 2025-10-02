@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { Meal, MealType, DietaryBadge } from "../types";
 import { cn } from "../utils/cn";
 import useSettingsStore from "../state/settingsStore";
@@ -74,15 +73,13 @@ export default function MealCard({ meal, mealType, onPress }: MealCardProps) {
       }}
     >
       {meal ? (
-        <LinearGradient
-          colors={gradientColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className="p-4 min-h-[100px] justify-between"
+        <View
           style={{ 
+            backgroundColor: gradientColors[0], // Use first color as solid background
             borderRadius: 24,
             overflow: 'hidden' 
           }}
+          className="p-4 min-h-[100px] justify-between"
         >
           {/* Header with meal type and note indicator */}
           <View className="flex-row items-center justify-between mb-2">
@@ -166,7 +163,7 @@ export default function MealCard({ meal, mealType, onPress }: MealCardProps) {
             {/* Tap to edit indicator */}
             <Ionicons name="chevron-forward" size={14} color="#FFFFFF" opacity={0.6} />
           </View>
-        </LinearGradient>
+        </View>
       ) : (
         <View 
           className="bg-white/10 border-2 border-dashed border-white/30 rounded-3xl p-4 min-h-[100px] justify-center items-center"

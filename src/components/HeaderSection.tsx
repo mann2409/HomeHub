@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { View, Modal, Text } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import DateTimeDisplay from "./DateTimeDisplay";
 import WeatherWidget from "./WeatherWidget";
 import UserAvatar from "./UserAvatar";
@@ -17,13 +16,13 @@ export default function HeaderSection() {
 
   return (
     <>
-      <View className="mb-6 overflow-hidden rounded-2xl">
-        <LinearGradient
-          colors={["#2A2D3A", "#3A3D4A"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ padding: 16 }}
-        >
+      <View 
+        className="mb-6 overflow-hidden rounded-2xl"
+        style={{ 
+          backgroundColor: "#2A2D3A", // Solid color instead of gradient
+          padding: 16 
+        }}
+      >
           <View className="flex-row items-start justify-between">
             {/* Left side - Date and Time */}
             <DateTimeDisplay />
@@ -35,7 +34,6 @@ export default function HeaderSection() {
               </View>
             </View>
           </View>
-        </LinearGradient>
       </View>
 
       {/* Settings Modal */}

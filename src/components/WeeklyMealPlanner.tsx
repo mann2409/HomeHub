@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Pressable, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
-import { LinearGradient } from "expo-linear-gradient";
 import Card from "./Card";
 import MealCard from "./MealCard";
 import AddMealModal from "./AddMealModal";
@@ -287,16 +286,12 @@ export default function WeeklyMealPlanner() {
             </View>
             <View className="h-3 bg-white/20 rounded-full overflow-hidden">
               <View 
-                className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
-                style={{ width: `${summary.percentage}%` }}
-              >
-                <LinearGradient
-                  colors={["#9B5DE5", "#36D1C4"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  className="h-full"
-                />
-              </View>
+                className="h-full rounded-full"
+                style={{ 
+                  width: `${summary.percentage}%`,
+                  backgroundColor: "#9B5DE5" // Solid color instead of gradient
+                }}
+              />
             </View>
           </View>
 
@@ -507,11 +502,9 @@ export default function WeeklyMealPlanner() {
               elevation: 6,
             }}
           >
-            <LinearGradient
-              colors={["#9B5DE5", "#36D1C4"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+            <View 
               className="absolute inset-0 rounded-2xl"
+              style={{ backgroundColor: "#9B5DE5" }} // Solid color instead of gradient
             />
             <Ionicons name="cart" size={24} color="#FFFFFF" style={{ marginRight: 8 }} />
             <Text className="text-white text-lg font-bold">Generate Shopping List</Text>

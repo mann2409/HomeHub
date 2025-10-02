@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import { View, Text, Pressable, ScrollView, Animated } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { format, addDays, startOfWeek, isSameDay, isToday } from "date-fns";
 import { cn } from "../utils/cn";
 import useSettingsStore from "../state/settingsStore";
@@ -95,14 +94,14 @@ export default function HorizontalCalendar({ selectedDate, onDateSelect }: Horiz
               )}
             >
               {isSelected && (
-                <Animated.View style={{ transform: [{ scale }], position: "absolute", inset: 0 }}>
-                  <LinearGradient
-                    colors={["#536DFE", "#00E0FF"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-                  />
-                </Animated.View>
+                <Animated.View 
+                  style={{ 
+                    transform: [{ scale }], 
+                    position: "absolute", 
+                    inset: 0,
+                    backgroundColor: "#536DFE" // Solid color instead of gradient
+                  }}
+                />
               )}
               <Text
                 className={cn(

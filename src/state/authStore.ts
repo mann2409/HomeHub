@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { auth } from '../config/firebase';
+import { supabase } from '../config/supabase';
 
 interface AuthState {
   user: any | null;
@@ -34,26 +34,30 @@ export const useAuthStore = create<AuthState>()(
       signUp: async (name: string, email: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
-          const userCredential = await auth().createUserWithEmailAndPassword(email, password);
           
-          // Update the user's display name
-          try {
-            await userCredential.user.updateProfile({
-              displayName: name
-            });
-          } catch (updateError) {
-            console.log('Could not update profile:', updateError);
-          }
-          
-          set({ 
-            user: userCredential.user, 
-            userName: name,
-            isAuthenticated: true, 
-            isLoading: false 
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                full_name: name,
+              }
+            }
           });
+
+          if (error) throw error;
+
+          if (data.user) {
+            set({ 
+              user: data.user, 
+              userName: name,
+              isAuthenticated: true,
+              isLoading: false 
+            });
+          }
         } catch (error: any) {
           set({ 
-            error: error.message || 'An error occurred', 
+            error: error.message || 'Sign up failed', 
             isLoading: false 
           });
           throw error;
@@ -63,16 +67,25 @@ export const useAuthStore = create<AuthState>()(
       signIn: async (email: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
-          const userCredential = await auth().signInWithEmailAndPassword(email, password);
-          set({ 
-            user: userCredential.user, 
-            userName: userCredential.user.displayName,
-            isAuthenticated: true, 
-            isLoading: false 
+          
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
           });
+
+          if (error) throw error;
+
+          if (data.user) {
+            set({ 
+              user: data.user, 
+              userName: data.user.user_metadata?.full_name || data.user.email,
+              isAuthenticated: true,
+              isLoading: false 
+            });
+          }
         } catch (error: any) {
           set({ 
-            error: error.message || 'An error occurred', 
+            error: error.message || 'Sign in failed', 
             isLoading: false 
           });
           throw error;
@@ -82,11 +95,15 @@ export const useAuthStore = create<AuthState>()(
       forgotPassword: async (email: string) => {
         try {
           set({ isLoading: true, error: null });
-          await auth().sendPasswordResetEmail(email);
+          
+          const { error } = await supabase.auth.resetPasswordForEmail(email);
+          
+          if (error) throw error;
+          
           set({ isLoading: false });
         } catch (error: any) {
           set({ 
-            error: error.message || 'An error occurred', 
+            error: error.message || 'Password reset failed', 
             isLoading: false 
           });
           throw error;
@@ -96,16 +113,20 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         try {
           set({ isLoading: true, error: null });
-          await auth().signOut();
+          
+          const { error } = await supabase.auth.signOut();
+          
+          if (error) throw error;
+          
           set({ 
             user: null, 
             userName: null,
-            isAuthenticated: false, 
+            isAuthenticated: false,
             isLoading: false 
           });
         } catch (error: any) {
           set({ 
-            error: error.message || 'An error occurred', 
+            error: error.message || 'Logout failed', 
             isLoading: false 
           });
           throw error;
@@ -113,10 +134,18 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearError: () => set({ error: null }),
-      setUser: (user) => set({ user, isAuthenticated: !!user, userName: user?.displayName || null }),
-      setUserName: (userName) => set({ userName }),
-      setLoading: (isLoading) => set({ isLoading }),
-      setError: (error) => set({ error }),
+      
+      setUser: (user: any | null) => {
+        set({ 
+          user,
+          isAuthenticated: !!user,
+          userName: user?.user_metadata?.full_name || user?.email || null
+        });
+      },
+      
+      setUserName: (name: string | null) => set({ userName: name }),
+      setLoading: (loading: boolean) => set({ isLoading: loading }),
+      setError: (error: string | null) => set({ error }),
     }),
     {
       name: 'auth-storage',
@@ -131,16 +160,14 @@ export const useAuthStore = create<AuthState>()(
 );
 
 // Initialize auth state listener
-auth().onAuthStateChanged((user) => {
-  useAuthStore.getState().setUser(user);
-  useAuthStore.getState().setLoading(false);
+supabase.auth.onAuthStateChange((event, session) => {
+  const { setUser, setLoading } = useAuthStore.getState();
   
-  // Sync user data across all stores
-  if (user) {
-    const { syncUserData } = require('../utils/userSync');
-    syncUserData(user.uid);
-  } else {
-    const { clearAllUserData } = require('../utils/userSync');
-    clearAllUserData();
+  if (event === 'SIGNED_IN' && session?.user) {
+    setUser(session.user);
+  } else if (event === 'SIGNED_OUT') {
+    setUser(null);
   }
+  
+  setLoading(false);
 });

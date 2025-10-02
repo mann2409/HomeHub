@@ -1,6 +1,5 @@
 import React from "react";
-import { Pressable, Text, PressableProps } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { Pressable, Text, PressableProps, View } from "react-native";
 import useSettingsStore from "../state/settingsStore";
 import { cn } from "../utils/cn";
 
@@ -72,11 +71,15 @@ export default function Button({
       {...props}
     >
       {variant === "primary" && (
-        <LinearGradient
-          colors={["#536DFE", "#00E0FF"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
+        <View
+          style={{ 
+            position: "absolute", 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0,
+            backgroundColor: "#536DFE" // Solid color instead of gradient
+          }}
         />
       )}
       <Text

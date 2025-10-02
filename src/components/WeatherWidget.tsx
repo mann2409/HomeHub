@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { View, Text, Pressable } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 import useWeatherStore from "../state/weatherStore";
@@ -84,11 +83,16 @@ export default function WeatherWidget() {
     <Pressable onPress={handleRefresh} className="items-end">
       <View className="px-3 py-2 rounded-2xl overflow-hidden">
         <BlurView intensity={20} tint="systemChromeMaterial" style={{ position: "absolute", inset: 0 }} />
-        <LinearGradient
-          colors={["#536DFE", "#00E0FF"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, opacity: 0.75 }}
+        <View
+          style={{ 
+            position: "absolute", 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            opacity: 0.75,
+            backgroundColor: "#536DFE" // Solid color instead of gradient
+          }}
         />
         <View className="flex-row items-center">
           <Ionicons name={iconName} size={14} color="#FFFFFF" />

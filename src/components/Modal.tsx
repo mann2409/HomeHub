@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, Modal as RNModal, Pressable, ModalProps as RNModalProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { cn } from "../utils/cn";
 
 interface ModalProps extends Omit<RNModalProps, "children"> {
@@ -48,13 +47,7 @@ export default function Modal({
         presentationStyle="formSheet"
         {...props}
       >
-        <View className="flex-1">
-          <LinearGradient
-            colors={["#1A1B2E", "#2D1B69", "#4A148C"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={{ flex: 1 }}
-          >
+        <View className="flex-1" style={{ backgroundColor: "#1A1B2E" }}>
             {/* iOS Navigation Bar */}
             <View 
               className="border-b border-white/10"
@@ -119,7 +112,6 @@ export default function Modal({
           <View className="flex-1" style={{ minHeight: 200 }}>
             {children}
           </View>
-          </LinearGradient>
         </View>
       </RNModal>
     );
@@ -147,12 +139,7 @@ export default function Modal({
             paddingBottom: Math.max(insets.bottom, 20),
           }}
         >
-          <LinearGradient
-            colors={["#1A1B2E", "#2D1B69", "#4A148C"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={{ flex: 1 }}
-          >
+          <View style={{ flex: 1, backgroundColor: "#1A1B2E" }}>
             {/* Handle bar for iOS-style sheet */}
             {size !== "full" && (
               <View className="items-center py-2">
@@ -181,7 +168,7 @@ export default function Modal({
             <View className={cn("flex-1", title ? "px-6 py-4" : "p-6")} style={{ minHeight: 200 }}>
               {children}
             </View>
-          </LinearGradient>
+          </View>
         </View>
       </View>
     </RNModal>

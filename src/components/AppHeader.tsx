@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../state/authStore';
 import UserAvatar from './UserAvatar';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -23,29 +22,26 @@ export default function AppHeader({ title, showUserIcon = true }: AppHeaderProps
     <>
       <View 
         className="overflow-hidden"
-        style={{ paddingTop: insets.top }}
+        style={{ 
+          paddingTop: insets.top,
+          backgroundColor: "#2A2D3A", // Solid background color instead of gradient
+          padding: 16
+        }}
       >
-        <LinearGradient
-          colors={["#2A2D3A", "#3A3D4A"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ padding: 16 }}
-        >
-          <View className="flex-row items-center justify-between">
-            {/* Title */}
-            <Text className="text-2xl font-bold text-white">
-              {title}
-            </Text>
-            
-            {/* User Avatar */}
-            {showUserIcon && (
-              <UserAvatar 
-                onPress={handleUserPress}
-                size={40}
-              />
-            )}
-          </View>
-        </LinearGradient>
+        <View className="flex-row items-center justify-between">
+          {/* Title */}
+          <Text className="text-2xl font-bold text-white">
+            {title}
+          </Text>
+          
+          {/* User Avatar */}
+          {showUserIcon && (
+            <UserAvatar 
+              onPress={handleUserPress}
+              size={40}
+            />
+          )}
+        </View>
       </View>
 
       {/* Settings Modal */}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, Animated, Dimensions } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { cn } from "../utils/cn";
 
@@ -153,13 +152,8 @@ export default function ContextAwareFAB({
       <Pressable
         onPress={toggleExpanded}
         className="w-14 h-14 rounded-full items-center justify-center shadow-lg overflow-hidden"
+        style={{ backgroundColor: "#14B8A6" }} // Solid color instead of gradient
       >
-        <LinearGradient
-          colors={["#14B8A6", "#3B82F6"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, borderRadius: 9999 }}
-        />
         <Animated.View
           style={{
             transform: [{
