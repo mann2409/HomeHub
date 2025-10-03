@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.manishsandil.vibecode"
@@ -16,14 +16,7 @@
       "package": "com.manishsandil.vibecode"
     },
     "plugins": [
-      "expo-asset",
-      "expo-build-properties",
-      "expo-font",
-      "expo-mail-composer",
-      "expo-secure-store",
-      "expo-sqlite",
-      "expo-video",
-      "expo-web-browser"
+      "expo-font"
     ]
   }
 }
