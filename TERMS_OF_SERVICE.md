@@ -181,24 +181,30 @@ Your continued use of the App after changes constitutes acceptance of the modifi
 
 ## 15. Geographic Restrictions
 
-The App is intended for users worldwide but is controlled and operated from the United States. We make no representations that the App is appropriate or available for use in all locations. Access to the App from territories where its content is illegal is prohibited.
+The App is intended for users worldwide but is controlled and operated from Australia. We make no representations that the App is appropriate or available for use in all locations. Access to the App from territories where its content is illegal is prohibited. Users are responsible for compliance with local laws in their jurisdiction.
 
 ## 16. Governing Law and Dispute Resolution
 
 ### 16.1 Governing Law
-These Terms shall be governed by and construed in accordance with the laws of the United States and the State of [YOUR STATE], without regard to conflict of law provisions.
+These Terms shall be governed by and construed in accordance with the laws of the Commonwealth of Australia and the State of Queensland, without regard to conflict of law provisions.
 
-### 16.2 Dispute Resolution
+### 16.2 Australian Consumer Law
+Nothing in these Terms excludes, restricts, or modifies any consumer guarantee, right, or remedy that you may have under the Australian Consumer Law (ACL) or other applicable consumer protection laws that cannot be excluded, restricted, or modified by agreement.
+
+### 16.3 Dispute Resolution
 Any dispute arising from these Terms or your use of the App shall be resolved through:
-1. Good faith negotiations
-2. If negotiations fail, binding arbitration
-3. Arbitration shall be conducted in accordance with the American Arbitration Association
+1. Good faith negotiations between the parties
+2. If negotiations fail, mediation in accordance with the Resolution Institute Mediation Rules
+3. If mediation is unsuccessful, the dispute may be referred to the courts of Australia
 
-### 16.3 Class Action Waiver
-You agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action.
+### 16.4 Jurisdiction
+You irrevocably submit to the exclusive jurisdiction of the courts of Australia and any courts which may hear appeals from those courts in respect of any proceedings in connection with these Terms.
 
-### 16.4 Exceptions
-You may bring claims in small claims court if they qualify.
+### 16.5 Class Action Waiver
+To the extent permitted by law, you agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action.
+
+### 16.6 Small Claims
+You may bring claims in small claims court or consumer tribunals (such as the relevant state or territory Civil and Administrative Tribunal) if they qualify.
 
 ## 17. Termination
 
@@ -251,7 +257,7 @@ You agree to comply with all applicable export and re-export control laws and re
 
 For questions about these Terms of Service, please contact us at:
 
-**Email:** [YOUR EMAIL ADDRESS]  
+**Email:** teclyticsptyltd@hotmail.com  
 **App:** HomeHub  
 **Developer:** Manish Sandil
 

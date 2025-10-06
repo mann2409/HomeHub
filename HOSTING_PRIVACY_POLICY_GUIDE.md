@@ -95,7 +95,7 @@ Open `PRIVACY_POLICY.md` and replace:
 
 Open `TERMS_OF_SERVICE.md` and replace:
 - `[YOUR EMAIL ADDRESS]` → Same support email
-- `[YOUR STATE]` → Your state (e.g., "California")
+- Already updated for Australia ✓
 
 ### 2. Choose a Hosting Option Above
 
@@ -133,9 +133,7 @@ sed -i '' "s/\[YOUR EMAIL ADDRESS\]/$YOUR_EMAIL/g" PRIVACY_POLICY.md
 # Update Terms of Service
 sed -i '' "s/\[YOUR EMAIL ADDRESS\]/$YOUR_EMAIL/g" TERMS_OF_SERVICE.md
 
-# Update Terms with your state
-YOUR_STATE="California"  # Change this
-sed -i '' "s/\[YOUR STATE\]/$YOUR_STATE/g" TERMS_OF_SERVICE.md
+# Note: Australian law section already updated ✓
 ```
 
 ---

@@ -40,14 +40,14 @@ Replace placeholder email addresses in your documents:
 2. Find `[YOUR EMAIL ADDRESS]`
 3. Replace with your support email (e.g., `support@yourdomain.com` or your personal email)
 4. Open `TERMS_OF_SERVICE.md`
-5. Replace `[YOUR EMAIL ADDRESS]` and `[YOUR STATE]`
+5. Replace `[YOUR EMAIL ADDRESS]` (Australian law section already updated ✓)
 
 **Quick command:**
 ```bash
 # Replace YOUR_EMAIL with your actual email
 sed -i '' 's/\[YOUR EMAIL ADDRESS\]/your.email@example.com/g' PRIVACY_POLICY.md
 sed -i '' 's/\[YOUR EMAIL ADDRESS\]/your.email@example.com/g' TERMS_OF_SERVICE.md
-sed -i '' 's/\[YOUR STATE\]/California/g' TERMS_OF_SERVICE.md
+# Note: Australian law already updated ✓
 ```
 
 ### Step 2: Host Privacy Policy Online (15 minutes)
