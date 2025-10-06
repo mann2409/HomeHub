@@ -257,7 +257,7 @@ You agree to comply with all applicable export and re-export control laws and re
 
 For questions about these Terms of Service, please contact us at:
 
-**Email:** teclyticsptyltd@hotmail.com  
+**Email:** teclyticsptyltd@hotmail.com
 **App:** HomeHub  
 **Developer:** Manish Sandil
 

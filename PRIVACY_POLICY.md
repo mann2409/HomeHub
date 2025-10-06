@@ -270,7 +270,7 @@ Your continued use of the App after any changes constitutes your acceptance of t
 
 If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy practices, please contact us at:
 
-**Email:** teclyticsptyltd@hotmail.com  
+**Email:** teclyticsptyltd@hotmail.com
 **App:** HomeHub  
 **Developer:** Manish Sandil  
 **Response Time:** We aim to respond to all inquiries within 48 hours
