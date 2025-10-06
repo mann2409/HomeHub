@@ -8,6 +8,7 @@ import useSettingsStore from "./src/state/settingsStore";
 
 import AppNavigator from "./src/navigation/AppNavigator";
 import AuthWrapper from "./src/components/AuthWrapper";
+import { useFamilySync } from "./src/hooks/useFamilySync";
 
 /*
 IMPORTANT NOTICE: DO NOT REMOVE
@@ -35,6 +36,9 @@ export default function App() {
   const { theme } = useSettingsStore();
   const isDark = theme === "dark" || (theme === "system" && systemScheme === "dark");
   // const [fontsLoaded] = useFonts({ Inter_300Light, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
+
+  // Initialize family sync for real-time data
+  useFamilySync();
 
   // if (!fontsLoaded) {
   //   return null;

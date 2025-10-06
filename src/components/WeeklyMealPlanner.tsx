@@ -146,6 +146,8 @@ export default function WeeklyMealPlanner() {
   };
 
   const handleGenerateShoppingList = () => {
+    console.log('🛒 Generate Shopping List clicked');
+    
     // Get all meals from the current week
     const allIngredients: string[] = [];
     
@@ -163,6 +165,8 @@ export default function WeeklyMealPlanner() {
       }
     });
 
+    console.log(`Found ${allIngredients.length} ingredients from meal plan`);
+
     if (allIngredients.length === 0) {
       setToastMessage("No ingredients found in your meal plan");
       setToastType("info");
@@ -172,6 +176,7 @@ export default function WeeklyMealPlanner() {
 
     // Add ingredients to shopping list
     let addedCount = 0;
+    
     allIngredients.forEach(ingredient => {
       const trimmedIngredient = ingredient.trim();
       if (trimmedIngredient) {
@@ -187,6 +192,7 @@ export default function WeeklyMealPlanner() {
       }
     });
 
+    console.log(`✅ Successfully added ${addedCount} items to shopping list`);
     setToastMessage(`Added ${addedCount} ingredient${addedCount !== 1 ? 's' : ''} to shopping list!`);
     setToastType("success");
     setShowToast(true);

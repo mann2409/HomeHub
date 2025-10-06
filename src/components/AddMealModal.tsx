@@ -66,10 +66,12 @@ export default function AddMealModal({
     setShowQuickAdd(false);
   };
 
-  // Update date when initialDate changes
+  // Update date when modal opens
   useEffect(() => {
-    setDate(initialDate);
-  }, [initialDate]);
+    if (visible) {
+      setDate(initialDate);
+    }
+  }, [visible, initialDate]);
 
   // Load smart suggestions when modal opens or date changes
   useEffect(() => {
@@ -357,15 +359,20 @@ export default function AddMealModal({
             <Ionicons name="chevron-down" size={20} color="rgba(255, 255, 255, 0.6)" />
           </Pressable>
           {Platform.OS === "ios" && showDatePicker && (
-            <DateTimePicker
-              mode="date"
-              value={date}
-              onChange={(event, selected) => {
-                setShowDatePicker(false);
-                if (selected) setDate(selected);
-              }}
-              display="inline"
-            />
+            <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 12, padding: 8 }}>
+              <DateTimePicker
+                mode="date"
+                value={date}
+                onChange={(event, selected) => {
+                  setShowDatePicker(false);
+                  if (selected) setDate(selected);
+                }}
+                display="inline"
+                themeVariant="dark"
+                textColor="#FFFFFF"
+                accentColor="#3B82F6"
+              />
+            </View>
           )}
         </View>
 

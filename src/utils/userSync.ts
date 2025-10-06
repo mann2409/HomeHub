@@ -4,15 +4,18 @@ import useFinanceStore from '../state/financeStore';
 import useShoppingStore from '../state/shoppingStore';
 import useNoteStore from '../state/noteStore';
 import useSettingsStore from '../state/settingsStore';
+import useFamilyStore from '../state/familyStore';
 
 export const syncUserData = (userId: string | null) => {
   // Update all stores with current user ID
+  console.log('Syncing userId to all stores:', userId);
   useTaskStore.getState().setUserId(userId);
   useMealStore.getState().setUserId(userId);
   useFinanceStore.getState().setUserId(userId);
   useShoppingStore.getState().setUserId(userId);
   useNoteStore.getState().setUserId(userId);
   useSettingsStore.getState().setUserId(userId);
+  useFamilyStore.getState().setUserId(userId);
 };
 
 export const clearAllUserData = () => {
@@ -23,4 +26,5 @@ export const clearAllUserData = () => {
   useShoppingStore.getState().clearUserData();
   useNoteStore.getState().clearUserData();
   useSettingsStore.getState().clearUserData();
+  useFamilyStore.getState().clearFamilyData();
 };

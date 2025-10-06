@@ -8,9 +8,11 @@ import {
   sendPasswordResetEmail,
   updateProfile,
   onAuthStateChanged,
+  deleteUser,
   User as FirebaseUser
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import useFamilyStore from './familyStore';
 
 interface AuthState {
   user: FirebaseUser | null;
@@ -24,6 +26,7 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   clearError: () => void;
   setUser: (user: FirebaseUser | null) => void;
   setUserName: (name: string | null) => void;
@@ -52,6 +55,8 @@ export const useAuthStore = create<AuthState>()(
               displayName: name
             });
 
+            // Don't auto-create family - let user choose to create or join
+            
             set({ 
               user: userCredential.user, 
               userName: name,
@@ -136,6 +141,41 @@ export const useAuthStore = create<AuthState>()(
         } catch (error: any) {
           set({ 
             error: error.message || 'Logout failed', 
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
+
+      deleteAccount: async () => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const currentUser = auth.currentUser;
+          if (!currentUser) {
+            throw new Error('No user logged in');
+          }
+
+          // Delete user from Firebase Auth
+          await deleteUser(currentUser);
+          
+          // Clear all local data
+          set({ 
+            user: null, 
+            userName: null,
+            isAuthenticated: false,
+            isLoading: false 
+          });
+          
+          // Note: Firestore data cleanup should be done via Cloud Functions
+          // or Firestore Security Rules for automatic cleanup
+        } catch (error: any) {
+          const errorMessage = error.code === 'auth/requires-recent-login'
+            ? 'For security reasons, please sign out and sign in again before deleting your account.'
+            : error.message || 'Account deletion failed';
+            
+          set({ 
+            error: errorMessage, 
             isLoading: false 
           });
           throw error;

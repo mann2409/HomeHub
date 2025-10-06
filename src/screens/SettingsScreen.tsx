@@ -6,6 +6,7 @@ import GradientBackground from "../components/GradientBackground";
 import Card from "../components/Card";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import FamilySettings from "../components/FamilySettings";
 import useSettingsStore from "../state/settingsStore";
 import useTaskStore from "../state/taskStore";
 import useMealStore from "../state/mealStore";
@@ -29,7 +30,7 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
     updateModuleVisibility 
   } = useSettingsStore();
   
-  const { logout, user, userName } = useAuthStore();
+  const { logout, deleteAccount, user, userName } = useAuthStore();
 
   // Data stores for export/import
   const { tasks } = useTaskStore();
@@ -121,6 +122,46 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
     );
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete Account",
+      "⚠️ WARNING: This will permanently delete your account and all associated data including tasks, meals, expenses, shopping lists, and notes. This action CANNOT be undone.\n\nAre you absolutely sure?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete Forever",
+          style: "destructive",
+          onPress: () => {
+            // Double confirmation
+            Alert.alert(
+              "Final Confirmation",
+              "This is your last chance. Delete your account and all data permanently?",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Yes, Delete Everything",
+                  style: "destructive",
+                  onPress: async () => {
+                    try {
+                      await deleteAccount();
+                      Alert.alert("Account Deleted", "Your account and all data have been permanently deleted.");
+                    } catch (error: any) {
+                      console.error("Delete account error:", error);
+                      Alert.alert(
+                        "Error", 
+                        error.message || "Failed to delete account. Please try again."
+                      );
+                    }
+                  },
+                },
+              ]
+            );
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <GradientBackground style={{ paddingTop: insets.top }}>
       {/* Close button for modal */}
@@ -145,6 +186,8 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
             Settings
           </Text>
 
+          {/* Family/Household Settings */}
+          <FamilySettings />
 
           {/* Module Visibility */}
           <Card className="mb-4">
@@ -295,9 +338,21 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
               title="Sign Out"
               variant="outline"
               onPress={handleLogout}
-              className="border-red-500/30 bg-red-500/10"
+              className="border-red-500/30 bg-red-500/10 mb-3"
               textClassName="text-red-400"
             />
+
+            <Pressable
+              onPress={handleDeleteAccount}
+              className="py-3 px-4 rounded-lg border border-red-600/50 bg-red-600/5"
+            >
+              <Text className="text-red-500 text-center font-medium">
+                Delete Account
+              </Text>
+              <Text className="text-red-400/70 text-xs text-center mt-1">
+                Permanently delete your account and all data
+              </Text>
+            </Pressable>
           </Card>
 
           {/* About */}

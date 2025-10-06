@@ -2,6 +2,18 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ShoppingItem, ShoppingCategory } from "../types";
+import { 
+  collection, 
+  doc, 
+  setDoc, 
+  updateDoc, 
+  deleteDoc, 
+  onSnapshot,
+  query,
+  serverTimestamp 
+} from 'firebase/firestore';
+import { db } from '../config/firebase';
+import useFamilyStore from './familyStore';
 
 interface ShoppingState {
   items: ShoppingItem[];
@@ -10,6 +22,8 @@ interface ShoppingState {
   addItem: (item: Omit<ShoppingItem, "id" | "createdAt" | "updatedAt" | "userId">) => void;
   updateItem: (id: string, updates: Partial<ShoppingItem>) => void;
   deleteItem: (id: string) => void;
+  deleteMultipleItems: (ids: string[]) => void;
+  deleteAllItems: () => void;
   toggleItem: (id: string) => void;
   getItemsByCategory: (category: ShoppingCategory) => ShoppingItem[];
   getCategorizedItems: () => Record<ShoppingCategory, ShoppingItem[]>;
@@ -19,6 +33,7 @@ interface ShoppingState {
   clearCompleted: () => void;
   autoCategorizeName: (name: string) => ShoppingCategory;
   clearUserData: () => void;
+  subscribeToFamilyShopping: (familyId: string) => () => void;
 }
 
 const categoryKeywords: Record<ShoppingCategory, string[]> = {
@@ -40,52 +55,177 @@ const useShoppingStore = create<ShoppingState>()(
 
       setUserId: (userId) => set({ userId }),
 
-      addItem: (itemData) => {
+      addItem: async (itemData) => {
         const { userId } = get();
-        if (!userId) return;
+        
+        if (!userId) {
+          console.error('❌ Cannot add shopping item: No userId set');
+          return;
+        }
 
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        if (!activeFamilyId) {
+          console.error('⚠️ No active family - shopping item will NOT be saved to Firestore!');
+        }
+
+        console.log('Adding shopping item:', itemData.name);
+
+        const itemId = Date.now().toString() + Math.random().toString(36).substring(2, 11);
         const newItem: ShoppingItem = {
           ...itemData,
-          id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
+          id: itemId,
           category: itemData.category || get().autoCategorizeName(itemData.name),
           userId,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
+        
+        // Save to Firestore if family exists
+        if (activeFamilyId) {
+          try {
+            const cleanItem = Object.fromEntries(
+              Object.entries(newItem).filter(([_, value]) => value !== undefined)
+            );
+            
+            await setDoc(doc(db, 'families', activeFamilyId, 'shopping', itemId), {
+              ...cleanItem,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            });
+            console.log('✅ Shopping item saved to Firestore:', newItem.name);
+          } catch (error) {
+            console.error('❌ Error saving shopping item to Firestore:', error);
+          }
+        }
+        
+        // Also save locally
         set((state) => ({
           items: [...state.items, newItem],
         }));
       },
 
-      updateItem: (id, updates) => {
+      updateItem: async (id, updates) => {
         const { userId } = get();
         if (!userId) return;
 
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        // Update in Firestore
+        if (activeFamilyId) {
+          try {
+            await updateDoc(doc(db, 'families', activeFamilyId, 'shopping', id), {
+              ...updates,
+              updatedAt: serverTimestamp(),
+            });
+          } catch (error) {
+            console.error('Error updating shopping item in Firestore:', error);
+          }
+        }
+
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === id && item.userId === userId
+            item.id === id
               ? { ...item, ...updates, updatedAt: new Date() }
               : item
           ),
         }));
       },
 
-      deleteItem: (id) => {
+      deleteItem: async (id) => {
         const { userId } = get();
         if (!userId) return;
 
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        // Delete from Firestore
+        if (activeFamilyId) {
+          try {
+            await deleteDoc(doc(db, 'families', activeFamilyId, 'shopping', id));
+          } catch (error) {
+            console.error('Error deleting shopping item from Firestore:', error);
+          }
+        }
+
         set((state) => ({
-          items: state.items.filter((item) => item.id !== id || item.userId !== userId),
+          items: state.items.filter((item) => item.id !== id),
         }));
       },
 
-      toggleItem: (id) => {
+      deleteMultipleItems: async (ids) => {
         const { userId } = get();
         if (!userId) return;
 
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        console.log(`Deleting ${ids.length} items`);
+        
+        // Delete from Firestore
+        if (activeFamilyId) {
+          try {
+            const deletePromises = ids.map(id => 
+              deleteDoc(doc(db, 'families', activeFamilyId, 'shopping', id))
+            );
+            await Promise.all(deletePromises);
+          } catch (error) {
+            console.error('Error deleting multiple items from Firestore:', error);
+          }
+        }
+        
+        set((state) => ({
+          items: state.items.filter((item) => !ids.includes(item.id)),
+        }));
+        console.log('✅ Items deleted successfully');
+      },
+
+      deleteAllItems: async () => {
+        const { userId, items } = get();
+        if (!userId) return;
+
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        console.log('Deleting all items');
+        
+        // Delete all from Firestore
+        if (activeFamilyId) {
+          try {
+            const deletePromises = items.map(item => 
+              deleteDoc(doc(db, 'families', activeFamilyId, 'shopping', item.id))
+            );
+            await Promise.all(deletePromises);
+          } catch (error) {
+            console.error('Error deleting all items from Firestore:', error);
+          }
+        }
+        
+        set({ items: [] });
+        console.log('✅ All items deleted successfully');
+      },
+
+      toggleItem: async (id) => {
+        const { userId, items } = get();
+        if (!userId) return;
+
+        const item = items.find(i => i.id === id);
+        if (!item) return;
+
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        // Toggle in Firestore
+        if (activeFamilyId) {
+          try {
+            await updateDoc(doc(db, 'families', activeFamilyId, 'shopping', id), {
+              completed: !item.completed,
+              updatedAt: serverTimestamp(),
+            });
+          } catch (error) {
+            console.error('Error toggling shopping item in Firestore:', error);
+          }
+        }
+
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === id && item.userId === userId
+            item.id === id
               ? { ...item, completed: !item.completed, updatedAt: new Date() }
               : item
           ),
@@ -93,19 +233,16 @@ const useShoppingStore = create<ShoppingState>()(
       },
 
       getItemsByCategory: (category) => {
-        const { items, userId } = get();
-        if (!userId) return [];
-        return items.filter((item) => item.category === category && item.userId === userId);
+        const { items } = get();
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        // Show all family items if in a family, otherwise only user's items
+        return items.filter((item) => item.category === category);
       },
 
       getCategorizedItems: () => {
-        const { items, userId } = get();
-        if (!userId) return {
-          produce: [], dairy: [], meat: [], pantry: [], frozen: [],
-          household: [], personal_care: [], other: [],
-        };
+        const { items } = get();
         
-        const userItems = items.filter(item => item.userId === userId);
         const categorized: Record<ShoppingCategory, ShoppingItem[]> = {
           produce: [],
           dairy: [],
@@ -117,7 +254,8 @@ const useShoppingStore = create<ShoppingState>()(
           other: [],
         };
 
-        userItems.forEach((item) => {
+        // Show all family items
+        items.forEach((item) => {
           categorized[item.category].push(item);
         });
 
@@ -125,26 +263,24 @@ const useShoppingStore = create<ShoppingState>()(
       },
 
       getTotalEstimatedCost: () => {
-        const { items, userId } = get();
-        if (!userId) return 0;
+        const { items } = get();
         
-        return items
-          .filter(item => item.userId === userId)
-          .reduce((total, item) => {
-            return total + (item.estimatedPrice || 0) * item.quantity;
-          }, 0);
+        // Calculate total for all family items
+        return items.reduce((total, item) => {
+          return total + (item.estimatedPrice || 0) * item.quantity;
+        }, 0);
       },
 
       getCompletedItems: () => {
-        const { items, userId } = get();
-        if (!userId) return [];
-        return items.filter((item) => item.completed && item.userId === userId);
+        const { items } = get();
+        // Show all completed family items
+        return items.filter((item) => item.completed);
       },
 
       getPendingItems: () => {
-        const { items, userId } = get();
-        if (!userId) return [];
-        return items.filter((item) => !item.completed && item.userId === userId);
+        const { items } = get();
+        // Show all pending family items
+        return items.filter((item) => !item.completed);
       },
 
       clearCompleted: () => {
@@ -158,6 +294,39 @@ const useShoppingStore = create<ShoppingState>()(
 
       clearUserData: () => {
         set({ items: [], userId: null });
+      },
+
+      subscribeToFamilyShopping: (familyId) => {
+        console.log('Setting up real-time listener for family shopping:', familyId);
+        const shoppingRef = collection(db, 'families', familyId, 'shopping');
+        const q = query(shoppingRef);
+
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const firestoreItems: ShoppingItem[] = [];
+            console.log('Firestore shopping snapshot received - changes:', snapshot.size);
+            
+            snapshot.forEach((docSnapshot) => {
+              const data = docSnapshot.data();
+              
+              firestoreItems.push({
+                ...data,
+                id: docSnapshot.id,
+                createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
+                updatedAt: data.updatedAt?.toDate?.() || new Date(data.updatedAt),
+              } as ShoppingItem);
+            });
+            
+            console.log(`✅ Loaded ${firestoreItems.length} shopping items from Firestore`);
+            set({ items: firestoreItems });
+          },
+          (error) => {
+            console.error('❌ Error subscribing to shopping items:', error);
+          }
+        );
+
+        return unsubscribe;
       },
 
       autoCategorizeName: (name) => {

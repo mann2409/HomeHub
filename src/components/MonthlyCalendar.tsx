@@ -58,11 +58,25 @@ export default function MonthlyCalendar({ selectedDate, onDateSelect }: MonthlyC
   }
 
   const goToPreviousMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
+    const newMonth = subMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
+    
+    // Auto-select the same day number in the new month (or last day if it doesn't exist)
+    const selectedDay = selectedDate.getDate();
+    const newMonthLastDay = endOfMonth(newMonth).getDate();
+    const newSelectedDate = new Date(newMonth.getFullYear(), newMonth.getMonth(), Math.min(selectedDay, newMonthLastDay));
+    onDateSelect(newSelectedDate);
   };
 
   const goToNextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
+    const newMonth = addMonths(currentMonth, 1);
+    setCurrentMonth(newMonth);
+    
+    // Auto-select the same day number in the new month (or last day if it doesn't exist)
+    const selectedDay = selectedDate.getDate();
+    const newMonthLastDay = endOfMonth(newMonth).getDate();
+    const newSelectedDate = new Date(newMonth.getFullYear(), newMonth.getMonth(), Math.min(selectedDay, newMonthLastDay));
+    onDateSelect(newSelectedDate);
   };
 
   const goToToday = () => {
@@ -105,7 +119,10 @@ export default function MonthlyCalendar({ selectedDate, onDateSelect }: MonthlyC
       <View className="flex-row mb-2">
         {dayNames.map((dayName, index) => (
           <View key={index} className="flex-1 items-center py-2">
-            <Text className="text-sm font-medium text-white/70">
+            <Text 
+              className="text-sm font-medium"
+              style={{ color: '#FFFFFF' }}
+            >
               {dayName}
             </Text>
           </View>
@@ -132,13 +149,10 @@ export default function MonthlyCalendar({ selectedDate, onDateSelect }: MonthlyC
               >
                 <View className="items-center">
                   <Text
-                    className={cn(
-                      "text-sm font-semibold",
-                      isSelected && "text-white",
-                      !isSelected && isToday && "text-white",
-                      !isSelected && isCurrentMonth && "text-white/90",
-                      !isSelected && !isCurrentMonth && "text-white/40"
-                    )}
+                    className="text-sm font-semibold"
+                    style={{ 
+                      color: isSelected || isToday || isCurrentMonth ? '#FFFFFF' : '#FFFFFF99'
+                    }}
                   >
                     {format(date, "d")}
                   </Text>

@@ -3,22 +3,34 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Task, TaskCategory, RecurrenceRule } from "../types";
 import { addDays, addWeeks, addMonths, addYears } from "date-fns";
-// Removed authStore import to avoid circular dependency
+import { 
+  collection, 
+  doc, 
+  setDoc, 
+  updateDoc, 
+  deleteDoc, 
+  onSnapshot,
+  query,
+  serverTimestamp 
+} from 'firebase/firestore';
+import { db } from '../config/firebase';
+import useFamilyStore from './familyStore';
 
 interface TaskState {
   tasks: Task[];
   userId: string | null;
   setUserId: (userId: string | null) => void;
-  addTask: (task: Omit<Task, "id" | "createdAt" | "updatedAt" | "userId">) => void;
-  updateTask: (id: string, updates: Partial<Task>) => void;
-  deleteTask: (id: string) => void;
-  toggleTask: (id: string) => void;
+  addTask: (task: Omit<Task, "id" | "createdAt" | "updatedAt" | "userId">) => Promise<void>;
+  updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
+  toggleTask: (id: string) => Promise<void>;
   getTasksByDate: (date: Date) => Task[];
   getTasksByCategory: (category: TaskCategory) => Task[];
   getTodaysTasks: () => Task[];
   getOverdueTasks: () => Task[];
   generateRecurringTasks: (parentTask: Task, endDate?: Date) => void;
   clearUserData: () => void;
+  subscribeToFamilyTasks: (familyId: string) => () => void;
 }
 
 const useTaskStore = create<TaskState>()(
@@ -29,25 +41,61 @@ const useTaskStore = create<TaskState>()(
 
       setUserId: (userId) => set({ userId }),
 
-      addTask: (taskData) => {
+      addTask: async (taskData) => {
         const { userId } = get();
-        if (!userId) return;
+        console.log('addTask called - userId:', userId);
+        
+        if (!userId) {
+          console.error('No userId - cannot add task');
+          return;
+        }
 
+        const { activeFamilyId } = useFamilyStore.getState();
+        console.log('Active family ID:', activeFamilyId);
+        
+        if (!activeFamilyId) {
+          console.error('⚠️ No active family - task will NOT be saved to Firestore!');
+          console.error('Please create or join a family in Settings first');
+          // Still save locally for offline use
+        }
+
+        const taskId = Date.now().toString() + Math.random().toString(36).substring(2, 11);
         const newTask: Task = {
           ...taskData,
-          id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
+          id: taskId,
           userId,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
         
+        // Save to Firestore if family exists
+        if (activeFamilyId) {
+          try {
+            console.log('Saving task to Firestore...', { familyId: activeFamilyId, taskId });
+            
+            // Clean data - remove undefined values for Firestore
+            const cleanTask = Object.fromEntries(
+              Object.entries(newTask).filter(([_, value]) => value !== undefined)
+            );
+            
+            await setDoc(doc(db, 'families', activeFamilyId, 'tasks', taskId), {
+              ...cleanTask,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            });
+            console.log('✅ Task successfully saved to Firestore:', taskId);
+          } catch (error) {
+            console.error('❌ Error saving task to Firestore:', error);
+          }
+        }
+
+        // Also save locally
         set((state) => ({
           tasks: [...state.tasks, newTask],
         }));
 
         // Generate recurring tasks after the parent task is added
         if (newTask.recurring && newTask.dueDate) {
-          // Use the specified end date or default to 1 year from now
           const endDate = newTask.recurring.endDate || (() => {
             const defaultEnd = new Date();
             defaultEnd.setFullYear(defaultEnd.getFullYear() + 1);
@@ -57,9 +105,22 @@ const useTaskStore = create<TaskState>()(
         }
       },
 
-      updateTask: (id, updates) => {
+      updateTask: async (id, updates) => {
         const { userId } = get();
         if (!userId) return;
+
+        const { activeFamilyId } = useFamilyStore.getState();
+        if (activeFamilyId) {
+          try {
+            await updateDoc(doc(db, 'families', activeFamilyId, 'tasks', id), {
+              ...updates,
+              updatedAt: serverTimestamp(),
+            });
+            console.log('Task updated in Firestore:', id);
+          } catch (error) {
+            console.error('Error updating task in Firestore:', error);
+          }
+        }
 
         set((state) => ({
           tasks: state.tasks.map((task) =>
@@ -70,48 +131,105 @@ const useTaskStore = create<TaskState>()(
         }));
       },
 
-      deleteTask: (id) => {
+      deleteTask: async (id) => {
         const { userId } = get();
         if (!userId) return;
+
+        const { activeFamilyId } = useFamilyStore.getState();
+        if (activeFamilyId) {
+          try {
+            await deleteDoc(doc(db, 'families', activeFamilyId, 'tasks', id));
+            console.log('Task deleted from Firestore:', id);
+          } catch (error) {
+            console.error('Error deleting task from Firestore:', error);
+          }
+        }
 
         set((state) => ({
           tasks: state.tasks.filter((task) => task.id !== id || task.userId !== userId),
         }));
       },
 
-      toggleTask: (id) => {
+      toggleTask: async (id) => {
         const { userId } = get();
         if (!userId) return;
+
+        const task = get().tasks.find(t => t.id === id);
+        if (!task) return;
+
+        const newCompleted = !task.completed;
+
+        const { activeFamilyId } = useFamilyStore.getState();
+        if (activeFamilyId) {
+          try {
+            await updateDoc(doc(db, 'families', activeFamilyId, 'tasks', id), {
+              completed: newCompleted,
+              updatedAt: serverTimestamp(),
+            });
+            console.log('Task toggled in Firestore:', id);
+          } catch (error) {
+            console.error('Error toggling task in Firestore:', error);
+          }
+        }
 
         set((state) => ({
           tasks: state.tasks.map((task) =>
             task.id === id && task.userId === userId
-              ? { ...task, completed: !task.completed, updatedAt: new Date() }
+              ? { ...task, completed: newCompleted, updatedAt: new Date() }
               : task
           ),
         }));
       },
 
       getTasksByDate: (date) => {
-        const { tasks, userId } = get();
-        if (!userId) return [];
+        const { tasks } = get();
+        const { activeFamilyId } = useFamilyStore.getState();
         
-        const userTasks = tasks.filter(task => task.userId === userId);
+        // Only show tasks if in a family OR if they're the user's own tasks
+        if (!activeFamilyId && tasks.length > 0) {
+          console.log('No active family - showing only user tasks');
+          // No family, show only personal tasks
+          const tasksToShow = tasks.filter(task => task.userId === get().userId);
+          
+          const targetDate = new Date(date);
+          targetDate.setHours(0, 0, 0, 0);
+          
+          return tasksToShow.filter((task) => {
+            if (!task.dueDate) return false;
+            const taskDate = new Date(task.dueDate);
+            taskDate.setHours(0, 0, 0, 0);
+            return taskDate.getTime() === targetDate.getTime();
+          });
+        }
+        
+        // In a family - show all family tasks
         const targetDate = new Date(date);
         targetDate.setHours(0, 0, 0, 0);
         
-        return userTasks.filter((task) => {
+        console.log(`getTasksByDate: ${date.toDateString()} - Total tasks: ${tasks.length}, ActiveFamily: ${activeFamilyId}`);
+        
+        const filteredTasks = tasks.filter((task) => {
           if (!task.dueDate) return false;
           const taskDate = new Date(task.dueDate);
           taskDate.setHours(0, 0, 0, 0);
-          return taskDate.getTime() === targetDate.getTime();
+          const matches = taskDate.getTime() === targetDate.getTime();
+          if (matches) {
+            console.log(`  ✓ Task matches: ${task.title} (${taskDate.toDateString()})`);
+          }
+          return matches;
         });
+        
+        console.log(`  → Returning ${filteredTasks.length} tasks for this date`);
+        return filteredTasks;
       },
 
       getTasksByCategory: (category) => {
-        const { tasks, userId } = get();
-        if (!userId) return [];
-        return tasks.filter((task) => task.category === category && task.userId === userId);
+        const { tasks } = get();
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        // If in a family, show all family tasks (not just user's tasks)
+        const tasksToShow = activeFamilyId ? tasks : tasks.filter(task => task.userId === get().userId);
+        return tasksToShow.filter((task) => task.category === category);
       },
 
       getTodaysTasks: () => {
@@ -120,14 +238,17 @@ const useTaskStore = create<TaskState>()(
       },
 
       getOverdueTasks: () => {
-        const { tasks, userId } = get();
-        if (!userId) return [];
+        const { tasks } = get();
+        const { activeFamilyId } = useFamilyStore.getState();
+        
+        // If in a family, show all family tasks (not just user's tasks)
+        const tasksToShow = activeFamilyId ? tasks : tasks.filter(task => task.userId === get().userId);
         
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        return tasks.filter((task) => {
-          if (!task.dueDate || task.completed || task.userId !== userId) return false;
+        return tasksToShow.filter((task) => {
+          if (!task.dueDate || task.completed) return false;
           const taskDate = new Date(task.dueDate);
           taskDate.setHours(0, 0, 0, 0);
           return taskDate.getTime() < today.getTime();
@@ -136,6 +257,61 @@ const useTaskStore = create<TaskState>()(
 
       clearUserData: () => {
         set({ tasks: [], userId: null });
+      },
+
+      subscribeToFamilyTasks: (familyId) => {
+        console.log('Setting up real-time listener for family tasks:', familyId);
+        const tasksRef = collection(db, 'families', familyId, 'tasks');
+        const q = query(tasksRef);
+
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const firestoreTasks: Task[] = [];
+            console.log('Firestore snapshot received - changes:', snapshot.size);
+            
+            snapshot.forEach((docSnapshot) => {
+              const data = docSnapshot.data();
+              
+              // Convert dueDate properly
+              let dueDate = undefined;
+              if (data.dueDate) {
+                // If it's a Firestore Timestamp
+                if (data.dueDate?.toDate) {
+                  dueDate = data.dueDate.toDate();
+                } 
+                // If it's already a Date object or timestamp
+                else {
+                  dueDate = new Date(data.dueDate);
+                }
+              }
+              
+              console.log('Task from Firestore:', { 
+                id: docSnapshot.id, 
+                title: data.title,
+                dueDateRaw: data.dueDate,
+                dueDateConverted: dueDate?.toISOString(),
+              });
+              
+              firestoreTasks.push({
+                ...data,
+                id: docSnapshot.id,
+                createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
+                updatedAt: data.updatedAt?.toDate?.() || new Date(data.updatedAt),
+                dueDate,
+              } as Task);
+            });
+            
+            console.log(`✅ Loaded ${firestoreTasks.length} tasks from Firestore`);
+            console.log('Task titles:', firestoreTasks.map(t => t.title));
+            set({ tasks: firestoreTasks });
+          },
+          (error) => {
+            console.error('❌ Error subscribing to tasks:', error);
+          }
+        );
+
+        return unsubscribe;
       },
 
       generateRecurringTasks: (parentTask, endDate) => {

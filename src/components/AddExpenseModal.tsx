@@ -112,15 +112,20 @@ export default function AddExpenseModal({ visible, onClose }: AddExpenseModalPro
             <Text className="text-white">{format(date, "PPP")}</Text>
           </Pressable>
           {Platform.OS === "ios" && showDatePicker && (
-            <DateTimePicker
-              mode="date"
-              value={date}
-              onChange={(event, selected) => {
-                setShowDatePicker(false);
-                if (selected) setDate(selected);
-              }}
-              display="inline"
-            />
+            <View style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: 12, padding: 8 }}>
+              <DateTimePicker
+                mode="date"
+                value={date}
+                onChange={(event, selected) => {
+                  setShowDatePicker(false);
+                  if (selected) setDate(selected);
+                }}
+                display="inline"
+                themeVariant="dark"
+                textColor="#FFFFFF"
+                accentColor="#3B82F6"
+              />
+            </View>
           )}
         </View>
 

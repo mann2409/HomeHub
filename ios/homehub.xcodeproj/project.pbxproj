@@ -8,28 +8,28 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		3D54467AB4F0B228B6C65D4E /* libPods-homehub.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 34C5E26607686768C741510C /* libPods-homehub.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		4BEA5962E4943D32AB2E97D0 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F208375B690B4233E7868948 /* ExpoModulesProvider.swift */; };
-		A0AF961D38F84C8F7ECE5A21 /* libPods-vibecode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 47CB5B6EAD95A5EBA7F12CA6 /* libPods-vibecode.a */; };
-		B0637B8185866FFFBF765078 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A77B502D6810428D8A233147 /* PrivacyInfo.xcprivacy */; };
+		4CCE1DFFD2DE231EFDA63749 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31D443AC5C9722E25F33C07 /* ExpoModulesProvider.swift */; };
+		79ADEE881E49965B86903648 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 42A8D2A42B516BAAA3251348 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* vibecode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = vibecode.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = vibecode/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = vibecode/Info.plist; sourceTree = "<group>"; };
-		47CB5B6EAD95A5EBA7F12CA6 /* libPods-vibecode.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-vibecode.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		64C5E53B4904C1062898B15F /* Pods-vibecode.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-vibecode.debug.xcconfig"; path = "Target Support Files/Pods-vibecode/Pods-vibecode.debug.xcconfig"; sourceTree = "<group>"; };
-		A77B502D6810428D8A233147 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = vibecode/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = vibecode/SplashScreen.storyboard; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* homehub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = homehub.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = homehub/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = homehub/Info.plist; sourceTree = "<group>"; };
+		34C5E26607686768C741510C /* libPods-homehub.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-homehub.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3817B49567B1FC78E72353A2 /* Pods-homehub.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-homehub.debug.xcconfig"; path = "Target Support Files/Pods-homehub/Pods-homehub.debug.xcconfig"; sourceTree = "<group>"; };
+		42A8D2A42B516BAAA3251348 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = homehub/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		58A4ECED94E8622780A329EB /* Pods-homehub.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-homehub.release.xcconfig"; path = "Target Support Files/Pods-homehub/Pods-homehub.release.xcconfig"; sourceTree = "<group>"; };
+		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = homehub/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		E3986BCC320F13583DDA0F0E /* Pods-vibecode.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-vibecode.release.xcconfig"; path = "Target Support Files/Pods-vibecode/Pods-vibecode.release.xcconfig"; sourceTree = "<group>"; };
+		D31D443AC5C9722E25F33C07 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-homehub/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = vibecode/AppDelegate.swift; sourceTree = "<group>"; };
-		F11748442D0722820044C1D9 /* vibecode-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "vibecode-Bridging-Header.h"; path = "vibecode/vibecode-Bridging-Header.h"; sourceTree = "<group>"; };
-		F208375B690B4233E7868948 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-vibecode/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = homehub/AppDelegate.swift; sourceTree = "<group>"; };
+		F11748442D0722820044C1D9 /* homehub-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "homehub-Bridging-Header.h"; path = "homehub/homehub-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,50 +37,40 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0AF961D38F84C8F7ECE5A21 /* libPods-vibecode.a in Frameworks */,
+				3D54467AB4F0B228B6C65D4E /* libPods-homehub.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0A460C1C5CA0C7CA1F31FB50 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				64C5E53B4904C1062898B15F /* Pods-vibecode.debug.xcconfig */,
-				E3986BCC320F13583DDA0F0E /* Pods-vibecode.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
-		13B07FAE1A68108700A75B9A /* vibecode */ = {
+		13B07FAE1A68108700A75B9A /* homehub */ = {
 			isa = PBXGroup;
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
-				F11748442D0722820044C1D9 /* vibecode-Bridging-Header.h */,
+				F11748442D0722820044C1D9 /* homehub-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				A77B502D6810428D8A233147 /* PrivacyInfo.xcprivacy */,
+				42A8D2A42B516BAAA3251348 /* PrivacyInfo.xcprivacy */,
 			);
-			name = vibecode;
+			name = homehub;
 			sourceTree = "<group>";
 		};
-		29E0C9E96222002254C09066 /* vibecode */ = {
+		2B1981BF1507CC17CD10D215 /* homehub */ = {
 			isa = PBXGroup;
 			children = (
-				F208375B690B4233E7868948 /* ExpoModulesProvider.swift */,
+				D31D443AC5C9722E25F33C07 /* ExpoModulesProvider.swift */,
 			);
-			name = vibecode;
+			name = homehub;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				47CB5B6EAD95A5EBA7F12CA6 /* libPods-vibecode.a */,
+				34C5E26607686768C741510C /* libPods-homehub.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -95,12 +85,12 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* vibecode */,
+				13B07FAE1A68108700A75B9A /* homehub */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				0A460C1C5CA0C7CA1F31FB50 /* Pods */,
-				F0E3FFB131E8BD4111FF0D76 /* ExpoModulesProviders */,
+				B57CDBE2352E2B15E7CEB7DD /* Pods */,
+				D7CB38AC56C3885E67AB3CDE /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -110,9 +100,19 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* vibecode.app */,
+				13B07F961A680F5B00A75B9A /* homehub.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B57CDBE2352E2B15E7CEB7DD /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				3817B49567B1FC78E72353A2 /* Pods-homehub.debug.xcconfig */,
+				58A4ECED94E8622780A329EB /* Pods-homehub.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -121,13 +121,13 @@
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
 			);
 			name = Supporting;
-			path = vibecode/Supporting;
+			path = homehub/Supporting;
 			sourceTree = "<group>";
 		};
-		F0E3FFB131E8BD4111FF0D76 /* ExpoModulesProviders */ = {
+		D7CB38AC56C3885E67AB3CDE /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				29E0C9E96222002254C09066 /* vibecode */,
+				2B1981BF1507CC17CD10D215 /* homehub */,
 			);
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
@@ -135,26 +135,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* vibecode */ = {
+		13B07F861A680F5B00A75B9A /* homehub */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "vibecode" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "homehub" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				79DAE730EC06BC7C662DB59A /* [Expo] Configure project */,
+				860EDD44192254B65210ABAB /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				F21CDF523C923FFFD992C565 /* [CP] Embed Pods Frameworks */,
+				D2B6A330510ABC77DAB77EBA /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = vibecode;
-			productName = vibecode;
-			productReference = 13B07F961A680F5B00A75B9A /* vibecode.app */;
+			name = homehub;
+			productName = homehub;
+			productReference = 13B07F961A680F5B00A75B9A /* homehub.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -170,7 +170,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "vibecode" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "homehub" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -183,7 +183,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* vibecode */,
+				13B07F861A680F5B00A75B9A /* homehub */,
 			);
 		};
 /* End PBXProject section */
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				B0637B8185866FFFBF765078 /* PrivacyInfo.xcprivacy in Resources */,
+				79ADEE881E49965B86903648 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,31 +233,12 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-vibecode-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-homehub-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
-		};
-		79DAE730EC06BC7C662DB59A /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-vibecode/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -265,7 +246,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-vibecode/Pods-vibecode-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-homehub/Pods-homehub-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXApplication/ExpoApplication_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
@@ -287,7 +268,6 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/glog/glog_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/lottie-ios/LottiePrivacyInfo.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/lottie-react-native/Lottie_React_Native_Privacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/react-native-maps/ReactNativeMapsPrivacy.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -312,20 +292,38 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/glog_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/LottiePrivacyInfo.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Lottie_React_Native_Privacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ReactNativeMapsPrivacy.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-vibecode/Pods-vibecode-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-homehub/Pods-homehub-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F21CDF523C923FFFD992C565 /* [CP] Embed Pods Frameworks */ = {
+		860EDD44192254B65210ABAB /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-homehub/expo-configure-project.sh\"\n";
+		};
+		D2B6A330510ABC77DAB77EBA /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-vibecode/Pods-vibecode-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-homehub/Pods-homehub-frameworks.sh",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -334,7 +332,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-vibecode/Pods-vibecode-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-homehub/Pods-homehub-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -345,7 +343,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				4BEA5962E4943D32AB2E97D0 /* ExpoModulesProvider.swift in Sources */,
+				4CCE1DFFD2DE231EFDA63749 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,18 +352,18 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 64C5E53B4904C1062898B15F /* Pods-vibecode.debug.xcconfig */;
+			baseConfigurationReference = 3817B49567B1FC78E72353A2 /* Pods-homehub.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = vibecode/vibecode.entitlements;
+				CODE_SIGN_ENTITLEMENTS = homehub/homehub.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
-				INFOPLIST_FILE = vibecode/Info.plist;
+				INFOPLIST_FILE = homehub/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -379,8 +377,8 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.manishsandil.vibecode;
-				PRODUCT_NAME = vibecode;
-				SWIFT_OBJC_BRIDGING_HEADER = "vibecode/vibecode-Bridging-Header.h";
+				PRODUCT_NAME = homehub;
+				SWIFT_OBJC_BRIDGING_HEADER = "homehub/homehub-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -390,13 +388,13 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E3986BCC320F13583DDA0F0E /* Pods-vibecode.release.xcconfig */;
+			baseConfigurationReference = 58A4ECED94E8622780A329EB /* Pods-homehub.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = vibecode/vibecode.entitlements;
+				CODE_SIGN_ENTITLEMENTS = homehub/homehub.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = vibecode/Info.plist;
+				INFOPLIST_FILE = homehub/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -410,8 +408,8 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.manishsandil.vibecode;
-				PRODUCT_NAME = vibecode;
-				SWIFT_OBJC_BRIDGING_HEADER = "vibecode/vibecode-Bridging-Header.h";
+				PRODUCT_NAME = homehub;
+				SWIFT_OBJC_BRIDGING_HEADER = "homehub/homehub-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -545,7 +543,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "vibecode" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "homehub" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -554,7 +552,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "vibecode" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "homehub" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

@@ -9,9 +9,11 @@ interface ShoppingItemCardProps {
   item: ShoppingItem;
   onToggle: (id: string) => void;
   onPress?: (item: ShoppingItem) => void;
+  selectionMode?: boolean;
+  isSelected?: boolean;
 }
 
-export default function ShoppingItemCard({ item, onToggle, onPress }: ShoppingItemCardProps) {
+export default function ShoppingItemCard({ item, onToggle, onPress, selectionMode = false, isSelected = false }: ShoppingItemCardProps) {
   const { categoryColors } = useSettingsStore();
   const categoryColor = categoryColors.shoppingCategories[item.category];
 
@@ -44,23 +46,30 @@ export default function ShoppingItemCard({ item, onToggle, onPress }: ShoppingIt
     <Pressable
       onPress={() => onPress?.(item)}
       className={cn(
-        "bg-white/20 rounded-xl p-3 mb-2 border-l-4 flex-row items-center",
-        item.completed && "opacity-50"
+        "rounded-xl p-3 mb-2 border-l-4 flex-row items-center",
+        selectionMode && isSelected 
+          ? "bg-blue-500/30 border-2 border-blue-400" 
+          : "bg-white/20",
+        item.completed && !selectionMode && "opacity-50"
       )}
-      style={{ borderLeftColor: categoryColor }}
+      style={{ borderLeftColor: selectionMode && isSelected ? "#60A5FA" : categoryColor }}
       {...responder.panHandlers}
     >
       {/* Checkbox */}
       <Pressable
-        onPress={() => onToggle(item.id)}
+        onPress={() => selectionMode ? onPress?.(item) : onToggle(item.id)}
         className={cn(
-          "w-6 h-6 rounded-full border-2 items-center justify-center mr-3",
-          item.completed
-            ? "bg-primary border-primary"
-            : "border-white/30 bg-white/10"
+          "w-6 h-6 items-center justify-center mr-3",
+          selectionMode
+            ? isSelected
+              ? "bg-blue-500 border-2 border-blue-500 rounded-md"
+              : "border-2 border-white/30 bg-white/10 rounded-md"
+            : item.completed
+              ? "bg-primary border-2 border-primary rounded-full"
+              : "border-2 border-white/30 bg-white/10 rounded-full"
         )}
       >
-        {item.completed && (
+        {((selectionMode && isSelected) || (!selectionMode && item.completed)) && (
           <Ionicons name="checkmark" size={14} color="#FFFFFF" />
         )}
       </Pressable>

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '../state/authStore';
 import GradientBackground from './GradientBackground';
 import SignInScreen from '../screens/Auth/SignInScreen';
 import SignUpScreen from '../screens/Auth/SignUpScreen';
 import AppNavigator from '../navigation/AppNavigator';
+import { syncUserData, clearAllUserData } from '../utils/userSync';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -13,6 +14,17 @@ interface AuthWrapperProps {
 export default function AuthWrapper({ children }: AuthWrapperProps) {
   const { isAuthenticated, isLoading, user } = useAuthStore();
   const [showSignUp, setShowSignUp] = useState(false);
+
+  // Sync user ID to all stores when authentication state changes
+  useEffect(() => {
+    if (user?.uid) {
+      console.log('Syncing user ID to all stores:', user.uid);
+      syncUserData(user.uid);
+    } else {
+      console.log('No user - clearing all data');
+      clearAllUserData();
+    }
+  }, [user?.uid]);
 
   // Show loading screen while checking authentication
   if (isLoading) {

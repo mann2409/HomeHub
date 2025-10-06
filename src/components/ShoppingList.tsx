@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, SectionList } from "react-native";
+import { View, Text, Pressable, SectionList, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Card from "./Card";
 import ShoppingItemCard from "./ShoppingItemCard";
@@ -16,13 +16,17 @@ export default function ShoppingList() {
     getTotalEstimatedCost,
     getPendingItems,
     getCompletedItems,
-    clearCompleted
+    clearCompleted,
+    deleteMultipleItems,
+    deleteAllItems
   } = useShoppingStore();
   const { categoryColors } = useSettingsStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ShoppingItem | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
   const categorizedItems = getCategorizedItems();
   const totalCost = getTotalEstimatedCost();
@@ -52,20 +56,100 @@ export default function ShoppingList() {
     }>;
 
   const handleItemPress = (item: ShoppingItem) => {
-    setSelectedItem(item);
-    setShowEditModal(true);
+    if (selectionMode) {
+      toggleItemSelection(item.id);
+    } else {
+      setSelectedItem(item);
+      setShowEditModal(true);
+    }
+  };
+
+  const toggleItemSelection = (id: string) => {
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAll = () => {
+    const allItemIds = sections.flatMap(section => section.data.map(item => item.id));
+    setSelectedItems(new Set(allItemIds));
+  };
+
+  const deselectAll = () => {
+    setSelectedItems(new Set());
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedItems.size === 0) return;
+    
+    deleteMultipleItems(Array.from(selectedItems));
+    setSelectedItems(new Set());
+    setSelectionMode(false);
+  };
+
+  const handleCancelSelection = () => {
+    setSelectionMode(false);
+    setSelectedItems(new Set());
+  };
+
+  const handleDeleteAll = () => {
+    Alert.alert(
+      'Delete All Items',
+      'Are you sure you want to delete ALL items from your shopping list? This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete All',
+          style: 'destructive',
+          onPress: () => {
+            deleteAllItems();
+            console.log('✅ All shopping items deleted');
+          },
+        },
+      ]
+    );
   };
 
   return (
     <>
       <Card className="mb-4">
-        <View className="flex-row items-center justify-end mb-4">
-          <Pressable
-            onPress={() => setShowAddModal(true)}
-            className="w-8 h-8 bg-primary rounded-full items-center justify-center"
-          >
-            <Ionicons name="add" size={20} color="#FFFFFF" />
-          </Pressable>
+        <View className="flex-row items-center justify-between mb-4">
+          {selectionMode ? (
+            <>
+              <Pressable
+                onPress={handleCancelSelection}
+                className="flex-row items-center"
+              >
+                <Ionicons name="close" size={20} color="rgba(255, 255, 255, 0.8)" />
+                <Text className="text-white/80 ml-2">Cancel</Text>
+              </Pressable>
+              <Text className="text-white font-semibold">
+                {selectedItems.size} selected
+              </Text>
+            </>
+          ) : (
+            <>
+              <Pressable
+                onPress={() => setSelectionMode(true)}
+                className="flex-row items-center"
+              >
+                <Ionicons name="checkmark-circle-outline" size={20} color="rgba(255, 255, 255, 0.8)" />
+                <Text className="text-white/80 ml-2">Select</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setShowAddModal(true)}
+                className="w-8 h-8 bg-primary rounded-full items-center justify-center"
+              >
+                <Ionicons name="add" size={20} color="#FFFFFF" />
+              </Pressable>
+            </>
+          )}
         </View>
 
         {/* Summary Stats */}
@@ -91,33 +175,76 @@ export default function ShoppingList() {
         </View>
 
         {/* Controls */}
-        <View className="flex-row items-center justify-between mb-4">
-          <Pressable
-            onPress={() => setShowCompleted(!showCompleted)}
-            className="flex-row items-center"
-          >
-            <Ionicons 
-              name={showCompleted ? "eye-off" : "eye"} 
-              size={16} 
-              color="rgba(255, 255, 255, 0.8)" 
-            />
-            <Text className="text-sm text-white/80 ml-2">
-              {showCompleted ? "Hide" : "Show"} completed
-            </Text>
-          </Pressable>
+        {!selectionMode ? (
+          <>
+            <View className="flex-row items-center justify-between mb-4">
+              <Pressable
+                onPress={() => setShowCompleted(!showCompleted)}
+                className="flex-row items-center"
+              >
+                <Ionicons 
+                  name={showCompleted ? "eye-off" : "eye"} 
+                  size={16} 
+                  color="rgba(255, 255, 255, 0.8)" 
+                />
+                <Text className="text-sm text-white/80 ml-2">
+                  {showCompleted ? "Hide" : "Show"} completed
+                </Text>
+              </Pressable>
 
-          {completedCount > 0 && (
+              {completedCount > 0 && (
+                <Pressable
+                  onPress={clearCompleted}
+                  className="flex-row items-center"
+                >
+                  <Ionicons name="trash-outline" size={16} color="#F86D70" />
+                  <Text className="text-sm text-[#F86D70] ml-1">
+                    Clear completed
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+            
+            {/* Delete All Button */}
+            {sections.length > 0 && (
+              <Pressable
+                onPress={handleDeleteAll}
+                className="bg-red-500/20 border border-red-500/30 rounded-lg py-3 mb-4 flex-row items-center justify-center active:opacity-70"
+              >
+                <Ionicons name="trash" size={18} color="#EF4444" />
+                <Text className="text-red-400 font-semibold ml-2">
+                  Delete All Items ({pendingCount + completedCount})
+                </Text>
+              </Pressable>
+            )}
+          </>
+        ) : (
+          <View className="flex-row items-center justify-between mb-4 gap-2">
             <Pressable
-              onPress={clearCompleted}
-              className="flex-row items-center"
+              onPress={selectedItems.size === sections.flatMap(s => s.data).length ? deselectAll : selectAll}
+              className="flex-1 bg-white/10 rounded-lg py-3 items-center"
             >
-              <Ionicons name="trash-outline" size={16} color="#F86D70" />
-              <Text className="text-sm text-[#F86D70] ml-1">
-                Clear completed
+              <Text className="text-white font-semibold">
+                {selectedItems.size === sections.flatMap(s => s.data).length ? "Deselect All" : "Select All"}
               </Text>
             </Pressable>
-          )}
-        </View>
+            
+            <Pressable
+              onPress={handleDeleteSelected}
+              disabled={selectedItems.size === 0}
+              className={`flex-1 rounded-lg py-3 items-center ${
+                selectedItems.size === 0 ? 'bg-red-500/30' : 'bg-red-500'
+              }`}
+            >
+              <View className="flex-row items-center">
+                <Ionicons name="trash" size={18} color="#FFFFFF" />
+                <Text className="text-white font-semibold ml-2">
+                  Delete ({selectedItems.size})
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+        )}
 
         {/* Shopping List */}
         {sections.length === 0 ? (
@@ -139,6 +266,8 @@ export default function ShoppingList() {
                 item={item}
                 onToggle={toggleItem}
                 onPress={handleItemPress}
+                selectionMode={selectionMode}
+                isSelected={selectedItems.has(item.id)}
               />
             )}
             renderSectionHeader={({ section }) => (
@@ -159,6 +288,8 @@ export default function ShoppingList() {
             )}
             showsVerticalScrollIndicator={false}
             stickySectionHeadersEnabled={false}
+            scrollEnabled={false}
+            nestedScrollEnabled={true}
           />
         )}
       </Card>
