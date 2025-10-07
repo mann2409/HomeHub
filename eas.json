@@ -18,8 +18,7 @@
     },
     "production": {
       "ios": {
-        "simulator": false,
-        "bundleIdentifier": "com.manishsandil.vibecode"
+        "simulator": false
       },
       "android": {
         "buildType": "apk"

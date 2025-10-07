@@ -173,12 +173,13 @@ export const useAuthStore = create<AuthState>()(
           const errorMessage = error.code === 'auth/requires-recent-login'
             ? 'For security reasons, please sign out and sign in again before deleting your account.'
             : error.message || 'Account deletion failed';
-            
+
           set({ 
             error: errorMessage, 
             isLoading: false 
           });
-          throw error;
+          // Throw a user-friendly error so UI doesn't display raw Firebase code
+          throw new Error(errorMessage);
         }
       },
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, Keyboard } from "react-native";
+import { ScrollView, Keyboard, Platform, View, Text, Pressable } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Modal from "./Modal";
 import Input from "./Input";
 import PrioritySelector from "./PrioritySelector";
@@ -23,6 +24,8 @@ export default function AddTaskModal({ visible, onClose, initialDate }: AddTaskM
   const [priority, setPriority] = useState<Priority>("medium");
   const [dueDate, setDueDate] = useState(initialDate || new Date());
   const [recurring, setRecurring] = useState<RecurrenceRule | undefined>(undefined);
+  const [time, setTime] = useState<Date | null>(null);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [titleError, setTitleError] = useState("");
   const [showToast, setShowToast] = useState(false);
@@ -51,6 +54,7 @@ export default function AddTaskModal({ visible, onClose, initialDate }: AddTaskM
     setPriority("medium");
     setDueDate(initialDate || new Date());
     setRecurring(undefined);
+    setTime(null);
   };
 
   const validateForm = () => {
@@ -73,11 +77,20 @@ export default function AddTaskModal({ visible, onClose, initialDate }: AddTaskM
     Keyboard.dismiss();
 
     try {
+      // Combine selected date with optional time
+      const combinedDueDate = (() => {
+        if (!dueDate) return undefined;
+        if (!time) return dueDate;
+        const d = new Date(dueDate);
+        d.setHours(time.getHours(), time.getMinutes(), 0, 0);
+        return d;
+      })();
+
       addTask({
         title: title.trim(),
         description: description.trim() || undefined,
         completed: false,
-        dueDate,
+        dueDate: combinedDueDate,
         category,
         priority,
         recurring,
@@ -171,6 +184,38 @@ export default function AddTaskModal({ visible, onClose, initialDate }: AddTaskM
           value={recurring}
           onChange={setRecurring}
         />
+
+        {/* Time selection */}
+        <View className="mt-3">
+          <Text className="text-white/80 mb-2">Time (optional)</Text>
+          <Pressable
+            onPress={() => setShowTimePicker(true)}
+            className="py-3 px-4 rounded-lg border border-white/20 bg-white/5"
+          >
+            <Text className="text-white">
+              {time ? time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Select time'}
+            </Text>
+          </Pressable>
+
+          {showTimePicker && (
+            <DateTimePicker
+              value={time || dueDate || new Date()}
+              mode="time"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              {...(Platform.OS === 'ios' ? { textColor: '#FFFFFF' } : {})}
+              onChange={(event: any, selected?: Date) => {
+                if (Platform.OS !== 'ios') setShowTimePicker(false);
+                if (event.type === 'dismissed') return;
+                if (selected) {
+                  const picked = new Date(selected);
+                  picked.setSeconds(0, 0);
+                  setTime(picked);
+                }
+              }}
+              onTouchCancel={() => setShowTimePicker(false)}
+            />
+          )}
+        </View>
       </ScrollView>
       </Modal>
 

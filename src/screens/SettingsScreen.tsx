@@ -147,10 +147,25 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
                       Alert.alert("Account Deleted", "Your account and all data have been permanently deleted.");
                     } catch (error: any) {
                       console.error("Delete account error:", error);
-                      Alert.alert(
-                        "Error", 
-                        error.message || "Failed to delete account. Please try again."
-                      );
+                      const message = typeof error?.message === 'string' ? error.message : 'Failed to delete account. Please try again.';
+                      if (message.toLowerCase().includes('sign out and sign in')) {
+                        Alert.alert(
+                          'Recent Login Required',
+                          message,
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'Sign Out Now',
+                              style: 'destructive',
+                              onPress: async () => {
+                                try { await logout(); } catch {}
+                              }
+                            }
+                          ]
+                        );
+                      } else {
+                        Alert.alert('Error', message);
+                      }
                     }
                   },
                 },

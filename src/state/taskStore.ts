@@ -194,12 +194,19 @@ const useTaskStore = create<TaskState>()(
           const targetDate = new Date(date);
           targetDate.setHours(0, 0, 0, 0);
           
-          return tasksToShow.filter((task) => {
+          const results = tasksToShow.filter((task) => {
             if (!task.dueDate) return false;
             const taskDate = new Date(task.dueDate);
             taskDate.setHours(0, 0, 0, 0);
             return taskDate.getTime() === targetDate.getTime();
           });
+          // Sort ascending by time if present
+          results.sort((a, b) => {
+            const aTime = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+            const bTime = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+            return aTime - bTime;
+          });
+          return results;
         }
         
         // In a family - show all family tasks
@@ -218,7 +225,13 @@ const useTaskStore = create<TaskState>()(
           }
           return matches;
         });
-        
+        // Sort ascending by time
+        filteredTasks.sort((a, b) => {
+          const aTime = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+          const bTime = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+          return aTime - bTime;
+        });
+
         console.log(`  → Returning ${filteredTasks.length} tasks for this date`);
         return filteredTasks;
       },
