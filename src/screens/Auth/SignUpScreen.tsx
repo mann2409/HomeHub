@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import GradientBackground from '../../components/GradientBackground';
 import Card from '../../components/Card';
 import Input from '../../components/Input';
@@ -15,6 +16,7 @@ interface SignUpScreenProps {
 export default function SignUpScreen({ onSwitchToSignIn }: SignUpScreenProps) {
   const insets = useSafeAreaInsets();
   const { signUp, isLoading, error, clearError } = useAuthStore();
+  const navigation = useNavigation();
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -164,6 +166,21 @@ export default function SignUpScreen({ onSwitchToSignIn }: SignUpScreenProps) {
             <Button
               title="Create Account"
               onPress={handleSignUp}
+              disabled={isLoading}
+              className="mb-4"
+            />
+
+            <Button
+              title="Cancel"
+              variant="outline"
+              onPress={() => {
+                if (onSwitchToSignIn) {
+                  onSwitchToSignIn();
+                } else {
+                  // @ts-ignore - navigation exists in app container
+                  navigation.goBack?.();
+                }
+              }}
               disabled={isLoading}
               className="mb-4"
             />

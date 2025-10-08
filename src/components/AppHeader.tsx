@@ -29,10 +29,11 @@ export default function AppHeader({ title, showUserIcon = true }: AppHeaderProps
         }}
       >
         <View className="flex-row items-center justify-between">
-          {/* Title */}
-          <Text className="text-2xl font-bold text-white">
-            {title}
-          </Text>
+          {/* App name + section */}
+          <View>
+            <Text className="text-2xl font-bold text-white">FamOrganizer</Text>
+            <Text className="text-white/70 text-xs mt-0.5">{title}</Text>
+          </View>
           
           {/* User Avatar */}
           {showUserIcon && (
