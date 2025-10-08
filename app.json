@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "FamOrganizer",
-    "slug": "FamOrganizer",
-    "scheme": "FamOrganizer",
+    "slug": "homehub",
+    "scheme": "homehub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
