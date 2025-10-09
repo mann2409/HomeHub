@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		30EC9AA2038BC52E072E7333 /* libPods-FamOrganizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 976C1D38B0C3B312D23774CA /* libPods-FamOrganizer.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		70F090A5C3B36060C3F054F5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7794EA0236FC0C7981A01E7E /* PrivacyInfo.xcprivacy */; };
-		87DA6A6909A8E8FF27612F29 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5695D1898D358317D4233E8 /* ExpoModulesProvider.swift */; };
+		49ABB574F66663CDC6BAFA7F /* libPods-FamOrganizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC7DBEDA23CFCFC8DCD9FD0F /* libPods-FamOrganizer.a */; };
+		9182A460CD9EA6921441CF87 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9A0792AEF4A22598A0675AAF /* PrivacyInfo.xcprivacy */; };
+		AB6C89AC4DF6ADFB6048BF6A /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80BA046847F257AC118E4B8 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -20,16 +20,16 @@
 		13B07F961A680F5B00A75B9A /* FamOrganizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FamOrganizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = FamOrganizer/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = FamOrganizer/Info.plist; sourceTree = "<group>"; };
-		3247AD15655689AE1F8F93B7 /* Pods-FamOrganizer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FamOrganizer.debug.xcconfig"; path = "Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer.debug.xcconfig"; sourceTree = "<group>"; };
-		7794EA0236FC0C7981A01E7E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = FamOrganizer/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		976C1D38B0C3B312D23774CA /* libPods-FamOrganizer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FamOrganizer.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A0792AEF4A22598A0675AAF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = FamOrganizer/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = FamOrganizer/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B80BA046847F257AC118E4B8 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-FamOrganizer/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D5695D1898D358317D4233E8 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-FamOrganizer/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		BC7DBEDA23CFCFC8DCD9FD0F /* libPods-FamOrganizer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FamOrganizer.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E3A7038C6E3616700E475956 /* Pods-FamOrganizer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FamOrganizer.release.xcconfig"; path = "Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		EE1DA4786A4FE00A30260D06 /* Pods-FamOrganizer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FamOrganizer.debug.xcconfig"; path = "Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer.debug.xcconfig"; sourceTree = "<group>"; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = FamOrganizer/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* FamOrganizer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "FamOrganizer-Bridging-Header.h"; path = "FamOrganizer/FamOrganizer-Bridging-Header.h"; sourceTree = "<group>"; };
-		F298B67FEFAB04E2697C66E1 /* Pods-FamOrganizer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FamOrganizer.release.xcconfig"; path = "Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30EC9AA2038BC52E072E7333 /* libPods-FamOrganizer.a in Frameworks */,
+				49ABB574F66663CDC6BAFA7F /* libPods-FamOrganizer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				7794EA0236FC0C7981A01E7E /* PrivacyInfo.xcprivacy */,
+				9A0792AEF4A22598A0675AAF /* PrivacyInfo.xcprivacy */,
 			);
 			name = FamOrganizer;
 			sourceTree = "<group>";
@@ -62,17 +62,9 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				976C1D38B0C3B312D23774CA /* libPods-FamOrganizer.a */,
+				BC7DBEDA23CFCFC8DCD9FD0F /* libPods-FamOrganizer.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		4F96520C148AFE37C54AF0FC /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				DB3E398999487AEB888C7751 /* FamOrganizer */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -89,8 +81,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				AD2214E94C8E852607D7D679 /* Pods */,
-				4F96520C148AFE37C54AF0FC /* ExpoModulesProviders */,
+				E6B104C1D682DB87B847986E /* Pods */,
+				A32016186F8C74280012F840 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -105,14 +97,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AD2214E94C8E852607D7D679 /* Pods */ = {
+		A32016186F8C74280012F840 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				3247AD15655689AE1F8F93B7 /* Pods-FamOrganizer.debug.xcconfig */,
-				F298B67FEFAB04E2697C66E1 /* Pods-FamOrganizer.release.xcconfig */,
+				B517D162BB887617B12915D8 /* FamOrganizer */,
 			);
-			name = Pods;
-			path = Pods;
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		B517D162BB887617B12915D8 /* FamOrganizer */ = {
+			isa = PBXGroup;
+			children = (
+				B80BA046847F257AC118E4B8 /* ExpoModulesProvider.swift */,
+			);
+			name = FamOrganizer;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -124,12 +122,14 @@
 			path = FamOrganizer/Supporting;
 			sourceTree = "<group>";
 		};
-		DB3E398999487AEB888C7751 /* FamOrganizer */ = {
+		E6B104C1D682DB87B847986E /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D5695D1898D358317D4233E8 /* ExpoModulesProvider.swift */,
+				EE1DA4786A4FE00A30260D06 /* Pods-FamOrganizer.debug.xcconfig */,
+				E3A7038C6E3616700E475956 /* Pods-FamOrganizer.release.xcconfig */,
 			);
-			name = FamOrganizer;
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "FamOrganizer" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				138E5AA6B6D8299B1D548558 /* [Expo] Configure project */,
+				D785E1E07E70E3FC33BD95B1 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				13714C063226008EDD01D134 /* [CP] Embed Pods Frameworks */,
+				E6AC35D9E8162A7C1FD7C07E /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				70F090A5C3B36060C3F054F5 /* PrivacyInfo.xcprivacy in Resources */,
+				9182A460CD9EA6921441CF87 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,43 +239,6 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
-		};
-		13714C063226008EDD01D134 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		138E5AA6B6D8299B1D548558 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-FamOrganizer/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -335,6 +298,43 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		D785E1E07E70E3FC33BD95B1 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-FamOrganizer/expo-configure-project.sh\"\n";
+		};
+		E6AC35D9E8162A7C1FD7C07E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FamOrganizer/Pods-FamOrganizer-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -343,7 +343,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				87DA6A6909A8E8FF27612F29 /* ExpoModulesProvider.swift in Sources */,
+				AB6C89AC4DF6ADFB6048BF6A /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,7 +352,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3247AD15655689AE1F8F93B7 /* Pods-FamOrganizer.debug.xcconfig */;
+			baseConfigurationReference = EE1DA4786A4FE00A30260D06 /* Pods-FamOrganizer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -388,7 +388,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F298B67FEFAB04E2697C66E1 /* Pods-FamOrganizer.release.xcconfig */;
+			baseConfigurationReference = E3A7038C6E3616700E475956 /* Pods-FamOrganizer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
