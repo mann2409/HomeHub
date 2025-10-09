@@ -300,7 +300,7 @@ PODS:
     - ExpoModulesCore
   - ExpoContacts (14.2.5):
     - ExpoModulesCore
-  - ExpoCrypto (15.0.7):
+  - ExpoCrypto (14.1.5):
     - ExpoModulesCore
   - ExpoDevice (7.1.4):
     - ExpoModulesCore
@@ -312,7 +312,7 @@ PODS:
     - ExpoModulesCore
   - ExpoHaptics (14.1.4):
     - ExpoModulesCore
-  - ExpoImage (2.4.0):
+  - ExpoImage (2.4.1):
     - ExpoModulesCore
     - libavif/libdav1d
     - SDWebImage (~> 5.21.0)
@@ -2966,13 +2966,13 @@ SPEC CHECKSUMS:
   ExpoCellular: cec617c27a14e88ae90ff2d6376601fb6885c8a8
   ExpoClipboard: 436f6de6971f14eb75ae160e076d9cb3b19eb795
   ExpoContacts: 43f426162ce3c16c3f993dbac8d120b0ffd3bb87
-  ExpoCrypto: c1fbce112d1b6b79652bbe380b4fd4cc91676595
+  ExpoCrypto: a9f1d75baeea6ef8b03c1660621585196c382e85
   ExpoDevice: 7082f03af1c588333ef1417d5aa8287081d94b24
   ExpoDocumentPicker: b263a279685b6640b8c8bc70d71c83067aeaae55
   ExpoFileSystem: 7f92f7be2f5c5ed40a7c9efc8fa30821181d9d63
   ExpoFont: cf508bc2e6b70871e05386d71cab927c8524cc8e
   ExpoHaptics: 0ff6e0d83cd891178a306e548da1450249d54500
-  ExpoImage: e4102c93d1dbe99ff54b075452d1bc9d6ec21b7c
+  ExpoImage: b0b4a838c62bb9d5438bb475cccc85619a5f59dc
   ExpoImageManipulator: 1e06e7a1e56f454e75d01b7032c1e44963bfc865
   ExpoImagePicker: 0963da31800c906e01c03e25d7c849f16ebf02a2
   ExpoInsights: 58e64eba38ad4a46358bc3e316d2e5ed50d71caa
@@ -3096,6 +3096,6 @@ SPEC CHECKSUMS:
   Yoga: adb397651e1c00672c12e9495babca70777e411e
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 3a265fef46265ea0c826d0f294a1fb9788b6690d
+PODFILE CHECKSUM: 9d1157d25a3671b0a235dc6ccfa7eb55a759b52c
 
 COCOAPODS: 1.16.2
