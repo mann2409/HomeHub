@@ -216,6 +216,70 @@ const collectTopProductCandidates = (retailer: RetailerType, searchTerm: string,
         return null;
       }
     };
+
+    const collectWoolworthsShadowTiles = () => {
+      if (!window.location.href.includes('woolworths.com.au')) return [];
+      const __deepNodes = function*(root = document) {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+        let n = root;
+        while (n) {
+          yield n;
+          if (n.shadowRoot) yield* __deepNodes(n.shadowRoot);
+          n = walker.nextNode();
+        }
+      };
+      const tiles = [];
+      for (const node of __deepNodes(document)) {
+        if (node.matches && node.matches('wc-product-tile')) {
+          tiles.push(node);
+        }
+      }
+      return tiles.filter(tile => tile.shadowRoot);
+    };
+    const shadowTileCandidates = collectWoolworthsShadowTiles().map((tile, index) => {
+      try {
+        const sr = tile.shadowRoot;
+        const anchor = sr && sr.querySelector('a[aria-label]');
+        const ariaTitle = (anchor && anchor.getAttribute('aria-label')) || '';
+        const priceEl = sr && sr.querySelector('[data-test="product-price"], [class*="price"]');
+        const priceText = priceEl ? priceEl.textContent || '' : '';
+        const img = sr && sr.querySelector('img');
+        const imageUrl = img ? ensureAbsoluteUrl(img.currentSrc || img.src || (img.srcset ? img.srcset.split(' ')[0] : null)) : null;
+        const text = normalize(ariaTitle + ' ' + priceText);
+        let score = 0;
+        const matchedTokens = [];
+        if (text.includes(normalizedSearch)) {
+          score += 120;
+          matchedTokens.push('exact');
+        }
+        normalizedParts.forEach((token, idx) => {
+          if (!token) return;
+          const singular = singularParts[idx];
+          if (text.includes(token)) {
+            score += 25;
+            matchedTokens.push(token);
+          } else if (singular && singular.length > 3 && text.includes(singular)) {
+            score += 18;
+            matchedTokens.push(singular);
+          }
+        });
+        if (/outofstock|soldout/.test(text)) score -= 40;
+        const href = anchor ? anchor.getAttribute('href') : '';
+        const absoluteHref = href ? ensureAbsoluteUrl(href) : null;
+        return {
+          id: tile.getAttribute('data-auto-candidate-id') || ('auto-ww-shadow-' + index),
+          title: ariaTitle || '',
+          href: absoluteHref && isAllowedUrl(absoluteHref) ? absoluteHref : null,
+          imageUrl,
+          priceText: priceText.trim() || undefined,
+          score,
+          snippet: ariaTitle,
+          matchedTokens
+        };
+      } catch (_) {
+        return null;
+      }
+    }).filter(Boolean);
     const extractImageFromElement = (element) => {
       if (!element) return null;
       const img = element.querySelector('img');
@@ -349,8 +413,11 @@ const collectTopProductCandidates = (retailer: RetailerType, searchTerm: string,
         snippet,
         matchedTokens
       };
-    }).filter(item => item.score > 0).sort((a, b) => b.score - a.score);
-    const topCandidates = results
+    }).filter(item => item && item.score > 0).sort((a, b) => b.score - a.score);
+
+    const combinedCandidates = [...shadowTileCandidates, ...results].filter(Boolean);
+
+    const topCandidates = combinedCandidates
       .filter(Boolean)
       .slice(0, ${limit})
       .map(item => ({
