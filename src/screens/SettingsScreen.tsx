@@ -7,6 +7,9 @@ import Card from "../components/Card";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import FamilySettings from "../components/FamilySettings";
+import OnboardingModal from "../components/OnboardingModal";
+import Modal from "../components/Modal";
+import BannerAdComponent from "../components/BannerAd";
 import useSettingsStore from "../state/settingsStore";
 import useTaskStore from "../state/taskStore";
 import useMealStore from "../state/mealStore";
@@ -15,6 +18,7 @@ import useShoppingStore from "../state/shoppingStore";
 import useNoteStore from "../state/noteStore";
 import { useAuthStore } from "../state/authStore";
 import { exportAllDataToJson } from "../utils/export";
+import useSubscriptionStore from "../state/subscriptionStore";
 
 interface SettingsScreenProps {
   onClose?: () => void;
@@ -26,11 +30,18 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
     notifications, 
     moduleVisibility,
     currency,
+    weeklyExpenseTarget,
     updateSettings, 
     updateModuleVisibility 
   } = useSettingsStore();
   
   const { logout, deleteAccount, user, userName } = useAuthStore();
+  const { showTutorialOnStart, setShowTutorialOnStart } = useSettingsStore();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const { redeemPromoCode } = useSubscriptionStore();
+  const [showPromoModal, setShowPromoModal] = useState(false);
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
 
   // Data stores for export/import
   const { tasks } = useTaskStore();
@@ -40,6 +51,7 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
   const { notes } = useNoteStore();
 
   const [newCurrency, setNewCurrency] = useState(currency || "USD");
+  const [newWeeklyTarget, setNewWeeklyTarget] = useState(weeklyExpenseTarget?.toString() || "500");
 
 
   const handleNotificationToggle = (key: keyof typeof notifications) => {
@@ -59,6 +71,16 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
   const handleSaveCurrency = () => {
     updateSettings({ currency: newCurrency });
     Alert.alert("Success", "Currency updated successfully!");
+  };
+
+  const handleSaveWeeklyTarget = () => {
+    const target = parseFloat(newWeeklyTarget);
+    if (isNaN(target) || target <= 0) {
+      Alert.alert("Error", "Please enter a valid weekly expense target.");
+      return;
+    }
+    updateSettings({ weeklyExpenseTarget: target });
+    Alert.alert("Success", "Weekly expense target updated successfully!");
   };
 
   const handleExportData = async () => {
@@ -273,6 +295,29 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
             />
           </Card>
 
+          {/* Weekly Expense Target */}
+          <Card className="mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">
+              Weekly Expense Target
+            </Text>
+            
+            <Input
+              label="Target Amount"
+              value={newWeeklyTarget}
+              onChangeText={setNewWeeklyTarget}
+              placeholder="500"
+              keyboardType="numeric"
+              labelClassName="text-white/80"
+            />
+            
+            <Button
+              title="Save Target"
+              onPress={handleSaveWeeklyTarget}
+              className="mt-3"
+              disabled={!newWeeklyTarget.trim()}
+            />
+          </Card>
+
           {/* Data Management */}
           <Card className="mb-4">
             <Text className="text-lg font-semibold text-white mb-4">
@@ -322,6 +367,17 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
             </Text>
           </Card>
 
+          {/* Help & Tutorial */}
+          <Card className="mb-4">
+            <Text className="text-lg font-semibold text-white mb-4">Help & Tutorial</Text>
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-white/90">Show on first launch</Text>
+              <Switch value={showTutorialOnStart} onValueChange={setShowTutorialOnStart} />
+            </View>
+            <Button title="Open Tutorial" onPress={() => setShowOnboarding(true)} />
+          </Card>
+
+
           {/* Account */}
           <Card className="mb-4">
             <Text className="text-lg font-semibold text-white mb-4">
@@ -368,6 +424,15 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
                 Permanently delete your account and all data
               </Text>
             </Pressable>
+
+          {/* Promo / Temporary Premium Access */}
+          <View className="mt-4">
+            <Button
+              title="Redeem Promo Code"
+              variant="outline"
+              onPress={() => setShowPromoModal(true)}
+            />
+          </View>
           </Card>
 
           {/* About */}
@@ -397,6 +462,75 @@ export default function SettingsScreen({ onClose }: SettingsScreenProps) {
           </Card>
         </View>
       </ScrollView>
+
+      {/* Onboarding modal */}
+      <OnboardingModal
+        visible={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        images={{
+          recipeSearch: require('../../assets/onboarding/recipeSearch.png'),
+        }}
+        videos={{
+          dashboard: require('../../assets/onboarding/Dashboard.mp4'),
+          dashboard2: require('../../assets/onboarding/Dashboard_1.mp4'),
+          meals: require('../../assets/onboarding/meals.mp4'),
+          calendar: require('../../assets/onboarding/calendar.mp4'),
+          recipeSearch: require('../../assets/onboarding/recipeSearch.mp4'),
+          generateShopping: require('../../assets/onboarding/generateShopping.mp4'),
+          finances: require('../../assets/onboarding/finances.mp4'),
+          groceryList: require('../../assets/onboarding/groceryList.mp4'),
+          settings: require('../../assets/onboarding/settings.mp4'),
+        }}
+      />
+
+      {/* Promo Redeem Modal */}
+      <Modal
+        visible={showPromoModal}
+        onClose={() => { if (!redeeming) { setShowPromoModal(false); setPromoCodeInput(""); } }}
+        title="Redeem Promo Code"
+        navigationMode
+      >
+        <View className="p-4">
+          <Input
+            label="Enter Code"
+            value={promoCodeInput}
+            onChangeText={setPromoCodeInput}
+            autoCapitalize="characters"
+            placeholder="ABC123"
+            labelClassName="text-white/80"
+          />
+          <Button
+            title={redeeming ? "Redeeming..." : "Redeem"}
+            onPress={async () => {
+              if (!promoCodeInput.trim()) { Alert.alert('Error', 'Please enter a promo code.'); return; }
+              if (!user?.uid) { Alert.alert('Error', 'You must be signed in.'); return; }
+              try {
+                setRedeeming(true);
+                const result = await redeemPromoCode(promoCodeInput.trim(), user.uid);
+                if (result.success) {
+                  Alert.alert('Success', result.message);
+                  setShowPromoModal(false);
+                  setPromoCodeInput("");
+                } else {
+                  Alert.alert('Not applied', result.message);
+                }
+              } catch (e) {
+                Alert.alert('Error', 'Could not redeem code. Please try again.');
+              } finally {
+                setRedeeming(false);
+              }
+            }}
+            className="mt-3"
+            disabled={redeeming}
+          />
+          <Text className="text-white/60 text-xs mt-3">
+            Redeeming a valid code grants ad-free premium access. You can replace this with a subscription later.
+          </Text>
+        </View>
+      </Modal>
+
+      {/* Banner Ad at bottom - automatically hidden for premium users and Android */}
+      <BannerAdComponent />
     </GradientBackground>
   );
 }

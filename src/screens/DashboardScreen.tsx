@@ -13,6 +13,7 @@ import AddExpenseModal from "../components/AddExpenseModal";
 import AddShoppingItemModal from "../components/AddShoppingItemModal";
 import AddMealModal from "../components/AddMealModal";
 import QuickNoteModal from "../components/QuickNoteModal";
+import BannerAdComponent from "../components/BannerAd";
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
@@ -57,7 +58,8 @@ export default function DashboardScreen() {
         </View>
       </ScrollView>
       
-      
+      {/* Banner Ad at bottom - automatically hidden for premium users */}
+      <BannerAdComponent />
 
       {/* Modals */}
       <AddTaskModal

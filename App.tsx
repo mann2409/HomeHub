@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
@@ -8,7 +9,11 @@ import useSettingsStore from "./src/state/settingsStore";
 
 import AppNavigator from "./src/navigation/AppNavigator";
 import AuthWrapper from "./src/components/AuthWrapper";
+import GuideOverlay from "./src/components/GuideOverlay";
 import { useFamilySync } from "./src/hooks/useFamilySync";
+import { initializeAdMob } from "./src/services/adMobService";
+import useSubscriptionStore from "./src/state/subscriptionStore";
+// import useAuthStore from "./src/state/authStore";
 
 /*
 IMPORTANT NOTICE: DO NOT REMOVE
@@ -35,10 +40,26 @@ export default function App() {
   const systemScheme = useColorScheme();
   const { theme } = useSettingsStore();
   const isDark = theme === "dark" || (theme === "system" && systemScheme === "dark");
+  // const { user } = useAuthStore();
+  const { isPremium } = useSubscriptionStore();
   // const [fontsLoaded] = useFonts({ Inter_300Light, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
 
   // Initialize family sync for real-time data
   useFamilySync();
+
+  // Initialize monetization features
+  useEffect(() => {
+    // Initialize AdMob (it will use test IDs in development mode)
+    if (!isPremium) {
+      initializeAdMob();
+    }
+    
+    // Initialize subscriptions when user is logged in
+    // Uncomment when you have RevenueCat keys set up
+    // if (user?.uid) {
+    //   initializePurchases(user.uid);
+    // }
+  }, [isPremium]);
 
   // if (!fontsLoaded) {
   //   return null;

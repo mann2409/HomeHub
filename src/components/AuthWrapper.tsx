@@ -1,19 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '../state/authStore';
+import useSettingsStore from '../state/settingsStore';
+import Modal from './Modal';
+import TutorialScreen from '../screens/TutorialScreen';
+import { guideBus } from '../utils/guideBus';
 import GradientBackground from './GradientBackground';
 import SignInScreen from '../screens/Auth/SignInScreen';
 import SignUpScreen from '../screens/Auth/SignUpScreen';
 import AppNavigator from '../navigation/AppNavigator';
+import OnboardingModal from './OnboardingModal';
 import { syncUserData, clearAllUserData } from '../utils/userSync';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
 }
 
 export default function AuthWrapper({ children }: AuthWrapperProps) {
-  const { isAuthenticated, isLoading, user } = useAuthStore();
+  const { user, isLoading, setUser, setLoading } = useAuthStore();
+  const { showTutorialOnStart, setShowTutorialOnStart } = useSettingsStore();
+  const [showFirstRunTutorial, setShowFirstRunTutorial] = useState(false);
+  const lastUserId = useRef<string | null>(null);
   const [showSignUp, setShowSignUp] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Sync user ID to all stores when authentication state changes
   useEffect(() => {
@@ -25,6 +36,33 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
       clearAllUserData();
     }
   }, [user?.uid]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        setLoading(false);
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Show interactive guide on every sign-in when enabled in Settings
+  useEffect(() => {
+    const currentId = user?.uid ?? null;
+    if (currentId && lastUserId.current !== currentId) {
+      // On every new sign-in, show onboarding if enabled
+      setShowOnboarding(!!showTutorialOnStart);
+      // Optionally also trigger interactive guide
+      if (showTutorialOnStart) {
+        setTimeout(() => guideBus.emit({ type: 'guide:startTask' }), 500);
+      }
+    }
+    lastUserId.current = currentId;
+  }, [user?.uid, showTutorialOnStart]);
 
   // Show loading screen while checking authentication
   if (isLoading) {
@@ -41,7 +79,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   }
 
   // Show sign in screen if not authenticated
-  if (!isAuthenticated || !user) {
+  if (!user) {
     if (showSignUp) {
       return <SignUpScreen onSwitchToSignIn={() => setShowSignUp(false)} />;
     }
@@ -49,5 +87,32 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
   }
 
   // Show main app if authenticated
-  return <>{children}</>;
+  return <>
+    {children}
+    {/* Onboarding shown on every sign in when enabled */}
+    <OnboardingModal
+      visible={showOnboarding}
+      onClose={() => setShowOnboarding(false)}
+      images={{
+        // dashboard image replaced by video below
+        recipeSearch: require('../../assets/onboarding/recipeSearch.png'),
+      }}
+      videos={{
+        dashboard: require('../../assets/onboarding/Dashboard.mp4'),
+        dashboard2: require('../../assets/onboarding/Dashboard_1.mp4'),
+        meals: require('../../assets/onboarding/meals.mp4'),
+        calendar: require('../../assets/onboarding/calendar.mp4'),
+        recipeSearch: require('../../assets/onboarding/recipeSearch.mp4'),
+        generateShopping: require('../../assets/onboarding/generateShopping.mp4'),
+        finances: require('../../assets/onboarding/finances.mp4'),
+        groceryList: require('../../assets/onboarding/groceryList.mp4'),
+        settings: require('../../assets/onboarding/settings.mp4'),
+      }}
+    />
+    {showFirstRunTutorial && (
+      <Modal visible onClose={() => setShowFirstRunTutorial(false)} title="Quick Tutorial" navigationMode size="full">
+        <TutorialScreen onClose={() => setShowFirstRunTutorial(false)} />
+      </Modal>
+    )}
+  </>;
 }

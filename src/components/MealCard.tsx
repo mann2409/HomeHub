@@ -1,17 +1,19 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Meal, MealType, DietaryBadge } from "../types";
 import { cn } from "../utils/cn";
 import useSettingsStore from "../state/settingsStore";
+import { Book } from "phosphor-react-native";
 
 interface MealCardProps {
   meal: Meal | null;
   mealType: MealType;
   onPress: () => void;
+  onLongPress?: () => void;
 }
 
-export default function MealCard({ meal, mealType, onPress }: MealCardProps) {
+export default function MealCard({ meal, mealType, onPress, onLongPress }: MealCardProps) {
   const { categoryColors } = useSettingsStore();
 
   const mealTypeLabels = {
@@ -61,7 +63,8 @@ export default function MealCard({ meal, mealType, onPress }: MealCardProps) {
   
   return (
     <Pressable 
-      onPress={onPress} 
+      onPress={onPress}
+      onLongPress={onLongPress}
       className="min-h-[100px]"
       style={{
         shadowColor: "#000",
@@ -79,24 +82,44 @@ export default function MealCard({ meal, mealType, onPress }: MealCardProps) {
             borderRadius: 24,
             overflow: 'hidden' 
           }}
-          className="p-4 min-h-[100px] justify-between"
+          className="min-h-[100px]"
         >
-          {/* Header with meal type and note indicator */}
-          <View className="flex-row items-center justify-between mb-2">
-            <View className="flex-row items-center">
-              <Ionicons 
-                name={getMealTypeIcon(mealType) as any} 
-                size={16} 
-                color="#FFFFFF" 
-              />
-              <Text className="text-xs font-medium text-white/90 uppercase tracking-wide ml-2">
-                {mealTypeLabels[mealType]}
-              </Text>
+          {/* Recipe Image Background (if available) */}
+          {meal.recipeImageUrl && (
+            <Image
+              source={{ uri: meal.recipeImageUrl }}
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                opacity: 0.3,
+              }}
+              resizeMode="cover"
+            />
+          )}
+
+          <View className="p-4 min-h-[100px] justify-between">
+            {/* Header with meal type and note indicator */}
+            <View className="flex-row items-center justify-between mb-2">
+              <View className="flex-row items-center">
+                <Ionicons 
+                  name={getMealTypeIcon(mealType) as any} 
+                  size={16} 
+                  color="#FFFFFF" 
+                />
+                <Text className="text-xs font-medium text-white/90 uppercase tracking-wide ml-2">
+                  {mealTypeLabels[mealType]}
+                </Text>
+              </View>
+              <View className="flex-row items-center space-x-2">
+                {meal.recipeId && (
+                  <Book size={14} color="#FFFFFF" weight="fill" />
+                )}
+                {meal.notes && (
+                  <Ionicons name="document-text" size={14} color="#FFFFFF" opacity={0.8} />
+                )}
+              </View>
             </View>
-            {meal.notes && (
-              <Ionicons name="document-text" size={14} color="#FFFFFF" opacity={0.8} />
-            )}
-          </View>
           
           {/* Meal name */}
           <Text className="text-base font-bold text-white mb-1" numberOfLines={2}>
@@ -162,6 +185,7 @@ export default function MealCard({ meal, mealType, onPress }: MealCardProps) {
             
             {/* Tap to edit indicator */}
             <Ionicons name="chevron-forward" size={14} color="#FFFFFF" opacity={0.6} />
+          </View>
           </View>
         </View>
       ) : (

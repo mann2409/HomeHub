@@ -56,7 +56,7 @@ const useShoppingStore = create<ShoppingState>()(
       setUserId: (userId) => set({ userId }),
 
       addItem: async (itemData) => {
-        const { userId } = get();
+        const { userId, items } = get();
         
         if (!userId) {
           console.error('❌ Cannot add shopping item: No userId set');
@@ -67,6 +67,35 @@ const useShoppingStore = create<ShoppingState>()(
         
         if (!activeFamilyId) {
           console.error('⚠️ No active family - shopping item will NOT be saved to Firestore!');
+        }
+
+        // Normalize name for duplicate checks (trim + lowercase + collapse spaces)
+        const normalize = (s: string) => s.trim().toLowerCase().replace(/\s+/g, ' ');
+        const targetName = normalize(itemData.name);
+
+        // If an item with the same normalized name and same unit exists,
+        // merge by increasing quantity instead of adding a new row
+        const existing = items.find(i => normalize(i.name) === targetName && (i.unit || '') === (itemData.unit || ''));
+        if (existing) {
+          const newQuantity = (existing.quantity || 0) + (itemData.quantity || 1);
+          console.log('➕ Merging duplicate item by increasing quantity:', itemData.name, '→', newQuantity);
+
+          const { activeFamilyId } = useFamilyStore.getState();
+          if (activeFamilyId) {
+            try {
+              await updateDoc(doc(db, 'families', activeFamilyId, 'shopping', existing.id), {
+                quantity: newQuantity,
+                updatedAt: serverTimestamp(),
+              });
+            } catch (error) {
+              console.error('Error merging shopping item in Firestore:', error);
+            }
+          }
+
+          set((state) => ({
+            items: state.items.map((it) => it.id === existing.id ? { ...it, quantity: newQuantity, updatedAt: new Date() } : it),
+          }));
+          return;
         }
 
         console.log('Adding shopping item:', itemData.name);
@@ -254,8 +283,11 @@ const useShoppingStore = create<ShoppingState>()(
           other: [],
         };
 
-        // Show all family items
+        // Deduplicate by id to avoid duplicate keys in lists
+        const seenIds = new Set<string>();
         items.forEach((item) => {
+          if (seenIds.has(item.id)) return;
+          seenIds.add(item.id);
           categorized[item.category].push(item);
         });
 

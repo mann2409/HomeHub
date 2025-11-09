@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import Modal from "./Modal";
@@ -90,9 +90,25 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
   const handleDelete = () => {
     if (!meal) return;
     
-    deleteMeal(meal.id);
-    resetForm();
-    onClose();
+    Alert.alert(
+      "Delete Meal",
+      `Are you sure you want to delete "${meal.name}"? This action cannot be undone.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteMeal(meal.id);
+            resetForm();
+            onClose();
+          },
+        },
+      ]
+    );
   };
 
   const handleClose = () => {
@@ -130,6 +146,17 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
       >
+        {/* Delete Meal Button at Top */}
+        <View className="mb-6">
+          <Button
+            title="Delete Meal"
+            variant="outline"
+            onPress={handleDelete}
+            className="border-red-500/50 bg-red-500/10"
+            textClassName="text-red-400 font-semibold"
+          />
+        </View>
+
         <Input
           label="Meal Name"
           value={name}
@@ -262,15 +289,24 @@ export default function EditMealModal({ visible, onClose, meal }: EditMealModalP
           numberOfLines={2}
         />
 
-        <View className="mt-6">
-          <Button
-            title="Delete Meal"
-            variant="outline"
-            onPress={handleDelete}
-            className="border-red-200 bg-red-50"
-            textClassName="text-red-600"
-          />
-        </View>
+        {/* Recipe Instructions (Read-only if from recipe) */}
+        {meal.recipeInstructions && (
+          <View className="mb-4 mt-4">
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="book-outline" size={16} color="#4CAF50" />
+              <Text className="text-sm font-medium text-white ml-2">
+                Recipe Instructions
+              </Text>
+            </View>
+            <View className="bg-white/5 border border-white/20 rounded-lg p-4">
+              <ScrollView style={{ maxHeight: 200 }} showsVerticalScrollIndicator={true}>
+                <Text className="text-sm text-white/80 leading-relaxed">
+                  {meal.recipeInstructions}
+                </Text>
+              </ScrollView>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </Modal>
   );

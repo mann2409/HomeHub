@@ -3,6 +3,7 @@ import useFamilyStore from '../state/familyStore';
 import useTaskStore from '../state/taskStore';
 import useShoppingStore from '../state/shoppingStore';
 import useMealStore from '../state/mealStore';
+import useFinanceStore from '../state/financeStore';
 import { useAuthStore } from '../state/authStore';
 
 /**
@@ -15,6 +16,7 @@ export function useFamilySync() {
   const { subscribeToFamilyTasks } = useTaskStore();
   const { subscribeToFamilyShopping } = useShoppingStore();
   const { subscribeToFamilyMeals } = useMealStore();
+  const { subscribeToExpenses } = useFinanceStore();
 
   // Load user's families when they log in
   useEffect(() => {
@@ -55,8 +57,11 @@ export function useFamilySync() {
     
     // Subscribe to meals
     const unsubscribeMeals = subscribeToFamilyMeals(activeFamilyId);
+    
+    // Subscribe to expenses
+    const unsubscribeExpenses = subscribeToExpenses();
 
-    // TODO: Subscribe to expenses, notes when implemented
+    // TODO: Subscribe to notes when implemented
 
     return () => {
       console.log('Unsubscribing from family data');
@@ -64,7 +69,8 @@ export function useFamilySync() {
       unsubscribeTasks();
       unsubscribeShopping();
       unsubscribeMeals();
+      unsubscribeExpenses();
     };
-  }, [activeFamilyId, migrateFamilyData, subscribeToFamily, subscribeToFamilyTasks, subscribeToFamilyShopping, subscribeToFamilyMeals]);
+  }, [activeFamilyId, migrateFamilyData, subscribeToFamily, subscribeToFamilyTasks, subscribeToFamilyShopping, subscribeToFamilyMeals, subscribeToExpenses]);
 }
 

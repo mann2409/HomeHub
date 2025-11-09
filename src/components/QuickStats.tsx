@@ -5,11 +5,13 @@ import Card from "./Card";
 import useFinanceStore from "../state/financeStore";
 import useShoppingStore from "../state/shoppingStore";
 import useMealStore from "../state/mealStore";
+import useSettingsStore from "../state/settingsStore";
 
 export default function QuickStats() {
   const { getWeeklySpending } = useFinanceStore();
   const { getPendingItems } = useShoppingStore();
   const { getMealsByDate } = useMealStore();
+  const { weeklyExpenseTarget, currency } = useSettingsStore();
 
   const weeklySpending = getWeeklySpending();
   const pendingItems = getPendingItems();
@@ -17,9 +19,10 @@ export default function QuickStats() {
   const estimatedCost = pendingItems.reduce((sum, item) => sum + (item.estimatedPrice || 0), 0);
 
   const getBudgetStatus = () => {
-    const weeklyBudget = 200;
-    const percentage = (weeklySpending / weeklyBudget) * 100;
+    const target = weeklyExpenseTarget || 500;
+    const percentage = (weeklySpending / target) * 100;
     
+    if (percentage >= 100) return { color: "red", message: "Over budget" };
     if (percentage >= 90) return { color: "red", message: "Budget almost used" };
     if (percentage >= 75) return { color: "yellow", message: "Budget 75% used" };
     return { color: "green", message: "On track" };
@@ -39,7 +42,7 @@ export default function QuickStats() {
                 This week's spend
               </Text>
               <Text className="text-lg font-bold text-white">
-                ${weeklySpending.toFixed(2)}
+                ${weeklySpending.toFixed(2)} / ${(weeklyExpenseTarget || 500).toFixed(2)}
               </Text>
             </View>
           </View>

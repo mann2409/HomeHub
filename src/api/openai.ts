@@ -12,8 +12,15 @@ import OpenAI from "openai";
 export const getOpenAIClient = () => {
   const apiKey = process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY;
   if (!apiKey) {
-    console.warn("OpenAI API key not found in environment variables");
+    console.warn("⚠️ OpenAI API key not found in environment variables");
+    return new OpenAI({
+      apiKey: undefined, // This will cause an error when making requests
+    });
   }
+  
+  console.log('🔑 OpenAI client created with API key (length:', apiKey.length, ')');
+  console.log('🔑 API key prefix:', apiKey.substring(0, 7) + '...');
+  
   return new OpenAI({
     apiKey: apiKey,
   });

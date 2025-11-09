@@ -5,12 +5,14 @@ import { UserSettings, CategoryColors } from "../types";
 
 interface SettingsState extends UserSettings {
   userId: string | null;
+  showTutorialOnStart: boolean;
   setUserId: (userId: string | null) => void;
   updateSettings: (updates: Partial<UserSettings>) => void;
   resetSettings: () => void;
   updateModuleVisibility: (module: keyof UserSettings["moduleVisibility"], visible: boolean) => void;
   updateCategoryColor: (category: string, color: string) => void;
   clearUserData: () => void;
+  setShowTutorialOnStart: (value: boolean) => void;
 }
 
 const defaultCategoryColors: CategoryColors = {
@@ -69,6 +71,7 @@ const defaultSettings: UserSettings = {
   currency: "USD",
   dateFormat: "MM/dd/yyyy",
   weekStartsOn: 0, // Sunday
+  weeklyExpenseTarget: 500, // Default weekly expense target
   notifications: {
     tasks: true,
     events: true,
@@ -92,6 +95,7 @@ const useSettingsStore = create<SettingsState>()(
     (set, get) => ({
       ...defaultSettings,
       userId: null,
+      showTutorialOnStart: true,
 
       setUserId: (userId) => set({ userId }),
 
@@ -135,15 +139,18 @@ const useSettingsStore = create<SettingsState>()(
       },
 
       clearUserData: () => {
-        set({ ...defaultSettings, userId: null });
+        set({ ...defaultSettings, userId: null, showTutorialOnStart: true });
       },
+
+      setShowTutorialOnStart: (value: boolean) => set({ showTutorialOnStart: value }),
     }),
     {
       name: "settings-storage",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ 
         ...state,
-        userId: state.userId 
+        userId: state.userId,
+        showTutorialOnStart: state.showTutorialOnStart
       }),
     }
   )

@@ -2,15 +2,16 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Meal, MealType } from "../types";
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc, 
+import {
+  collection,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  deleteField,
   onSnapshot,
   query,
-  serverTimestamp 
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import useFamilyStore from './familyStore';
@@ -97,10 +98,17 @@ const useMealStore = create<MealState>()(
         // Update in Firestore
         if (activeFamilyId) {
           try {
-            await updateDoc(doc(db, 'families', activeFamilyId, 'meals', id), {
-              ...updates,
-              updatedAt: serverTimestamp(),
+            const firestoreUpdates: Record<string, any> = {};
+            Object.entries(updates).forEach(([key, value]) => {
+              if (value === undefined) {
+                firestoreUpdates[key] = deleteField();
+              } else {
+                firestoreUpdates[key] = value;
+              }
             });
+            firestoreUpdates.updatedAt = serverTimestamp();
+
+            await updateDoc(doc(db, 'families', activeFamilyId, 'meals', id), firestoreUpdates);
             console.log('✅ Meal updated in Firestore');
           } catch (error) {
             console.error('❌ Error updating meal in Firestore:', error);

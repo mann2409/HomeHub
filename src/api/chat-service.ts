@@ -71,15 +71,26 @@ export const getAnthropicChatResponse = async (prompt: string): Promise<AIRespon
  */
 export const getOpenAITextResponse = async (messages: AIMessage[], options?: AIRequestOptions): Promise<AIResponse> => {
   try {
+    console.log('🌐 getOpenAITextResponse called');
     const client = getOpenAIClient();
     const defaultModel = "gpt-4o"; //accepts images as well, use this for image analysis
+    const model = options?.model || defaultModel;
+    
+    console.log('📡 Making OpenAI API request...');
+    console.log('   Model:', model);
+    console.log('   Messages count:', messages.length);
+    console.log('   First message preview:', messages[0]?.content?.substring(0, 100) + '...');
 
     const response = await client.chat.completions.create({
-      model: options?.model || defaultModel,
+      model: model,
       messages: messages,
       temperature: options?.temperature ?? 0.7,
       max_tokens: options?.maxTokens || 2048,
     });
+    
+    console.log('✅ OpenAI API request successful');
+    console.log('   Response ID:', response.id);
+    console.log('   Tokens used:', response.usage?.total_tokens);
 
     return {
       content: response.choices[0]?.message?.content || "",
@@ -89,8 +100,50 @@ export const getOpenAITextResponse = async (messages: AIMessage[], options?: AIR
         totalTokens: response.usage?.total_tokens || 0,
       },
     };
-  } catch (error) {
-    console.error("OpenAI API Error:", error);
+  } catch (error: any) {
+    // Log the actual error details for debugging (sanitize API key)
+    console.error('❌ OpenAI API Error occurred');
+    console.error('   Error type:', error?.constructor?.name);
+    console.error('   Error message:', error?.message);
+    console.error('   Error status:', error?.status || error?.response?.status || error?.statusCode);
+    
+    // Log response details if available
+    if (error?.response) {
+      console.error('   Response status:', error.response.status);
+      console.error('   Response statusText:', error.response.statusText);
+    }
+    
+    // Log error code if available
+    if (error?.code) {
+      console.error('   Error code:', error.code);
+    }
+    
+    // Check if it's an API key error - handle gracefully without exposing the key
+    const errorMessage = error?.message || String(error);
+    const statusCode = error?.status || error?.response?.status || error?.statusCode;
+    
+    // For API key errors, throw a clean error without sensitive info
+    if (
+      statusCode === 401 || 
+      statusCode === 403 ||
+      errorMessage.includes('401') ||
+      errorMessage.includes('403') ||
+      errorMessage.includes('Incorrect API key') ||
+      errorMessage.includes('Invalid API key') ||
+      errorMessage.includes('invalid_api_key') ||
+      errorMessage.includes('authentication')
+    ) {
+      console.error('   ❌ Detected API key authentication error');
+      // Throw a clean error without exposing the API key
+      const cleanError = new Error('OpenAI API key invalid or not configured');
+      (cleanError as any).isApiKeyError = true;
+      (cleanError as any).originalStatus = statusCode;
+      throw cleanError;
+    }
+    
+    // For other errors, log and throw (but sanitize message if it contains API key)
+    const sanitizedMessage = errorMessage.replace(/sk-[^\s]+/g, 'sk-***');
+    console.error('   Full error (sanitized):', sanitizedMessage);
     throw error;
   }
 };

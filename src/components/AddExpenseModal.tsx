@@ -7,6 +7,7 @@ import Modal from "./Modal";
 import Input from "./Input";
 import { ExpenseCategory, PaymentMethod } from "../types";
 import useFinanceStore from "../state/financeStore";
+import { guideBus } from "../utils/guideBus";
 
 interface AddExpenseModalProps {
   visible: boolean;
@@ -82,6 +83,7 @@ export default function AddExpenseModal({ visible, onClose }: AddExpenseModalPro
           keyboardType="decimal-pad"
           autoFocus
         />
+        {amount && parseFloat(amount) > 0 && guideBus.emit({ type: 'ui:modal:expense:amountFilled' })}
 
         <Input
           label="Description"

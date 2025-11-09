@@ -68,8 +68,8 @@ export default function AppNavigator() {
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
       <Tab.Screen name="Meals" component={MealsScreen} />
-      <Tab.Screen name="Finance" component={FinanceScreen} />
       <Tab.Screen name="Shopping" component={ShoppingScreen} />
+      <Tab.Screen name="Finance" component={FinanceScreen} />
     </Tab.Navigator>
   );
 }

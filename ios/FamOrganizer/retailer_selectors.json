@@ -1,0 +1,24 @@
+{
+  "woolworths": {
+    "add": [
+      "button[data-test='add-to-cart']",
+      "button[aria-label*='Add to trolley']"
+    ],
+    "inc": [
+      "button[data-test='increment']",
+      "button[aria-label*='increase']"
+    ]
+  },
+  "coles": {
+    "add": [
+      "button[data-qa='add-to-cart']",
+      "button[aria-label*='add' i]"
+    ],
+    "inc": [
+      "button[data-qa='increment']",
+      "button[aria-label*='increase']"
+    ]
+  }
+}
+
+

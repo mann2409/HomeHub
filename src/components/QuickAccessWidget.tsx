@@ -1,8 +1,9 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Pressable, Text, View, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable as RNPressable } from "react-native";
 import { cn } from "../utils/cn";
+import { guideBus } from "../utils/guideBus";
 
 interface QuickAccessWidgetProps {
   title: string;
@@ -51,6 +52,8 @@ export default function QuickAccessWidget({
         return "#8B5CF6"; // Purple
       case "#EC4899": // Pink for Shopping
         return "#EC4899"; // Pink
+      case "#10B981": // Green for Find Recipes
+        return "#10B981"; // Green
       case "#F59E0B": // Orange for Quick Note
         return "#F86D70"; // Coral
       default:
@@ -65,6 +68,8 @@ export default function QuickAccessWidget({
       case "#8B5CF6": // Purple
         return "#FFFFFF"; // White
       case "#EC4899": // Pink
+        return "#FFFFFF"; // White
+      case "#10B981": // Green
         return "#FFFFFF"; // White
       case "#F59E0B": // Orange
         return "#FFFFFF"; // White
@@ -136,6 +141,20 @@ export default function QuickAccessWidget({
     ]).start();
   };
 
+  const containerRef = useRef<View>(null);
+
+  // Listen for measurement requests from the guide and report the widget's rect
+  useEffect(() => {
+    const unsub = guideBus.on((e) => {
+      if (e.type === 'guide:requestAddTaskAnchor' && title === 'Add Task' && containerRef.current && (containerRef.current as any).measureInWindow) {
+        (containerRef.current as any).measureInWindow((x: number, y: number, width: number, height: number) => {
+          guideBus.emit({ type: 'guide:addTaskAnchor', rect: { x, y, width, height } } as any);
+        });
+      }
+    });
+    return unsub;
+  }, [title]);
+
   return (
     <Animated.View
       style={{
@@ -150,6 +169,7 @@ export default function QuickAccessWidget({
         elevation: 4,
       }}
     >
+      <View ref={containerRef}>
       <Pressable
         onPress={() => {
           console.log('QuickAccessWidget onPress called:', title);
@@ -222,6 +242,7 @@ export default function QuickAccessWidget({
           {title}
         </Text>
       </Pressable>
+      </View>
     </Animated.View>
   );
 }

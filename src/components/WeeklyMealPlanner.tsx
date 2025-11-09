@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable, Animated } from "react-native";
+import { View, Text, ScrollView, Pressable, Animated, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { format, addDays, startOfWeek, isSameDay } from "date-fns";
 import Card from "./Card";
@@ -11,8 +11,14 @@ import useMealStore from "../state/mealStore";
 import useShoppingStore from "../state/shoppingStore";
 import useSettingsStore from "../state/settingsStore";
 import { MealType, Meal } from "../types";
+import { MagnifyingGlass } from "phosphor-react-native";
+import { cleanIngredientName } from "../utils/ingredientName";
 
-export default function WeeklyMealPlanner() {
+interface WeeklyMealPlannerProps {
+  onRecipeSearchPress?: () => void;
+}
+
+export default function WeeklyMealPlanner({ onRecipeSearchPress }: WeeklyMealPlannerProps = {}) {
   const { getWeeklyMealPlan } = useMealStore();
   const { addItem: addShoppingItem, autoCategorizeName } = useShoppingStore();
   const { weekStartsOn } = useSettingsStore();
@@ -145,6 +151,32 @@ export default function WeeklyMealPlanner() {
     }
   };
 
+  const handleMealLongPress = (meal: Meal | null, date: Date, mealType: MealType) => {
+    if (!meal) return;
+    
+    Alert.alert(
+      "Delete Meal",
+      `Delete "${meal.name}" from ${format(date, "MMM d")}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            const { deleteMeal } = useMealStore.getState();
+            deleteMeal(meal.id);
+            setToastMessage("Meal deleted");
+            setToastType("success");
+            setShowToast(true);
+          },
+        },
+      ]
+    );
+  };
+
   const handleGenerateShoppingList = () => {
     console.log('🛒 Generate Shopping List clicked');
     
@@ -179,10 +211,11 @@ export default function WeeklyMealPlanner() {
     
     allIngredients.forEach(ingredient => {
       const trimmedIngredient = ingredient.trim();
-      if (trimmedIngredient) {
-        const category = autoCategorizeName(trimmedIngredient);
+      const baseName = cleanIngredientName(trimmedIngredient);
+      if (baseName) {
+        const category = autoCategorizeName(baseName);
         addShoppingItem({
-          name: trimmedIngredient,
+          name: baseName,
           quantity: 1,
           category,
           completed: false,
@@ -259,24 +292,44 @@ export default function WeeklyMealPlanner() {
           />
         </Pressable>
 
-        {/* Quick Add Button */}
-        <Pressable
-          onPress={() => {
-            setSelectedDate(new Date());
-            setSelectedMealType("breakfast");
-            setShowAddModal(true);
-          }}
-          className="bg-primary rounded-full p-3"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
-            elevation: 4,
-          }}
-        >
-          <Ionicons name="add" size={24} color="#FFFFFF" />
-        </Pressable>
+        {/* Action Buttons */}
+        <View className="flex-row space-x-2">
+          {/* Recipe Search Button */}
+          {onRecipeSearchPress && (
+            <Pressable
+              onPress={onRecipeSearchPress}
+              className="bg-green-500 rounded-full p-3"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                elevation: 4,
+              }}
+            >
+              <MagnifyingGlass size={24} color="#FFFFFF" weight="bold" />
+            </Pressable>
+          )}
+          
+          {/* Quick Add Button */}
+          <Pressable
+            onPress={() => {
+              setSelectedDate(new Date());
+              setSelectedMealType("breakfast");
+              setShowAddModal(true);
+            }}
+            className="bg-primary rounded-full p-3"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 4,
+              elevation: 4,
+            }}
+          >
+            <Ionicons name="add" size={24} color="#FFFFFF" />
+          </Pressable>
+        </View>
       </View>
 
       {/* Expanded Summary Card */}
@@ -387,34 +440,8 @@ export default function WeeklyMealPlanner() {
           </Pressable>
         </View>
 
-        {/* Empty State */}
-        {summary.totalPlanned === 0 && (
-          <View className="items-center justify-center py-12 px-4">
-            <View className="w-32 h-32 rounded-full bg-white/10 items-center justify-center mb-6">
-              <Ionicons name="calendar-outline" size={64} color="#FFFFFF" opacity={0.5} />
-            </View>
-            <Text className="text-white text-2xl font-bold mb-2 text-center">
-              Start Planning Your Week!
-            </Text>
-            <Text className="text-white/80 text-base text-center mb-6 max-w-xs">
-              Tap 'Add' on any meal slot below or drag meals to easily set up your week
-            </Text>
-            <Pressable
-              onPress={() => {
-                setSelectedDate(weekDays[0]);
-                setSelectedMealType("breakfast");
-                setShowAddModal(true);
-              }}
-              className="bg-primary rounded-full px-6 py-3"
-            >
-              <Text className="text-white font-bold">Get Started</Text>
-            </Pressable>
-          </View>
-        )}
-
-        {/* Meal Planning Grid */}
-        {summary.totalPlanned > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {/* Meal Planning Grid - Always visible */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View>
               {/* Header Row - Days */}
               <View className="flex-row mb-3">
@@ -483,6 +510,7 @@ export default function WeeklyMealPlanner() {
                           meal={meal}
                           mealType={mealType}
                           onPress={() => handleMealPress(meal, day, mealType)}
+                          onLongPress={() => handleMealLongPress(meal, day, mealType)}
                         />
                       </View>
                     );
@@ -491,7 +519,6 @@ export default function WeeklyMealPlanner() {
               ))}
             </View>
           </ScrollView>
-        )}
       </Card>
 
       {/* Generate Groceries FAB */}

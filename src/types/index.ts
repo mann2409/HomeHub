@@ -42,6 +42,10 @@ export interface Meal {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  // Recipe integration
+  recipeId?: string;
+  recipeImageUrl?: string;
+  recipeInstructions?: string;
 }
 
 export interface Expense {
@@ -77,6 +81,7 @@ export interface UserSettings {
   currency: string;
   dateFormat: string;
   weekStartsOn: number;
+  weeklyExpenseTarget: number;
   notifications: NotificationSettings;
   moduleVisibility: ModuleVisibility;
   categoryColors: CategoryColors;

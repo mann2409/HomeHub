@@ -5,6 +5,7 @@ import { format, subDays } from "date-fns";
 import Card from "./Card";
 import CircularChart from "./CircularChart";
 import BarChart from "./BarChart";
+import LineChart from "./LineChart";
 import AddExpenseModal from "./AddExpenseModal";
 import EditExpenseModal from "./EditExpenseModal";
 import useFinanceStore from "../state/financeStore";
@@ -19,6 +20,7 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
   const { 
     getWeeklySpending, 
     getDailySpending, 
+    getMonthlySpending,
     getCategorySpending,
     getRecentExpenses
   } = useFinanceStore();
@@ -30,8 +32,13 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
   const dailySpending = getDailySpending(7);
   const recentExpenses = getRecentExpenses(5);
   
-  // Get category spending for the current week
+  // Get current month data
   const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
+  const monthlySpending = getMonthlySpending(currentYear, currentMonth);
+  
+  // Get category spending for the current week
   const weekStart = new Date(today);
   weekStart.setDate(today.getDate() - today.getDay());
   weekStart.setHours(0, 0, 0, 0);
@@ -42,16 +49,24 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
   
   const categorySpending = getCategorySpending(weekStart, weekEnd);
 
-  // Format daily spending data for chart
-  const chartData: Record<string, number> = {};
+  // Format daily spending data for chart (last 7 days)
+  const dailyChartData: Record<string, number> = {};
   for (let i = 6; i >= 0; i--) {
     const date = subDays(today, i);
     const dateKey = date.toISOString().split("T")[0];
-    chartData[format(date, "MMM d")] = dailySpending[dateKey] || 0;
+    dailyChartData[format(date, "MMM d")] = dailySpending[dateKey] || 0;
   }
   
+  // Format monthly spending data for line chart (weekly totals)
+  const monthlyChartData: Record<string, number> = {};
+  Object.entries(monthlySpending).forEach(([weekLabel, amount]) => {
+    monthlyChartData[weekLabel] = amount;
+  });
+  
   console.log("FinanceTracker dailySpending:", dailySpending);
-  console.log("FinanceTracker chartData:", chartData);
+  console.log("FinanceTracker dailyChartData:", dailyChartData);
+  console.log("FinanceTracker monthlySpending:", monthlySpending);
+  console.log("FinanceTracker monthlyChartData:", monthlyChartData);
 
   const handleExpensePress = (expense: Expense) => {
     setSelectedExpense(expense);
@@ -115,13 +130,24 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
             />
           </View>
 
+          {/* Monthly Spending - Line Chart */}
+          <View className="mb-6">
+            <Text className="text-base font-medium text-white mb-3">
+              Weekly Spending Trend ({format(today, "MMM yyyy")})
+            </Text>
+            <LineChart 
+              data={monthlyChartData}
+              color="#10B981"
+            />
+          </View>
+
           {/* Daily Spending - Bar Chart */}
           <View>
             <Text className="text-base font-medium text-white mb-3">
               Daily Spending (Last 7 Days)
             </Text>
             <BarChart 
-              data={chartData}
+              data={dailyChartData}
             />
           </View>
         </View>
@@ -174,7 +200,7 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
             <View className="items-center">
               <Text className="text-xs text-white/60">Highest Day</Text>
               <Text className="text-sm font-semibold text-white">
-                ${Math.max(...Object.values(chartData)).toFixed(2)}
+                ${Math.max(...Object.values(dailyChartData)).toFixed(2)}
               </Text>
             </View>
             <View className="items-center">
