@@ -27,6 +27,12 @@ export default function RecipeCard({ recipe, onPress }: RecipeCardProps) {
     onPress();
   };
 
+  const imageSource = recipe.thumbnail
+    ? { uri: recipe.thumbnail }
+    : {
+        uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+      };
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -36,7 +42,7 @@ export default function RecipeCard({ recipe, onPress }: RecipeCardProps) {
       {/* Image */}
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: recipe.thumbnail }}
+          source={imageSource}
           style={styles.image}
           resizeMode="cover"
         />
@@ -57,6 +63,13 @@ export default function RecipeCard({ recipe, onPress }: RecipeCardProps) {
         {recipe.category && (
           <View style={styles.categoryBadge}>
             <Text style={styles.categoryText}>{recipe.category}</Text>
+          </View>
+        )}
+        {recipe.retailer && (
+          <View style={styles.retailerBadge}>
+            <Text style={styles.retailerText}>
+              {recipe.retailer === 'woolworths' ? 'Woolworths' : 'Coles'}
+            </Text>
           </View>
         )}
       </View>
@@ -145,6 +158,21 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
+  },
+  retailerBadge: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  retailerText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
   },
   content: {
     padding: 16,

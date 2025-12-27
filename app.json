@@ -3,7 +3,7 @@
     "name": "FamOrganizer",
     "slug": "homehub",
     "scheme": "homehub",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.manishsandil.vibecode",
-      "buildNumber": "4"
+      "buildNumber": "9"
     },
     "android": {
       "edgeToEdgeEnabled": true,

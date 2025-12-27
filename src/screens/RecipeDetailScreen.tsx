@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -26,7 +26,6 @@ import {
 } from 'phosphor-react-native';
 import { Recipe } from '../types/recipe';
 import useRecipeStore from '../state/recipeStore';
-import MealDBAPI from '../api/mealdb';
 import useMealStore from '../state/mealStore';
 import useShoppingStore from '../state/shoppingStore';
 import { cleanIngredientName } from '../utils/ingredientName';
@@ -35,41 +34,23 @@ interface RecipeDetailScreenProps {
   recipeId?: string;
   recipe?: Recipe;
   onClose?: () => void;
+  onOpenRecipeSource?: (url: string, retailer: 'woolworths' | 'coles') => void;
 }
 
 export default function RecipeDetailScreen({
   recipeId,
   recipe: initialRecipe,
   onClose,
+  onOpenRecipeSource,
 }: RecipeDetailScreenProps) {
   const insets = useSafeAreaInsets();
-  const [recipe, setRecipe] = useState<Recipe | null>(initialRecipe || null);
-  const [isLoading, setIsLoading] = useState(!initialRecipe);
+  const [recipe] = useState<Recipe | null>(initialRecipe || null);
+  const [isLoading] = useState(false);
   const { isRecipeSaved, saveRecipe, unsaveRecipe } = useRecipeStore();
   const { addMeal } = useMealStore();
   const { addItem: addShoppingItem, autoCategorizeName } = useShoppingStore();
 
   const isSaved = recipe ? isRecipeSaved(recipe.id) : false;
-
-  useEffect(() => {
-    if (recipeId && !initialRecipe) {
-      loadRecipe();
-    }
-  }, [recipeId]);
-
-  const loadRecipe = async () => {
-    if (!recipeId) return;
-
-    setIsLoading(true);
-    try {
-      const data = await MealDBAPI.getMealById(recipeId);
-      setRecipe(data);
-    } catch (error) {
-      console.error('Error loading recipe:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSaveToggle = () => {
     if (!recipe) return;
@@ -244,7 +225,13 @@ export default function RecipeDetailScreen({
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Hero Image */}
         <Image
-          source={{ uri: recipe.thumbnail }}
+          source={
+            recipe.thumbnail
+              ? { uri: recipe.thumbnail }
+              : {
+                  uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
+                }
+          }
           style={styles.heroImage}
           resizeMode="cover"
         />
@@ -294,6 +281,14 @@ export default function RecipeDetailScreen({
 
           {/* Meta Information */}
           <View style={styles.metaContainer}>
+            {recipe.retailer && (
+              <View style={styles.metaBadge}>
+                <ShoppingCart size={16} color="#4CAF50" />
+                <Text style={styles.metaText}>
+                  {recipe.retailer === 'coles' ? 'Coles' : 'Woolworths'}
+                </Text>
+              </View>
+            )}
             {recipe.category && (
               <View style={styles.metaBadge}>
                 <Tag size={16} color="#4CAF50" />
@@ -369,7 +364,13 @@ export default function RecipeDetailScreen({
           {recipe.sourceUrl && (
             <TouchableOpacity
               style={styles.sourceButton}
-              onPress={() => Linking.openURL(recipe.sourceUrl!)}
+              onPress={() => {
+                if (onOpenRecipeSource) {
+                  onOpenRecipeSource(recipe.sourceUrl!, recipe.retailer ?? 'woolworths');
+                } else {
+                  Linking.openURL(recipe.sourceUrl!);
+                }
+              }}
             >
               <Text style={styles.sourceButtonText}>View Original Recipe</Text>
             </TouchableOpacity>

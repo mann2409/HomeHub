@@ -10,11 +10,14 @@ import RecipeSearchScreen from "./RecipeSearchScreen";
 import RecipeDetailScreen from "./RecipeDetailScreen";
 import { Recipe } from "../types/recipe";
 import { MagnifyingGlass } from "phosphor-react-native";
+import RecipeWebViewScreen from "./RecipeWebViewScreen";
+import { RetailerKey } from "../api/mealdb";
 
 export default function MealsScreen() {
   const insets = useSafeAreaInsets();
   const [showRecipeSearch, setShowRecipeSearch] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [recipeSource, setRecipeSource] = useState<{ url: string; retailer: RetailerKey; name: string } | null>(null);
 
   const handleRecipeSelect = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
@@ -27,7 +30,40 @@ export default function MealsScreen() {
   const handleCloseRecipeSearch = () => {
     setShowRecipeSearch(false);
     setSelectedRecipe(null);
+    setRecipeSource(null);
   };
+
+  const handleOpenRecipeSource = (url: string, retailer: RetailerKey) => {
+    const recipeName = selectedRecipe?.name || 'Recipe';
+    setRecipeSource({ url, retailer, name: recipeName });
+  };
+
+  const handleCloseRecipeSource = () => {
+    setRecipeSource(null);
+  };
+
+  const isViewingRecipeSource = !!recipeSource;
+
+  const modalTitle = isViewingRecipeSource
+    ? `${recipeSource?.retailer === 'coles' ? 'Coles' : 'Woolworths'} Recipe`
+    : "Find Recipes";
+
+  const modalRightButton = isViewingRecipeSource
+    ? {
+        title: "Done",
+        onPress: handleCloseRecipeSource,
+      }
+    : {
+        title: "Done",
+        onPress: handleCloseRecipeSearch,
+      };
+
+  const modalLeftButton = isViewingRecipeSource
+    ? {
+        title: "Back",
+        onPress: handleCloseRecipeSource,
+      }
+    : undefined;
 
   return (
     <GradientBackground>
@@ -51,18 +87,24 @@ export default function MealsScreen() {
       <Modal
         visible={showRecipeSearch}
         onClose={handleCloseRecipeSearch}
-        title="Find Recipes"
+        title={modalTitle}
         size="full"
         navigationMode
-        rightButton={{
-          title: "Done",
-          onPress: handleCloseRecipeSearch
-        }}
+        leftButton={modalLeftButton}
+        rightButton={modalRightButton}
       >
-        {selectedRecipe ? (
+        {isViewingRecipeSource ? (
+          <RecipeWebViewScreen
+            url={recipeSource!.url}
+            retailer={recipeSource!.retailer}
+            recipeName={recipeSource!.name}
+            onClose={handleCloseRecipeSource}
+          />
+        ) : selectedRecipe ? (
           <RecipeDetailScreen
             recipe={selectedRecipe}
             onClose={handleCloseRecipeDetail}
+            onOpenRecipeSource={handleOpenRecipeSource}
           />
         ) : (
           <RecipeSearchScreen onRecipeSelect={handleRecipeSelect} />

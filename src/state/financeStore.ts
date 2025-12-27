@@ -2,18 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Expense, ExpenseCategory } from "../types";
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  deleteDoc, 
-  updateDoc, 
-  onSnapshot,
-  Timestamp,
-  serverTimestamp 
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
-import useFamilyStore from './familyStore';
+import { supabase } from "../config/supabase";
 
 interface FinanceState {
   expenses: Expense[];
@@ -47,13 +36,6 @@ const useFinanceStore = create<FinanceState>()(
         const { userId } = get();
         if (!userId) return;
 
-        const { activeFamilyId } = useFamilyStore.getState();
-        
-        if (!activeFamilyId) {
-          console.error('⚠️ No active family - expense will NOT be saved to Firestore!');
-          console.error('Please create or join a family in Settings first');
-        }
-
         const expenseId = Date.now().toString() + Math.random().toString(36).substring(2, 11);
         const newExpense: Expense = {
           ...expenseData,
@@ -67,35 +49,46 @@ const useFinanceStore = create<FinanceState>()(
         set((state) => ({
           expenses: [...state.expenses, newExpense],
         }));
-        
-        // Save to Firestore if family exists
-        if (activeFamilyId) {
-          try {
-            console.log('Saving expense to Firestore...', { familyId: activeFamilyId, expenseId });
-            
-            // Clean data - remove undefined values for Firestore
-            const cleanExpense = Object.fromEntries(
-              Object.entries(newExpense).filter(([_, value]) => value !== undefined)
-            );
 
-            await setDoc(doc(db, 'families', activeFamilyId, 'expenses', expenseId), {
-              ...cleanExpense,
-              date: Timestamp.fromDate(new Date(newExpense.date)),
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-            });
-            console.log('✅ Expense successfully saved to Firestore:', expenseId);
-          } catch (error) {
-            console.error('❌ Error saving expense to Firestore:', error);
+        // Save to Supabase
+        try {
+          console.log("💾 Saving expense to Supabase...", {
+            userId,
+            expenseId,
+          });
+
+          const { data, error } = await supabase.from("expenses").insert({
+            id: expenseId,
+            user_id: userId,
+            amount: newExpense.amount,
+            description: newExpense.description,
+            category: newExpense.category,
+            expense_date: newExpense.date.toISOString(),
+            receipt_url: (newExpense as any).receiptUrl ?? null,
+            created_at: newExpense.createdAt.toISOString(),
+          }).select().single();
+
+          if (error) {
+            console.error("❌ Error saving expense to Supabase:", error);
+          } else {
+            console.log("✅ Expense successfully saved to Supabase:", data?.id || expenseId);
+            // Update local expense with the actual ID from Supabase if different
+            if (data?.id && data.id !== expenseId) {
+              set((state) => ({
+                expenses: state.expenses.map((e) =>
+                  e.id === expenseId ? { ...e, id: data.id } : e
+                ),
+              }));
+            }
           }
+        } catch (error) {
+          console.error("❌ Unexpected error saving expense to Supabase:", error);
         }
       },
 
       updateExpense: async (id, updates) => {
         const { userId } = get();
         if (!userId) return;
-
-        const { activeFamilyId } = useFamilyStore.getState();
 
         // Update locally
         set((state) => ({
@@ -106,24 +99,33 @@ const useFinanceStore = create<FinanceState>()(
           ),
         }));
 
-        // Update in Firestore
-        if (activeFamilyId) {
-          try {
-            const updateData: any = {
-              ...updates,
-              updatedAt: serverTimestamp(),
-            };
+        // Update in Supabase
+        try {
+          const payload: any = {};
 
-            // Convert date if it's being updated
-            if (updates.date) {
-              updateData.date = Timestamp.fromDate(new Date(updates.date));
-            }
-
-            await updateDoc(doc(db, 'families', activeFamilyId, 'expenses', id), updateData);
-            console.log('Expense updated in Firestore:', id);
-          } catch (error) {
-            console.error('Error updating expense in Firestore:', error);
+          if (updates.amount !== undefined) payload.amount = updates.amount;
+          if (updates.description !== undefined) payload.description = updates.description;
+          if (updates.category !== undefined) payload.category = updates.category;
+          if (updates.date !== undefined) {
+            payload.expense_date = new Date(updates.date).toISOString();
           }
+          if ((updates as any).receiptUrl !== undefined) {
+            payload.receipt_url = (updates as any).receiptUrl;
+          }
+
+          const { error } = await supabase
+            .from("expenses")
+            .update(payload)
+            .eq("id", id)
+            .eq("user_id", userId);
+
+          if (error) {
+            console.error("❌ Error updating expense in Supabase:", error);
+          } else {
+            console.log("✅ Expense updated in Supabase:", id);
+          }
+        } catch (error) {
+          console.error("❌ Unexpected error updating expense in Supabase:", error);
         }
       },
 
@@ -131,21 +133,26 @@ const useFinanceStore = create<FinanceState>()(
         const { userId } = get();
         if (!userId) return;
 
-        const { activeFamilyId } = useFamilyStore.getState();
-
         // Delete locally
         set((state) => ({
           expenses: state.expenses.filter((expense) => expense.id !== id || expense.userId !== userId),
         }));
 
-        // Delete from Firestore
-        if (activeFamilyId) {
-          try {
-            await deleteDoc(doc(db, 'families', activeFamilyId, 'expenses', id));
-            console.log('Expense deleted from Firestore:', id);
-          } catch (error) {
-            console.error('Error deleting expense from Firestore:', error);
+        // Delete from Supabase
+        try {
+          const { error } = await supabase
+            .from("expenses")
+            .delete()
+            .eq("id", id)
+            .eq("user_id", userId);
+
+          if (error) {
+            console.error("❌ Error deleting expense from Supabase:", error);
+          } else {
+            console.log("✅ Expense deleted from Supabase:", id);
           }
+        } catch (error) {
+          console.error("❌ Unexpected error deleting expense from Supabase:", error);
         }
       },
 
@@ -289,61 +296,50 @@ const useFinanceStore = create<FinanceState>()(
       },
 
       subscribeToExpenses: () => {
-        const { activeFamilyId } = useFamilyStore.getState();
+        const { userId } = get();
 
-        if (!activeFamilyId) {
-          console.log('No active family - not subscribing to expenses');
+        if (!userId) {
+          console.log('No user ID - not loading expenses');
           return () => {};
         }
 
-        console.log('📊 Subscribing to family expenses:', activeFamilyId);
+        console.log('📊 Loading expenses from Supabase for user:', userId);
 
-        const unsubscribe = onSnapshot(
-          collection(db, 'families', activeFamilyId, 'expenses'),
-          (snapshot) => {
-            const firestoreExpenses: Expense[] = [];
-            console.log('Firestore snapshot received - expenses:', snapshot.size);
-            
-            snapshot.forEach((docSnapshot) => {
-              const data = docSnapshot.data();
-              
-              // Convert Firestore Timestamp to Date
-              let date = new Date();
-              if (data.date) {
-                if (data.date?.toDate) {
-                  date = data.date.toDate();
-                } else {
-                  date = new Date(data.date);
-                }
-              }
-              
-              console.log('Expense from Firestore:', { 
-                id: docSnapshot.id, 
-                description: data.description,
-                amount: data.amount,
-                dateRaw: data.date,
-                dateParsed: date 
-              });
-              
-              firestoreExpenses.push({
-                ...data,
-                id: docSnapshot.id,
-                date,
-                createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
-                updatedAt: data.updatedAt?.toDate?.() || new Date(data.updatedAt),
-              } as Expense);
-            });
-            
-            console.log(`✅ Loaded ${firestoreExpenses.length} expenses from Firestore`);
-            console.log('Expense descriptions:', firestoreExpenses.map(e => e.description));
-            set({ expenses: firestoreExpenses });
-          },
-          (error) => {
-            console.error('❌ Error subscribing to expenses:', error);
+        (async () => {
+          try {
+            const { data, error } = await supabase
+              .from('expenses')
+              .select('*')
+              .eq('user_id', userId)
+              .order('expense_date', { ascending: false });
+
+            if (error) {
+              console.error('❌ Error loading expenses from Supabase:', error);
+              return;
+            }
+
+            const mapped: Expense[] = (data ?? []).map((row: any) => ({
+              id: row.id,
+              amount: row.amount,
+              description: row.description,
+              category: row.category,
+              date: row.expense_date ? new Date(row.expense_date) : new Date(),
+              userId: row.user_id,
+              createdAt: row.created_at ? new Date(row.created_at) : new Date(),
+              updatedAt: row.created_at ? new Date(row.created_at) : new Date(), // Use created_at as fallback
+              // Store receipt_url in the expense object (even though TypeScript type doesn't have it)
+              ...(row.receipt_url && { receiptUrl: row.receipt_url }),
+            }));
+
+            console.log(`✅ Loaded ${mapped.length} expenses from Supabase`);
+            set({ expenses: mapped });
+          } catch (err) {
+            console.error('❌ Unexpected error loading expenses from Supabase:', err);
           }
-        );
+        })();
 
-        return unsubscribe;
+        // No live subscription yet; return noop
+        return () => {};
       },
 
       clearUserData: () => {

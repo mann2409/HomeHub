@@ -9,6 +9,7 @@ import LineChart from "./LineChart";
 import AddExpenseModal from "./AddExpenseModal";
 import EditExpenseModal from "./EditExpenseModal";
 import useFinanceStore from "../state/financeStore";
+import useSettingsStore from "../state/settingsStore";
 import { Expense } from "../types";
 import { exportExpensesToJson } from "../utils/export";
 
@@ -24,6 +25,7 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
     getCategorySpending,
     getRecentExpenses
   } = useFinanceStore();
+  const { weeklyExpenseTarget = 500, currency = "USD" } = useSettingsStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
@@ -100,21 +102,52 @@ export default function FinanceTracker({ showRecent = true }: FinanceTrackerProp
           </View>
         </View>
 
-        {/* Weekly Total */}
+        {/* Weekly Budget */}
         <View className="bg-white/20 rounded-xl p-4 mb-4">
-          <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center justify-between mb-2">
             <View>
               <Text className="text-sm text-white/80 font-medium">
-                This Week
+                Weekly budget
               </Text>
               <Text className="text-2xl font-bold text-white">
-                ${weeklyTotal.toFixed(2)}
+                {currency} {weeklyTotal.toFixed(2)} / {weeklyExpenseTarget.toFixed(2)}
               </Text>
             </View>
             <View className="w-12 h-12 bg-white/20 rounded-full items-center justify-center">
               <Ionicons name="wallet" size={24} color="rgba(255, 255, 255, 0.8)" />
             </View>
           </View>
+
+          {weeklyExpenseTarget > 0 && (
+            <View>
+              {/* Progress bar */}
+              <View className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-2">
+                <View
+                  style={{
+                    width: `${Math.min(100, (weeklyTotal / weeklyExpenseTarget) * 100)}%`,
+                    backgroundColor:
+                      weeklyTotal >= weeklyExpenseTarget
+                        ? "#F97373"
+                        : weeklyTotal >= weeklyExpenseTarget * 0.9
+                        ? "#FBBF24"
+                        : "#10B981",
+                  }}
+                  className="h-2 rounded-full"
+                />
+              </View>
+
+              {/* Status text */}
+              <Text className="text-xs text-white/70">
+                {weeklyTotal >= weeklyExpenseTarget
+                  ? "Over budget for this week"
+                  : weeklyTotal >= weeklyExpenseTarget * 0.9
+                  ? "Budget almost used"
+                  : weeklyTotal >= weeklyExpenseTarget * 0.75
+                  ? "75% of weekly budget used"
+                  : "On track with your weekly budget"}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Charts Section */}

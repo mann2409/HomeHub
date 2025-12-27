@@ -39,7 +39,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>6</string>
+    <string>9</string>
     <key>GADApplicationIdentifier</key>
     <string>ca-app-pub-3934441448605262~9275033091</string>
     <key>GADDelayAppMeasurementInit</key>
@@ -55,6 +55,8 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs access to your photo library to scan receipt images and automatically extract expense details.</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>

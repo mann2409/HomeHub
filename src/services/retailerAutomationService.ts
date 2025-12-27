@@ -194,7 +194,9 @@ const collectTopProductCandidates = (retailer: RetailerType, searchTerm: string,
     const normalize = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
     const normalizedSearch = normalize('${searchTerm}');
     const searchWords = '${searchTerm}'.toLowerCase().split(' ').filter(Boolean);
+    const normalizedParts = searchWords.map(word => normalize(word));
     const singularWords = searchWords.map(word => word.endsWith('s') && word.length > 3 ? word.slice(0, -1) : word);
+    const singularParts = normalizedParts.map(part => part.endsWith('s') && part.length > 3 ? part.slice(0, -1) : part);
     const allowedHosts = ['woolworths.com.au','www.woolworths.com.au','coles.com.au','www.coles.com.au'];
     const blockedTokens = ['facebook', 'instagram', 'twitter', 'pinterest', 'open app', 'open in app', 'download app', 'google play', 'play store', 'deals', 'magazine', 'recipe inspiration'];
     const isAllowedUrl = (target) => {
@@ -1665,29 +1667,11 @@ export async function automateRetailerShopping(options: AutomationOptions): Prom
         console.log(`[AutoShop] Candidate collection for ${item.name}:`, candidates?.length || 0);
 
         if (candidates?.length) {
-          for (const candidate of candidates) {
-            if (!candidate?.imageUrl) {
-              console.log('[AutoShop] Skipping candidate without image', candidate?.id);
-              continue;
-            }
-            const verification = await verifyProductCandidateWithOpenAI(normalizedItemName, candidate);
-            console.log('[AutoShop] Verification result:', candidate?.id, verification);
-            if (verification?.match) {
-              if (verification.confidence === undefined || verification.confidence >= 0.45) {
-                selectedCandidate = candidate;
-                console.log('[AutoShop] Candidate accepted by OpenAI verification', candidate?.id);
-                break;
-              }
-            }
-          }
-
-          if (!selectedCandidate) {
-            selectedCandidate = candidates[0];
-            console.log('[AutoShop] Falling back to top-ranked candidate without verification', selectedCandidate?.id);
-          }
+          selectedCandidate = candidates[0];
+          console.log('[AutoShop] Using top-ranked candidate without image verification', selectedCandidate?.id);
         }
       } catch (candidateError) {
-        console.error('[AutoShop] Candidate verification pipeline failed, falling back to legacy flow', candidateError);
+        console.error('[AutoShop] Candidate collection failed, falling back to legacy flow', candidateError);
       }
 
       const addResult = await executeScript(addFirstProductToCart(retailer, item.quantity, normalizedItemName, selectedCandidate?.id));

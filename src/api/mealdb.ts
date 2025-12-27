@@ -1,352 +1,389 @@
-import { MealDBResponse, Recipe, convertMealDBToRecipe, RecipeIngredient } from '../types/recipe';
-import { getOpenAITextResponse } from './chat-service';
+import { Recipe } from '../types/recipe';
+import { getOpenAIClient } from './openai';
 
-// TheMealDB API Base URL
-// Free tier: https://www.themealdb.com/api/json/v1/1/
-// Premium tier (when ready): https://www.themealdb.com/api/json/v2/{API_KEY}/
-const BASE_URL = 'https://www.themealdb.com/api/json/v1/1';
+type WoolworthsIngredient = {
+  productName: string;
+  quantityText?: string | null;
+  quantity?: number | null;
+  unit?: string | null;
+  notes?: string | null;
+  productUrl?: string | null;
+};
 
-// For future premium upgrade
-// const API_KEY = 'YOUR_PREMIUM_API_KEY'; // Add this when you upgrade
-// const BASE_URL = `https://www.themealdb.com/api/json/v2/${API_KEY}`;
+type WoolworthsRecipe = {
+  id?: string;
+  title: string;
+  description?: string | null;
+  tags?: string[];
+  recipeUrl?: string | null;
+  imageUrl?: string | null;
+  instructions: string[];
+  serves?: number | null;
+  ingredients: WoolworthsIngredient[];
+};
 
-export const MealDBAPI = {
-  // Search meals by name
-  searchByName: async (query: string): Promise<Recipe[]> => {
-    try {
-      const response = await fetch(`${BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
-      const data: MealDBResponse = await response.json();
-      
-      if (!data.meals) {
-        return [];
-      }
-      
-      return data.meals.map(convertMealDBToRecipe);
-    } catch (error) {
-      console.error('Error searching recipes by name:', error);
-      throw error;
-    }
+type WoolworthsRecipeResponse = {
+  recipes: WoolworthsRecipe[];
+};
+
+export type RetailerKey = 'woolworths' | 'coles';
+
+const RETAILER_CONFIG: Record<RetailerKey, {
+  hosts: string[];
+  recipePathMatch: string;
+  systemPrompts: string[];
+  example?: { query: string; response: string };
+  userInstruction: (query: string) => string;
+}> = {
+  woolworths: {
+    hosts: ['woolworths.com.au', 'www.woolworths.com.au'],
+    recipePathMatch: '/shop/recipes/',
+    systemPrompts: [
+      'You are an assistant that locates official Woolworths (Australia) recipes and copies their ingredient lists verbatim. Preserve the exact order and wording shown on the recipe page, including brand names, descriptors, and optional notes. Never substitute with generic items.',
+      'Return measurements exactly as published (e.g. "1 sachet", "375g", "150ml"). Use quantity fields only when you are certain; otherwise keep them null. If an ingredient is written without the word "Woolworths", do not add it.',
+      'Always respond with valid JSON that matches the schema. Do not include markdown code fences or commentary.'
+    ],
+    userInstruction: (query: string) =>
+      `Find up to three Woolworths Australia recipes that best match "${query}". Prefer official recipes from https://www.woolworths.com.au/shop/recipes. For each recipe, include step-by-step instructions and list every ingredient using the exact wording from the recipe page, keeping brand names and descriptors unchanged. Provide the direct recipe URL if available.`,
   },
-
-  // Get meal details by ID
-  getMealById: async (id: string): Promise<Recipe | null> => {
-    try {
-      const response = await fetch(`${BASE_URL}/lookup.php?i=${id}`);
-      const data: MealDBResponse = await response.json();
-      
-      if (!data.meals || data.meals.length === 0) {
-        return null;
-      }
-      
-      return convertMealDBToRecipe(data.meals[0]);
-    } catch (error) {
-      console.error('Error fetching meal by ID:', error);
-      throw error;
-    }
+  coles: {
+    hosts: ['coles.com.au', 'www.coles.com.au'],
+    recipePathMatch: '/recipes',
+    systemPrompts: [
+      'You are an assistant that locates official Coles (Australia) recipes and copies their ingredient lists exactly as shown on the page. Preserve brand names, descriptors, and optional notes. Do not replace ingredients with generic alternatives.',
+      'Keep measurements exactly as published (e.g. "500g", "1 jar", "2 tablespoons"). Use quantity fields only when you are certain; otherwise keep them null. Maintain the same ordering as on the recipe page.',
+      'Always respond with valid JSON that matches the schema. Do not include markdown code fences or commentary.'
+    ],
+    userInstruction: (query: string) =>
+      `Find up to three Coles Australia recipes that best match "${query}". Prefer official recipes from https://www.coles.com.au/recipes and https://www.coles.com.au/recipes-inspiration. For each recipe, include accurate step-by-step instructions and copy every ingredient exactly as written on the recipe page. Provide the direct recipe URL if available.`,
   },
+};
 
-  // Search by first letter
-  searchByFirstLetter: async (letter: string): Promise<Recipe[]> => {
-    try {
-      const response = await fetch(`${BASE_URL}/search.php?f=${letter}`);
-      const data: MealDBResponse = await response.json();
-      
-      if (!data.meals) {
-        return [];
-      }
-      
-      return data.meals.map(convertMealDBToRecipe);
-    } catch (error) {
-      console.error('Error searching by first letter:', error);
-      throw error;
-    }
+const RESPONSE_SCHEMA = {
+  name: 'woolworths_recipe_search',
+  schema: {
+    type: 'object',
+    properties: {
+      recipes: {
+        type: 'array',
+        minItems: 0,
+        maxItems: 3,
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            title: { type: 'string' },
+            description: { type: ['string', 'null'] },
+            tags: {
+              type: 'array',
+              items: { type: 'string' },
+            },
+            recipeUrl: { type: ['string', 'null'] },
+            imageUrl: { type: ['string', 'null'] },
+            instructions: {
+              type: 'array',
+              minItems: 1,
+              items: { type: 'string' },
+            },
+            serves: { type: ['number', 'null'] },
+            ingredients: {
+              type: 'array',
+              minItems: 1,
+              items: {
+                type: 'object',
+                properties: {
+                  productName: { type: 'string' },
+                  quantityText: { type: ['string', 'null'] },
+                  quantity: { type: ['number', 'null'] },
+                  unit: { type: ['string', 'null'] },
+                  notes: { type: ['string', 'null'] },
+                  productUrl: { type: ['string', 'null'] },
+                },
+                required: ['productName'],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ['title', 'instructions', 'ingredients'],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ['recipes'],
+    additionalProperties: false,
   },
+};
 
-  // Get random meal
-  getRandomMeal: async (): Promise<Recipe | null> => {
+const FEW_SHOT_EXAMPLE_QUERY = 'butter chicken';
+
+const FEW_SHOT_EXAMPLE_RESPONSE =
+  '{\n' +
+  '  "recipes": [\n' +
+  '    {\n' +
+  '      "id": "example-butter-chicken",\n' +
+  '      "title": "Butter Chicken",\n' +
+  '      "description": "A quick butter chicken using Hart & Soul Butter Chicken Recipe Base.",\n' +
+  '      "tags": ["Chicken", "Dinner"],\n' +
+  '      "recipeUrl": "https://www.woolworths.com.au/shop/recipes/butter-chicken",\n' +
+  '      "imageUrl": null,\n' +
+  '      "instructions": [\n' +
+  '        "Place a large frying pan over medium heat. Add 1 sachet Hart & Soul Butter Chicken Recipe Base and 50ml water, stirring until combined.",\n' +
+  '        "Add 375g chicken breast, diced, and cook for 5-6 minutes until sealed.",\n' +
+  '        "Stir in 70g tomato paste and 150ml pouring cream, simmering for 8 minutes or until sauce thickens and chicken is cooked through.",\n' +
+  '        "Serve topped with fresh coriander to taste."\n' +
+  '      ],\n' +
+  '      "serves": 4,\n' +
+  '      "ingredients": [\n' +
+  '        {\n' +
+  '          "productName": "Hart & Soul Butter Chicken Recipe Base",\n' +
+  '          "quantityText": "1 sachet",\n' +
+  '          "quantity": 1,\n' +
+  '          "unit": null,\n' +
+  '          "notes": null,\n' +
+  '          "productUrl": null\n' +
+  '        },\n' +
+  '        {\n' +
+  '          "productName": "Chicken Breast",\n' +
+  '          "quantityText": "375g",\n' +
+  '          "quantity": 375,\n' +
+  '          "unit": "g",\n' +
+  '          "notes": "diced",\n' +
+  '          "productUrl": null\n' +
+  '        },\n' +
+  '        {\n' +
+  '          "productName": "Pouring Cream",\n' +
+  '          "quantityText": "150ml",\n' +
+  '          "quantity": 150,\n' +
+  '          "unit": "ml",\n' +
+  '          "notes": null,\n' +
+  '          "productUrl": null\n' +
+  '        },\n' +
+  '        {\n' +
+  '          "productName": "Tomato Paste",\n' +
+  '          "quantityText": "70g",\n' +
+  '          "quantity": 70,\n' +
+  '          "unit": "g",\n' +
+  '          "notes": null,\n' +
+  '          "productUrl": null\n' +
+  '        },\n' +
+  '        {\n' +
+  '          "productName": "Brown Onion",\n' +
+  '          "quantityText": "1 small",\n' +
+  '          "quantity": 1,\n' +
+  '          "unit": null,\n' +
+  '          "notes": "diced",\n' +
+  '          "productUrl": null\n' +
+  '        },\n' +
+  '        {\n' +
+  '          "productName": "Water",\n' +
+  '          "quantityText": "50ml",\n' +
+  '          "quantity": 50,\n' +
+  '          "unit": "ml",\n' +
+  '          "notes": null,\n' +
+  '          "productUrl": null\n' +
+  '        },\n' +
+  '        {\n' +
+  '          "productName": "Fresh Coriander",\n' +
+  '          "quantityText": "1 fresh bunch (to serve, optional)",\n' +
+  '          "quantity": 1,\n' +
+  '          "unit": null,\n' +
+  '          "notes": "to serve, optional",\n' +
+  '          "productUrl": null\n' +
+  '        }\n' +
+  '      ]\n' +
+  '    }\n' +
+  '  ]\n' +
+  '}';
+
+RETAILER_CONFIG.woolworths.example = {
+  query: FEW_SHOT_EXAMPLE_QUERY,
+  response: FEW_SHOT_EXAMPLE_RESPONSE,
+};
+
+const buildMeasure = (ingredient: WoolworthsIngredient): string => {
+  if (ingredient.quantityText) {
+    return ingredient.quantityText.trim();
+  }
+
+  const parts: string[] = [];
+
+  if (typeof ingredient.quantity === 'number' && !Number.isNaN(ingredient.quantity)) {
+    const value = ingredient.quantity % 1 === 0 ? ingredient.quantity.toString() : ingredient.quantity.toFixed(2);
+    parts.push(value.replace(/\.00$/, ''));
+  }
+
+  if (ingredient.unit) {
+    parts.push(ingredient.unit.trim());
+  }
+
+  return parts.join(' ').trim();
+};
+
+const toRecipe = (data: WoolworthsRecipe, index: number, retailer: RetailerKey): Recipe => {
+  const instructionsText = Array.isArray(data.instructions) && data.instructions.length > 0
+    ? data.instructions.join('\n\n')
+    : '';
+
+  return {
+    id: data.id || `${retailer}-${Date.now()}-${index}`,
+    name: data.title,
+    description: data.description ?? null,
+    category: data.tags && data.tags.length ? data.tags[0] : `${retailer === 'woolworths' ? 'Woolworths' : 'Coles'} Recipe`,
+    area: null,
+    instructions: instructionsText,
+    thumbnail: data.imageUrl ?? null,
+    tags: data.tags ?? [],
+    sourceUrl: data.recipeUrl ?? null,
+    youtubeUrl: null,
+    ingredients: (data.ingredients ?? []).map((ingredient) => ({
+      name: ingredient.productName,
+      measure: buildMeasure(ingredient),
+      productUrl: ingredient.productUrl ?? null,
+      notes: ingredient.notes ?? null,
+    })),
+    retailer,
+  };
+};
+
+const parseRecipesFromContent = (content: string | null | undefined, retailer: RetailerKey): Recipe[] => {
+  if (!content) {
+    console.warn(`⚠️ OpenAI returned no content for ${retailer} recipe search`);
+    return [];
+  }
+
+  let parsed: WoolworthsRecipeResponse | null = null;
+  try {
+    parsed = JSON.parse(content) as WoolworthsRecipeResponse;
+  } catch (error) {
+    console.warn(`Failed to parse ${retailer} recipe search response`, error);
+    return [];
+  }
+
+  if (!parsed?.recipes || !Array.isArray(parsed.recipes)) {
+    console.warn(`Parsed ${retailer} response missing recipes array`);
+    return [];
+  }
+
+  return parsed.recipes.map((recipe, index) => toRecipe(recipe, index, retailer));
+};
+
+const callRetailerRecipeSearch = async (query: string, retailer: RetailerKey): Promise<Recipe[]> => {
+  const apiKey = process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY;
+  if (!apiKey) {
+    console.warn(`⚠️ OpenAI API key not available. Unable to perform ${retailer} recipe search.`);
+    return [];
+  }
+
+  const client = getOpenAIClient();
+  const config = RETAILER_CONFIG[retailer];
+
+  console.log(`🔍 Starting ${retailer} recipe search for query: "${query}"`);
+
+  const attempts: Array<{
+    description: string;
+    options: {
+      response_format:
+        | {
+            type: 'json_schema';
+            json_schema: typeof RESPONSE_SCHEMA;
+          }
+        | {
+            type: 'json_object';
+          };
+      max_tokens: number;
+    };
+  }> = [
+    {
+      description: 'primary (json_schema)',
+      options: {
+        response_format: {
+          type: 'json_schema',
+          json_schema: RESPONSE_SCHEMA,
+        },
+        max_tokens: 2000,
+      },
+    },
+    {
+      description: 'fallback (json_object)',
+      options: {
+        response_format: { type: 'json_object' },
+        max_tokens: 2000,
+      },
+    },
+  ];
+
+  for (const attempt of attempts) {
     try {
-      const response = await fetch(`${BASE_URL}/random.php`);
-      const data: MealDBResponse = await response.json();
-      
-      if (!data.meals || data.meals.length === 0) {
-        return null;
-      }
-      
-      return convertMealDBToRecipe(data.meals[0]);
-    } catch (error) {
-      console.error('Error fetching random meal:', error);
-      throw error;
-    }
-  },
+      console.log(`➡️ Calling OpenAI (${retailer}) using ${attempt.description}`);
+      const response = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        temperature: 0.2,
+        max_tokens: attempt.options.max_tokens,
+        response_format: attempt.options.response_format,
+        messages: [
+          ...config.systemPrompts.map((prompt) => ({
+            role: 'system' as const,
+            content: prompt,
+          })),
+          ...(config.example
+            ? ([
+                {
+                  role: 'user' as const,
+                  content: `EXAMPLE QUERY: "${config.example.query}"`,
+                },
+                {
+                  role: 'assistant' as const,
+                  content: config.example.response,
+                },
+              ] as const)
+            : []),
+          {
+            role: 'user',
+            content: config.userInstruction(query),
+          },
+        ],
+      });
 
-  // Filter by category
-  filterByCategory: async (category: string): Promise<Recipe[]> => {
-    try {
-      const response = await fetch(`${BASE_URL}/filter.php?c=${encodeURIComponent(category)}`);
-      const data = await response.json();
-      
-      if (!data.meals) {
-        return [];
-      }
-      
-      // Note: filter endpoint returns limited data, need to fetch full details
-      // For better performance, we'll return partial data
-      return data.meals.map((meal: any) => ({
-        id: meal.idMeal,
-        name: meal.strMeal,
-        thumbnail: meal.strMealThumb,
-        category: category,
-        area: '',
-        instructions: '',
-        tags: [],
-        youtubeUrl: null,
-        ingredients: [],
-        sourceUrl: null,
-      }));
-    } catch (error) {
-      console.error('Error filtering by category:', error);
-      throw error;
-    }
-  },
-
-  // Filter by area/cuisine
-  filterByArea: async (area: string): Promise<Recipe[]> => {
-    try {
-      const response = await fetch(`${BASE_URL}/filter.php?a=${encodeURIComponent(area)}`);
-      const data = await response.json();
-      
-      if (!data.meals) {
-        return [];
-      }
-      
-      return data.meals.map((meal: any) => ({
-        id: meal.idMeal,
-        name: meal.strMeal,
-        thumbnail: meal.strMealThumb,
-        category: '',
-        area: area,
-        instructions: '',
-        tags: [],
-        youtubeUrl: null,
-        ingredients: [],
-        sourceUrl: null,
-      }));
-    } catch (error) {
-      console.error('Error filtering by area:', error);
-      throw error;
-    }
-  },
-
-  // Filter by main ingredient
-  filterByIngredient: async (ingredient: string): Promise<Recipe[]> => {
-    try {
-      const response = await fetch(`${BASE_URL}/filter.php?i=${encodeURIComponent(ingredient)}`);
-      const data = await response.json();
-      
-      if (!data.meals) {
-        return [];
-      }
-      
-      return data.meals.map((meal: any) => ({
-        id: meal.idMeal,
-        name: meal.strMeal,
-        thumbnail: meal.strMealThumb,
-        category: '',
-        area: '',
-        instructions: '',
-        tags: [],
-        youtubeUrl: null,
-        ingredients: [],
-        sourceUrl: null,
-      }));
-    } catch (error) {
-      console.error('Error filtering by ingredient:', error);
-      throw error;
-    }
-  },
-
-  // List all categories
-  listCategories: async (): Promise<string[]> => {
-    try {
-      const response = await fetch(`${BASE_URL}/list.php?c=list`);
-      const data = await response.json();
-      
-      if (!data.meals) {
-        return [];
-      }
-      
-      return data.meals.map((item: any) => item.strCategory);
-    } catch (error) {
-      console.error('Error listing categories:', error);
-      throw error;
-    }
-  },
-
-  // List all areas/cuisines
-  listAreas: async (): Promise<string[]> => {
-    try {
-      const response = await fetch(`${BASE_URL}/list.php?a=list`);
-      const data = await response.json();
-      
-      if (!data.meals) {
-        return [];
-      }
-      
-      return data.meals.map((item: any) => item.strArea);
-    } catch (error) {
-      console.error('Error listing areas:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Search recipes using OpenAI as fallback when TheMealDB returns no results
-   * 
-   * To enable this feature, add your OpenAI API key to your environment variables:
-   * 
-   * 1. Create a `.env` file in the root of your project (if it doesn't exist)
-   * 2. Add: EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY=sk-your-key-here
-   * 3. Restart your development server
-   * 
-   * Get your API key from: https://platform.openai.com/api-keys
-   * 
-   * Note: This feature is optional. If no API key is provided, the fallback
-   * will be skipped and users will see the standard "No Results" message.
-   */
-  searchWithOpenAIFallback: async (query: string): Promise<Recipe[]> => {
-    console.log('🔍 searchWithOpenAIFallback called for:', query);
-    try {
-      // Check if OpenAI API key is available
-      const apiKey = process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY;
-      console.log('🔑 Checking OpenAI API key...', apiKey ? 'Found' : 'Not found');
-      
-      if (!apiKey) {
-        console.log('⚠️ OpenAI API key not found. Skipping AI recipe generation.');
-        console.log('💡 To enable AI recipe generation, add EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY to your .env file');
-        // Return empty array instead of throwing to avoid errors
-        return [];
+      const choice = response.choices?.[0];
+      if (!choice) {
+        console.warn(`⚠️ No choices returned from OpenAI for ${retailer} recipe search (${attempt.description})`);
+        continue;
       }
 
-      console.log('✅ OpenAI API key found, generating recipe for:', query);
-      
-      const prompt = `Generate a recipe for "${query}". Return ONLY a valid JSON object matching this exact structure:
-{
-  "name": "Recipe name",
-  "category": "Category (e.g., Chicken, Beef, Vegetarian, Dessert, etc.)",
-  "area": "Cuisine/Area (e.g., American, Italian, Asian, etc.)",
-  "instructions": "Step-by-step cooking instructions. Number each step clearly.",
-  "ingredients": [
-    {"name": "Ingredient name", "measure": "Amount (e.g., 1 cup, 2 tbsp, 500g)"},
-    {"name": "Ingredient name", "measure": "Amount"}
-  ],
-  "tags": ["tag1", "tag2"],
-  "youtubeUrl": "https://www.youtube.com/watch?v=..."
-}
-
-IMPORTANT REQUIREMENTS:
-1. YouTube URL: Provide a real YouTube video URL (full https://www.youtube.com/watch?v=... format) that shows how to cook this recipe. If no suitable video exists, use null.
-
-2. Ingredient Names: Use EXACT ingredient names as they would appear in Woolworths (Australian supermarket) product inventory. Examples:
-   - Use "Woolworths Chicken Breast Fillets" not just "chicken breast"
-   - Use "Woolworths Full Cream Milk" not just "milk"
-   - Use "Woolworths Free Range Large Eggs" not just "eggs"
-   - Use "Woolworths Extra Virgin Olive Oil" not just "olive oil"
-   - Use "Woolworths Brown Onion" not just "onion"
-   - Use brand names when common (e.g., "MasterFoods Garlic Powder", "Dolmio Tomato Paste")
-   - For fresh produce, use standard Woolworths naming (e.g., "Red Capsicum", "Continental Parsley", "Baby Spinach")
-   - Keep ingredient names precise and match how they would appear when searching on woolworths.com.au
-
-3. Make the recipe realistic, detailed, and match the search query "${query}". Include at least 5 ingredients.
-
-Return ONLY the JSON, no markdown formatting, no code blocks, no explanations.`;
-
-      console.log('📤 Sending request to OpenAI API...');
-      console.log('📝 Prompt:', prompt);
-      console.log('⚙️ Model: gpt-4o, Temperature: 0.7, MaxTokens: 2500');
-      
-      const response = await getOpenAITextResponse(
-        [{ role: 'user', content: prompt }],
-        {
-          model: 'gpt-4o',
-          temperature: 0.7,
-          maxTokens: 2500, // Increased for detailed ingredient names and YouTube URLs
-        }
+      console.log(
+        `✅ OpenAI responded for ${retailer} (${attempt.description}) with finish_reason="${choice.finish_reason}" and message length ${choice.message?.content?.length ?? 0}`,
       );
-      
-      console.log('📥 Received response from OpenAI API');
-      console.log('📊 Response length:', response.content.length, 'characters');
-      console.log('💾 Token usage:', response.usage);
 
-      // Parse the JSON response
-      let recipeData: any;
-      try {
-        // Try to extract JSON from markdown code blocks if present
-        const content = response.content.trim();
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          recipeData = JSON.parse(jsonMatch[0]);
-        } else {
-          recipeData = JSON.parse(content);
+      if (choice.finish_reason !== 'stop') {
+        console.warn(
+          `⚠️ OpenAI finish_reason "${choice.finish_reason}" for ${retailer} recipe search (${attempt.description}). Retrying if possible.`,
+        );
+
+        if (attempt.description === attempts[attempts.length - 1].description) {
+          return parseRecipesFromContent(choice.message?.content, retailer);
         }
-      } catch (parseError) {
-        console.error('Error parsing OpenAI recipe response:', parseError);
-        console.log('Raw response:', response.content);
-        throw new Error('Failed to parse recipe from OpenAI response');
+
+        continue;
       }
 
-      // Convert to Recipe format
-      const recipe: Recipe = {
-        id: `openai-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-        name: recipeData.name || query,
-        category: recipeData.category || 'Miscellaneous',
-        area: recipeData.area || '',
-        instructions: recipeData.instructions || 'No instructions provided.',
-        thumbnail: '', // OpenAI doesn't provide images
-        tags: Array.isArray(recipeData.tags) ? recipeData.tags : [],
-        youtubeUrl: recipeData.youtubeUrl && recipeData.youtubeUrl !== 'null' ? recipeData.youtubeUrl : null,
-        ingredients: Array.isArray(recipeData.ingredients)
-          ? recipeData.ingredients.map((ing: any) => ({
-              name: ing.name || '',
-              measure: ing.measure || '',
-            }))
-          : [],
-        sourceUrl: null,
-      };
-
-      console.log('✅ OpenAI recipe generated successfully');
-      return [recipe];
-    } catch (error: any) {
-      console.error('❌ Error in searchWithOpenAIFallback:');
-      console.error('   Error type:', error?.constructor?.name);
-      console.error('   Error message:', error?.message);
-      console.error('   Error status:', error?.status || error?.response?.status || error?.statusCode || error?.originalStatus);
-      
-      // Check if it's an authentication/API key error (401 or 403)
-      const errorMessage = error?.message || String(error);
-      const statusCode = error?.status || error?.response?.status || error?.statusCode || error?.originalStatus;
-      
-      // Handle invalid API key errors gracefully (don't expose API key in error message)
-      if (
-        statusCode === 401 || 
-        statusCode === 403 ||
-        errorMessage.includes('401') ||
-        errorMessage.includes('403') ||
-        errorMessage.includes('Incorrect API key') ||
-        errorMessage.includes('Invalid API key') ||
-        errorMessage.includes('API key not configured') ||
-        errorMessage.includes('invalid_api_key') ||
-        errorMessage.includes('authentication')
-      ) {
-        console.log('⚠️ OpenAI API key is invalid or not configured. Skipping AI recipe generation.');
-        // Return empty array instead of throwing - this prevents error overlays
-        return [];
+      const recipes = parseRecipesFromContent(choice.message?.content, retailer);
+      if (recipes.length > 0) {
+        console.log(`🍽️ Parsed ${recipes.length} ${retailer} recipes for query "${query}"`);
+        return recipes;
       }
-      
-      // For other errors, log details and return empty array (don't throw to avoid error overlays)
-      console.log('⚠️ OpenAI recipe generation failed. Error details logged above.');
-      return [];
+      console.warn(`⚠️ Parsed 0 recipes from ${retailer} response (${attempt.description}).`);
+    } catch (error) {
+      console.warn(`Error calling ${retailer} recipe search (${attempt.description}):`, error);
     }
-  },
+  }
+
+  console.warn(`❌ All attempts failed for ${retailer} recipe search with query "${query}"`);
+  return [];
+};
+
+const MealDBAPI = {
+  searchByName: async (query: string, retailer: RetailerKey = 'woolworths'): Promise<Recipe[]> =>
+    callRetailerRecipeSearch(query, retailer),
 };
 
 export default MealDBAPI;

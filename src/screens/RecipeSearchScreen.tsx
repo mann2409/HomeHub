@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,10 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MagnifyingGlass, X, Sparkle, Clock, BookmarkSimple } from 'phosphor-react-native';
+import { MagnifyingGlass, X, Clock, BookmarkSimple } from 'phosphor-react-native';
 import RecipeCard from '../components/RecipeCard';
 import useRecipeStore from '../state/recipeStore';
-import MealDBAPI from '../api/mealdb';
+import MealDBAPI, { RetailerKey } from '../api/mealdb';
 import { Recipe } from '../types/recipe';
 
 interface RecipeSearchScreenProps {
@@ -23,9 +23,6 @@ interface RecipeSearchScreenProps {
 export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScreenProps) {
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
-  const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
   const {
     searchResults,
     recentSearches,
@@ -37,19 +34,11 @@ export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScree
     clearRecentSearches,
   } = useRecipeStore();
 
-  // Load categories on mount
-  useEffect(() => {
-    loadCategories();
-  }, []);
+  const [selectedRetailer, setSelectedRetailer] = useState<RetailerKey>('woolworths');
 
-  const loadCategories = async () => {
-    try {
-      const cats = await MealDBAPI.listCategories();
-      setCategories(cats.slice(0, 10)); // Show top 10 categories
-    } catch (error) {
-      console.error('Error loading categories:', error);
-    }
-  };
+  useEffect(() => {
+    setSearchResults([]);
+  }, [selectedRetailer, setSearchResults]);
 
   const handleSearch = async (query?: string) => {
     console.log('handleSearch called, query:', query, 'searchQuery:', searchQuery);
@@ -65,50 +54,16 @@ export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScree
     console.log('Starting search with term:', searchTerm);
     setLoading(true);
     
-    let results: Recipe[] = [];
-    
     try {
-      // First, try TheMealDB API
-      try {
-        results = await MealDBAPI.searchByName(searchTerm);
-        console.log('✅ TheMealDB search results received:', results.length, 'results');
-      } catch (mealDbError) {
-        console.log('⚠️ TheMealDB search failed, will try OpenAI fallback:', mealDbError);
-        // Continue to try OpenAI fallback even if TheMealDB fails
-        results = [];
-      }
-      
-      // If no results, try OpenAI as fallback
-      if (results.length === 0) {
-        console.log('🔍 No results from TheMealDB, trying OpenAI fallback...');
-        try {
-          const aiResults = await MealDBAPI.searchWithOpenAIFallback(searchTerm);
-          console.log('✅ OpenAI fallback results received:', aiResults.length, 'results');
-          
-          if (aiResults.length > 0) {
-            results = aiResults;
-            // Show a subtle notification that we used AI
-            Alert.alert(
-              'AI-Generated Recipe',
-              `We couldn't find "${searchTerm}" in our recipe database, but we've generated a recipe for you using AI!`,
-              [{ text: 'OK' }]
-            );
-          } else {
-            console.log('⚠️ OpenAI fallback also returned no results');
-          }
-        } catch (openAIError) {
-          console.log('⚠️ OpenAI fallback failed:', openAIError);
-          // OpenAI fallback already handles errors internally and returns empty array
-          // So this catch is just for logging
-        }
-      }
-      
+      const results = await MealDBAPI.searchByName(searchTerm, selectedRetailer);
+      console.log('✅ Recipe search results received:', results.length, 'results for', selectedRetailer);
+
       // If still no results, show message
       if (results.length === 0) {
-        console.log('❌ No results from either TheMealDB or OpenAI');
+        console.log(`❌ No ${selectedRetailer} recipes returned`);
         Alert.alert(
           'No Results',
-          `No recipes found for "${searchTerm}". Try a different search term.`
+          `We couldn’t find a ${selectedRetailer === 'woolworths' ? 'Woolworths' : 'Coles'} recipe for "${searchTerm}". Try a different search term.`
         );
       }
       
@@ -117,49 +72,6 @@ export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScree
     } catch (error) {
       console.error('❌ Unexpected search error:', error);
       Alert.alert('Error', 'Failed to search recipes. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCategorySelect = async (category: string) => {
-    setSelectedCategory(category);
-    setLoading(true);
-    
-    try {
-      const results = await MealDBAPI.filterByCategory(category);
-      
-      // Fetch full details for each recipe
-      const detailedResults = await Promise.all(
-        results.slice(0, 20).map(async (recipe) => {
-          try {
-            const detail = await MealDBAPI.getMealById(recipe.id);
-            return detail || recipe;
-          } catch {
-            return recipe;
-          }
-        })
-      );
-      
-      setSearchResults(detailedResults.filter(r => r !== null) as Recipe[]);
-    } catch (error) {
-      console.error('Category filter error:', error);
-      Alert.alert('Error', 'Failed to load recipes for this category.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRandomRecipe = async () => {
-    setLoading(true);
-    try {
-      const recipe = await MealDBAPI.getRandomMeal();
-      if (recipe) {
-        setSearchResults([recipe]);
-      }
-    } catch (error) {
-      console.error('Random recipe error:', error);
-      Alert.alert('Error', 'Failed to get random recipe.');
     } finally {
       setLoading(false);
     }
@@ -178,7 +90,6 @@ export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScree
   const clearSearch = () => {
     setSearchQuery('');
     setSearchResults([]);
-    setSelectedCategory(null);
   };
 
   return (
@@ -187,8 +98,34 @@ export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScree
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Recipe Search</Text>
           <Text style={styles.headerSubtitle}>
-            Powered by TheMealDB
+            Powered by Woolworths & Coles Recipes
           </Text>
+        </View>
+
+        <View style={styles.retailerToggle}>
+          {(['woolworths', 'coles'] as RetailerKey[]).map((retailer) => {
+            const isActive = selectedRetailer === retailer;
+            return (
+              <TouchableOpacity
+                key={retailer}
+                style={[
+                  styles.retailerButton,
+                  isActive && styles.retailerButtonActive,
+                ]}
+                onPress={() => setSelectedRetailer(retailer)}
+                disabled={isLoading}
+              >
+                <Text
+                  style={[
+                    styles.retailerButtonText,
+                    isActive && styles.retailerButtonTextActive,
+                  ]}
+                >
+                  {retailer === 'woolworths' ? 'Woolworths' : 'Coles'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Search Bar */}
@@ -234,19 +171,6 @@ export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScree
           >
             <MagnifyingGlass size={20} color="#fff" weight="bold" />
             <Text style={styles.actionButtonText}>Search</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionButton, styles.secondaryButton]}
-            onPress={() => {
-              console.log('Random button pressed');
-              handleRandomRecipe();
-            }}
-            disabled={isLoading}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Sparkle size={20} color="#fff" weight="fill" />
-            <Text style={styles.actionButtonText}>Random</Text>
           </TouchableOpacity>
         </View>
 
@@ -304,33 +228,6 @@ export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScree
                 </View>
               )}
 
-              {/* Categories */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Browse by Category</Text>
-                <View style={styles.chipsContainer}>
-                  {categories.map((category) => (
-                    <TouchableOpacity
-                      key={category}
-                      style={[
-                        styles.chip,
-                        styles.categoryChip,
-                        selectedCategory === category && styles.selectedChip,
-                      ]}
-                      onPress={() => handleCategorySelect(category)}
-                    >
-                      <Text
-                        style={[
-                          styles.chipText,
-                          selectedCategory === category && styles.selectedChipText,
-                        ]}
-                      >
-                        {category}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
               {/* Saved Recipes */}
               {savedRecipes.length > 0 && (
                 <View style={styles.section}>
@@ -354,7 +251,7 @@ export default function RecipeSearchScreen({ onRecipeSelect }: RecipeSearchScree
                   <MagnifyingGlass size={64} color="rgba(255,255,255,0.3)" />
                   <Text style={styles.emptyTitle}>Find Your Next Meal</Text>
                   <Text style={styles.emptyText}>
-                    Search for recipes by name, browse by category, or get a random recipe!
+                    Search for Woolworths recipes by name and we’ll pull the exact ingredient products for you.
                   </Text>
                 </View>
               )}
@@ -383,6 +280,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.7)',
     marginTop: 4,
+  },
+  retailerToggle: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  retailerButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  retailerButtonActive: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  retailerButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  retailerButtonTextActive: {
+    color: '#1A1B2E',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -413,9 +336,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     gap: 8,
-  },
-  secondaryButton: {
-    backgroundColor: '#FF9800',
   },
   actionButtonText: {
     color: '#fff',
@@ -471,22 +391,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
   },
-  categoryChip: {
-    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(76, 175, 80, 0.3)',
-  },
-  selectedChip: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
-  },
   chipText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '500',
-  },
-  selectedChipText: {
-    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',

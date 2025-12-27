@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, Platform } from "react-native";
+import { View, Text, ScrollView, Pressable, Platform, ActivityIndicator, Alert } from "react-native";
 import DateTimePicker, { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
 import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from "expo-image-picker";
 import Modal from "./Modal";
 import Input from "./Input";
 import { ExpenseCategory, PaymentMethod } from "../types";
 import useFinanceStore from "../state/financeStore";
 import { guideBus } from "../utils/guideBus";
+import { scanReceiptFromImage } from "../api/receiptScanner";
 
 interface AddExpenseModalProps {
   visible: boolean;
@@ -22,6 +24,7 @@ export default function AddExpenseModal({ visible, onClose }: AddExpenseModalPro
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
   const resetForm = () => {
     setAmount("");
@@ -30,6 +33,47 @@ export default function AddExpenseModal({ visible, onClose }: AddExpenseModalPro
     setPaymentMethod("card");
     setDate(new Date());
     setShowDatePicker(false);
+  };
+
+  const handleScanReceipt = async () => {
+    try {
+      // Ask for permission
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (permission.status !== "granted") {
+        Alert.alert("Permission needed", "Please allow photo library access to scan receipts.");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+        base64: false,
+      });
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        return;
+      }
+
+      const uri = result.assets[0].uri;
+      if (!uri) return;
+
+      setIsScanning(true);
+      const scanned = await scanReceiptFromImage(uri);
+      setIsScanning(false);
+
+      if (!scanned) {
+        Alert.alert("Couldn’t read receipt", "Try another photo with clearer text.");
+        return;
+      }
+
+      setAmount(scanned.amount.toFixed(2));
+      setDescription(scanned.description);
+      setCategory(scanned.category);
+    } catch (error) {
+      console.error("Error scanning receipt:", error);
+      setIsScanning(false);
+      Alert.alert("Error", "Something went wrong while scanning the receipt.");
+    }
   };
 
   const handleSave = () => {
@@ -91,6 +135,26 @@ export default function AddExpenseModal({ visible, onClose }: AddExpenseModalPro
           onChangeText={setDescription}
           placeholder="What did you spend on?"
         />
+
+        <View className="mb-4">
+          <Pressable
+            onPress={handleScanReceipt}
+            disabled={isScanning}
+            className="flex-row items-center justify-center px-4 py-3 rounded-lg"
+            style={{ backgroundColor: isScanning ? "rgba(16,163,127,0.4)" : "#10A37F" }}
+          >
+            {isScanning ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text className="text-white font-semibold">
+                Scan receipt with AI
+              </Text>
+            )}
+          </Pressable>
+          <Text className="text-xs text-white/60 mt-1">
+            Upload a photo of your receipt and let AI fill in the amount, description and category.
+          </Text>
+        </View>
 
         {/* Date */}
         <View className="mb-4">

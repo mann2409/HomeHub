@@ -2,7 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { House, Calendar as PhCalendar, ForkKnife, Coins, ShoppingBag } from "phosphor-react-native";
+import { House, Calendar as PhCalendar, ForkKnife, Coins, ClipboardText } from "phosphor-react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import DashboardScreen from "../screens/DashboardScreen";
@@ -10,6 +10,7 @@ import CalendarScreen from "../screens/CalendarScreen";
 import MealsScreen from "../screens/MealsScreen";
 import FinanceScreen from "../screens/FinanceScreen";
 import ShoppingScreen from "../screens/ShoppingScreen";
+import HouseholdScreen from "../screens/HouseholdScreen";
 import useSettingsStore from "../state/settingsStore";
 
 const Tab = createBottomTabNavigator();
@@ -36,8 +37,8 @@ export default function AppNavigator() {
               return <ForkKnife {...iconProps} style={glowStyle} />;
             case "Finance":
               return <Coins {...iconProps} style={glowStyle} />;
-            case "Shopping":
-              return <ShoppingBag {...iconProps} style={glowStyle} />;
+            case "Household":
+              return <ClipboardText {...iconProps} style={glowStyle} />;
             default:
               return <House {...iconProps} style={glowStyle} />;
           }
@@ -67,8 +68,7 @@ export default function AppNavigator() {
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
-      <Tab.Screen name="Meals" component={MealsScreen} />
-      <Tab.Screen name="Shopping" component={ShoppingScreen} />
+      <Tab.Screen name="Household" component={HouseholdScreen} />
       <Tab.Screen name="Finance" component={FinanceScreen} />
     </Tab.Navigator>
   );

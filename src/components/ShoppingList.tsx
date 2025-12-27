@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, SectionList, Alert, Modal as RNModal } from "react-native";
+import { View, Text, Pressable, SectionList, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { ShoppingCart, Robot } from "phosphor-react-native";
+import { ShoppingCart } from "phosphor-react-native";
 import Card from "./Card";
 import ShoppingItemCard from "./ShoppingItemCard";
 import AddShoppingItemModal from "./AddShoppingItemModal";
 import EditShoppingItemModal from "./EditShoppingItemModal";
-import RetailerLinksModal from "./RetailerLinksModal";
-import AutomatedShoppingScreen from "../screens/AutomatedShoppingScreen";
 import useShoppingStore from "../state/shoppingStore";
 import useSettingsStore from "../state/settingsStore";
 import { ShoppingItem, ShoppingCategory } from "../types";
@@ -31,7 +29,6 @@ export default function ShoppingList() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [openRetailer, setOpenRetailer] = useState<null | 'woolworths' | 'coles'>(null);
-  const [autoShopRetailer, setAutoShopRetailer] = useState<null | 'woolworths' | 'coles'>(null);
 
   const categorizedItems = getCategorizedItems();
   const totalCost = getTotalEstimatedCost();
@@ -210,44 +207,7 @@ export default function ShoppingList() {
               )}
             </View>
 
-            {/* AI Auto Shop - Featured */}
-            <View className="mb-4">
-              <View className="flex-row items-center mb-2">
-                <Robot size={20} color="rgba(16, 163, 127, 1)" weight="bold" />
-                <Text className="text-white font-semibold ml-2">AI Auto Shop</Text>
-              </View>
-              <View className="flex-row gap-2">
-                <Pressable 
-                  onPress={() => setAutoShopRetailer('woolworths')} 
-                  className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-green-500 to-green-600 active:opacity-80"
-                  style={{ backgroundColor: '#10A37F' }}
-                >
-                  <Text className="text-white font-semibold text-center">🤖 Woolworths</Text>
-                  <Text className="text-white/80 text-xs text-center mt-1">Auto add to cart</Text>
-                </Pressable>
-                <Pressable 
-                  onPress={() => setAutoShopRetailer('coles')} 
-                  className="flex-1 px-4 py-3 rounded-lg active:opacity-80"
-                  style={{ backgroundColor: '#10A37F' }}
-                >
-                  <Text className="text-white font-semibold text-center">🤖 Coles</Text>
-                  <Text className="text-white/80 text-xs text-center mt-1">Auto add to cart</Text>
-                </Pressable>
-              </View>
-            </View>
-
-            {/* Manual Retailer Links */}
-            <View className="mb-4">
-              <Text className="text-white/60 text-xs mb-2">Or browse manually:</Text>
-              <View className="flex-row gap-2">
-                <Pressable onPress={() => setOpenRetailer('woolworths')} className="flex-1 px-3 py-2 rounded-lg bg-white/15">
-                  <Text className="text-white text-center">Woolworths</Text>
-                </Pressable>
-                <Pressable onPress={() => setOpenRetailer('coles')} className="flex-1 px-3 py-2 rounded-lg bg-white/15">
-                  <Text className="text-white text-center">Coles</Text>
-                </Pressable>
-              </View>
-            </View>
+            {/* Retailer integrations have been removed intentionally */}
             
             {/* Delete All Button */}
             {sections.length > 0 && (
@@ -352,32 +312,7 @@ export default function ShoppingList() {
         item={selectedItem}
       />
 
-      {/* Retailer modals */}
-      <RetailerLinksModal
-        visible={openRetailer === 'woolworths'}
-        onClose={() => setOpenRetailer(null)}
-        retailer="woolworths"
-      />
-      <RetailerLinksModal
-        visible={openRetailer === 'coles'}
-        onClose={() => setOpenRetailer(null)}
-        retailer="coles"
-      />
-
-      {/* AI Auto Shop Modal */}
-      <RNModal
-        visible={autoShopRetailer !== null}
-        animationType="slide"
-        presentationStyle="fullScreen"
-        onRequestClose={() => setAutoShopRetailer(null)}
-      >
-        {autoShopRetailer && (
-          <AutomatedShoppingScreen
-            retailer={autoShopRetailer}
-            onClose={() => setAutoShopRetailer(null)}
-          />
-        )}
-      </RNModal>
+      {/* Retailer integrations removed */}
     </>
   );
 }
