@@ -13,7 +13,7 @@ import { scanPantryFromImage, toPantryItems } from "../api/pantryScanner";
 const TopTab = createMaterialTopTabNavigator();
 
 function PantryScreen() {
-  const { items, addItems, deleteItem, getStatus, syncFromSupabase } = usePantryStore();
+  const { items, addItems, deleteItem, clearAll, getStatus, syncFromSupabase } = usePantryStore();
   const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {
@@ -23,10 +23,12 @@ function PantryScreen() {
 
   const totalItems = items.length;
   const lastPurchase = items.length
-    ? items.reduce((latest, item) =>
-        item.createdAt > latest ? item.createdAt : latest,
-        items[0].createdAt
-      )
+    ? items.reduce<Date | null>((latest, item) => {
+        const created = item?.createdAt ? new Date(item.createdAt) : null;
+        if (!created) return latest;
+        if (!latest) return created;
+        return created > latest ? created : latest;
+      }, null)
     : null;
   const lastScanned = lastPurchase;
 
@@ -126,6 +128,27 @@ function PantryScreen() {
               <Text className="text-white font-semibold">Upload receipt</Text>
             )}
           </Pressable>
+          {items.length > 0 && (
+            <Pressable
+              onPress={() => {
+                Alert.alert(
+                  "Clear pantry?",
+                  "This removes all pantry items locally and in Supabase.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Clear",
+                      style: "destructive",
+                      onPress: () => clearAll(),
+                    },
+                  ]
+                );
+              }}
+              className="self-center mt-4 px-5 py-2 rounded-full border border-white/30"
+            >
+              <Text className="text-white/80 text-sm font-semibold">Clear pantry</Text>
+            </Pressable>
+          )}
         </View>
 
         {/* Items list */}
@@ -141,7 +164,8 @@ function PantryScreen() {
               const status = getStatus(item);
               const color = getStatusColor(status);
               const today = new Date();
-              const diffMs = item.expiryDate.getTime() - today.getTime();
+              const expiryDate = item?.expiryDate ? new Date(item.expiryDate) : null;
+              const diffMs = expiryDate ? expiryDate.getTime() - today.getTime() : 0;
               const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
               let statusLabel = "Fresh";
@@ -166,7 +190,7 @@ function PantryScreen() {
                       </Text>
                     )}
                     <Text className="text-xs text-white/60 mt-1">
-                      Expires {format(item.expiryDate, "MMM d, yyyy")}
+                      {expiryDate ? `Expires ${format(expiryDate, "MMM d, yyyy")}` : "No expiry date"}
                     </Text>
                   </View>
                   <View className="items-end">

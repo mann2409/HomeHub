@@ -1,3 +1,5 @@
+import "react-native-get-random-values";
+import { v4 as uuidv4, validate as uuidValidate } from "uuid";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -47,11 +49,24 @@ async function sendPantryToBridge(newItems: PantryItem[]) {
 
 interface PantryState {
   items: PantryItem[];
-  addItems: (items: PantryItem[]) => void;
-  deleteItem: (id: string) => void;
-  clearAll: () => void;
+  addItems: (items: PantryItem[]) => Promise<void>;
+  deleteItem: (id: string) => Promise<void>;
+  clearAll: () => Promise<void>;
   getStatus: (item: PantryItem) => PantryStatus;
   syncFromSupabase: () => Promise<void>;
+}
+
+function normalizePantryItem(item: PantryItem): PantryItem {
+  return {
+    ...item,
+    expiryDate: item?.expiryDate ? new Date(item.expiryDate) : new Date(),
+    createdAt: item?.createdAt ? new Date(item.createdAt) : new Date(),
+  };
+}
+
+function ensurePantryId(id?: string) {
+  if (id && uuidValidate(id)) return id;
+  return uuidv4();
 }
 
 const usePantryStore = create<PantryState>()(
@@ -59,61 +74,101 @@ const usePantryStore = create<PantryState>()(
     (set, get) => ({
       items: [],
 
-      addItems: (newItems) => {
-        set((state) => {
-          const now = new Date();
-          const itemsWithMeta = newItems.map((item) => ({
-            ...item,
-            createdAt: item.createdAt || now,
-          }));
-
+      addItems: async (newItems) => {
+        const now = new Date();
+        const normalizedItems = newItems.map((item) => {
+          const normalized = normalizePantryItem(item);
+          // Always use a fresh UUID for Supabase compatibility (id column is UUID)
+          const id = uuidv4();
+          const createdAt = normalized.createdAt || now;
           return {
-            items: [...itemsWithMeta, ...state.items],
+            ...normalized,
+            id,
+            createdAt,
           };
         });
+
+        set((state) => ({
+          items: [...normalizedItems, ...state.items],
+        }));
+
+        const user = useAuthStore.getState().user;
+        const userId = user?.uid;
+        const userIdToSend = userId && uuidValidate(userId) ? userId : null;
+        if (userId && !userIdToSend) {
+          console.warn("⚠️ Skipping user_id in Supabase upsert (not a UUID)", userId);
+        }
+
+        const payload = normalizedItems.map((item) => {
+          // Double-ensure UUID at payload time
+          const id = uuidv4();
+          return {
+            id,
+            name: item.name,
+            quantity: item.quantity ?? null,
+            purchased_at: item.createdAt,
+            created_at: item.createdAt,
+            user_id: userIdToSend,
+          };
+        });
+
+        // Helpful debug log to confirm IDs being sent
+        console.log("🧾 Pantry upsert payload IDs", payload.map((p) => p.id));
+
+        try {
+          const { error } = await supabase.from("pantry_items").upsert(payload);
+          if (error) {
+            console.error("❌ Error saving pantry items to Supabase:", error);
+          }
+        } catch (err) {
+          console.error("❌ Unexpected Supabase error (pantry add):", err);
+        }
 
         // Send to bridge (fire and forget)
         sendPantryToBridge(newItems);
       },
 
-      deleteItem: (id) => {
+      deleteItem: async (id) => {
         set((state) => ({
           items: state.items.filter((item) => item.id !== id),
         }));
 
-        supabase
-          .from("pantry_items")
-          .delete()
-          .eq("id", id)
-          .then(({ error }) => {
-            if (error) {
-              console.error("❌ Error deleting pantry item from Supabase:", error);
-            }
-          })
-          .catch((err) => {
-            console.error("❌ Unexpected Supabase error (pantry delete):", err);
-          });
+        try {
+          const { error } = await supabase.from("pantry_items").delete().eq("id", id);
+          if (error) {
+            console.error("❌ Error deleting pantry item from Supabase:", error);
+          }
+        } catch (err) {
+          console.error("❌ Unexpected Supabase error (pantry delete):", err);
+        }
       },
 
-      clearAll: () => {
+      clearAll: async () => {
         set({ items: [] });
 
-        supabase
-          .from("pantry_items")
-          .delete()
-          .then(({ error }) => {
-            if (error) {
-              console.error("❌ Error clearing pantry items in Supabase:", error);
-            }
-          })
-          .catch((err) => {
-            console.error("❌ Unexpected Supabase error (pantry clear):", err);
-          });
+        const user = useAuthStore.getState().user;
+        const userId = user?.uid;
+
+        // If Supabase user_id column is UUID, guard invalid IDs to avoid 22P02.
+        if (!userId || !uuidValidate(userId)) {
+          console.warn("⚠️ Skipping Supabase pantry clear: userId missing or not a UUID", userId);
+          return;
+        }
+
+        try {
+          const { error } = await supabase.from("pantry_items").delete().eq("user_id", userId);
+          if (error) {
+            console.error("❌ Error clearing pantry items in Supabase:", error);
+          }
+        } catch (err) {
+          console.error("❌ Unexpected Supabase error (pantry clear):", err);
+        }
       },
 
       getStatus: (item) => {
         const today = new Date();
-        const diffMs = item.expiryDate.getTime() - today.getTime();
+        const expiryDate = item?.expiryDate ? new Date(item.expiryDate) : today;
+        const diffMs = expiryDate.getTime() - today.getTime();
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
         if (diffDays < 1) return "expired"; // red
@@ -158,6 +213,11 @@ const usePantryStore = create<PantryState>()(
     {
       name: "pantry-storage",
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state?.items) {
+          state.items = state.items.map(normalizePantryItem);
+        }
+      },
     }
   )
 );

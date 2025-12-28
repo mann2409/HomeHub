@@ -1,3 +1,5 @@
+import "react-native-get-random-values";
+import { v4 as uuidv4, validate as uuidValidate } from "uuid";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -34,9 +36,9 @@ const useFinanceStore = create<FinanceState>()(
 
       addExpense: async (expenseData) => {
         const { userId } = get();
-        if (!userId) return;
+        const hasValidUser = userId && uuidValidate(userId);
 
-        const expenseId = Date.now().toString() + Math.random().toString(36).substring(2, 11);
+        const expenseId = uuidv4();
         const newExpense: Expense = {
           ...expenseData,
           id: expenseId,
@@ -50,23 +52,32 @@ const useFinanceStore = create<FinanceState>()(
           expenses: [...state.expenses, newExpense],
         }));
 
-        // Save to Supabase
+        // Save to Supabase only if userId is a valid UUID (matches table schema)
+        if (!hasValidUser) {
+          console.warn("⚠️ Skipping Supabase expense save: userId is not a valid UUID", userId);
+          return;
+        }
+
         try {
           console.log("💾 Saving expense to Supabase...", {
             userId,
             expenseId,
           });
 
-          const { data, error } = await supabase.from("expenses").insert({
-            id: expenseId,
-            user_id: userId,
-            amount: newExpense.amount,
-            description: newExpense.description,
-            category: newExpense.category,
-            expense_date: newExpense.date.toISOString(),
-            receipt_url: (newExpense as any).receiptUrl ?? null,
-            created_at: newExpense.createdAt.toISOString(),
-          }).select().single();
+          const { data, error } = await supabase
+            .from("expenses")
+            .insert({
+              id: expenseId,
+              user_id: userId,
+              amount: newExpense.amount,
+              description: newExpense.description,
+              category: newExpense.category,
+              expense_date: newExpense.date.toISOString(),
+              receipt_url: (newExpense as any).receiptUrl ?? null,
+              created_at: newExpense.createdAt.toISOString(),
+            })
+            .select()
+            .single();
 
           if (error) {
             console.error("❌ Error saving expense to Supabase:", error);
@@ -300,6 +311,11 @@ const useFinanceStore = create<FinanceState>()(
 
         if (!userId) {
           console.log('No user ID - not loading expenses');
+          return () => {};
+        }
+
+        if (!uuidValidate(userId)) {
+          console.warn("⚠️ Skipping Supabase expense load: userId is not a valid UUID", userId);
           return () => {};
         }
 
