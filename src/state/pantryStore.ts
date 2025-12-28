@@ -10,7 +10,9 @@ import useAuthStore from "./authStore";
 const BRIDGE_URL = "https://facnpdpzhxvybisxlpbp.supabase.co/functions/v1/external-bridge";
 // Support either the public Expo-style name or the provided env name.
 const EXTERNAL_BRIDGE_API_KEY =
-  process.env.EXPO_PUBLIC_EXTERNAL_BRIDGE_API_KEY ?? process.env.YOUR_EXTERNAL_APP_API_KEY;
+  process.env.EXPO_PUBLIC_EXTERNAL_BRIDGE_API_KEY ??
+  process.env.EXPO_EXTERNAL_APP_API_KEY ??
+  process.env.YOUR_EXTERNAL_APP_API_KEY;
 
 async function sendPantryToBridge(newItems: PantryItem[]) {
   if (!EXTERNAL_BRIDGE_API_KEY) {
