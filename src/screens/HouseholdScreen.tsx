@@ -138,14 +138,10 @@ function PantryScreen() {
         ) : (
           <View className="space-y-3">
             {items.map((item) => {
-              const normalizedExpiry =
-                item.expiryDate instanceof Date ? item.expiryDate : new Date(item.expiryDate);
-              const normalizedItem = { ...item, expiryDate: normalizedExpiry };
-
-              const status = getStatus(normalizedItem);
+              const status = getStatus(item);
               const color = getStatusColor(status);
               const today = new Date();
-              const diffMs = normalizedItem.expiryDate.getTime() - today.getTime();
+              const diffMs = item.expiryDate.getTime() - today.getTime();
               const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
               let statusLabel = "Fresh";
@@ -170,7 +166,7 @@ function PantryScreen() {
                       </Text>
                     )}
                     <Text className="text-xs text-white/60 mt-1">
-                      Expires {format(normalizedItem.expiryDate, "MMM d, yyyy")}
+                      Expires {format(item.expiryDate, "MMM d, yyyy")}
                     </Text>
                   </View>
                   <View className="items-end">

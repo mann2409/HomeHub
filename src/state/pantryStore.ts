@@ -17,12 +17,6 @@ async function sendPantryToBridge(newItems: PantryItem[]) {
   }
 
   const user = useAuthStore.getState().user;
-  console.log(
-    "[bridge] sending pantry items",
-    newItems.length,
-    "for user",
-    user?.uid ?? "anonymous"
-  );
   const payload = {
     user_id: user?.uid ?? null,
     pantry_items: newItems.map((item) => ({
@@ -45,8 +39,6 @@ async function sendPantryToBridge(newItems: PantryItem[]) {
     if (!res.ok) {
       const text = await res.text();
       console.error("❌ Bridge call failed:", res.status, text);
-    } else {
-      console.log("[bridge] pantry items sent ok");
     }
   } catch (err) {
     console.error("❌ Bridge call error:", err);
@@ -62,36 +54,6 @@ interface PantryState {
   syncFromSupabase: () => Promise<void>;
 }
 
-const normalizeItem = (item: PantryItem): PantryItem => {
-  const expiry =
-    item.expiryDate instanceof Date
-      ? item.expiryDate
-      : item.expiryDate
-      ? new Date(item.expiryDate)
-      : null;
-  const created =
-    item.createdAt instanceof Date
-      ? item.createdAt
-      : item.createdAt
-      ? new Date(item.createdAt)
-      : new Date();
-
-  // If expiry is missing, default to 7 days from createdAt
-  const expiryDate = expiry && !Number.isNaN(expiry.getTime())
-    ? expiry
-    : (() => {
-        const fallback = new Date(created);
-        fallback.setDate(fallback.getDate() + 7);
-        return fallback;
-      })();
-
-  return {
-    ...item,
-    createdAt: created,
-    expiryDate,
-  };
-};
-
 const usePantryStore = create<PantryState>()(
   persist(
     (set, get) => ({
@@ -100,12 +62,10 @@ const usePantryStore = create<PantryState>()(
       addItems: (newItems) => {
         set((state) => {
           const now = new Date();
-          const itemsWithMeta = newItems.map((item) =>
-            normalizeItem({
-              ...item,
-              createdAt: item.createdAt || now,
-            })
-          );
+          const itemsWithMeta = newItems.map((item) => ({
+            ...item,
+            createdAt: item.createdAt || now,
+          }));
 
           return {
             items: [...itemsWithMeta, ...state.items],
@@ -152,9 +112,8 @@ const usePantryStore = create<PantryState>()(
       },
 
       getStatus: (item) => {
-        const normalized = normalizeItem(item);
         const today = new Date();
-        const diffMs = normalized.expiryDate.getTime() - today.getTime();
+        const diffMs = item.expiryDate.getTime() - today.getTime();
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
         if (diffDays < 1) return "expired"; // red
@@ -181,13 +140,13 @@ const usePantryStore = create<PantryState>()(
             const expiryDate = new Date(purchasedAt);
             expiryDate.setDate(purchasedAt.getDate() + 7);
 
-            return normalizeItem({
+            return {
               id: row.id,
               name: row.name,
               quantity: row.quantity ?? undefined,
               expiryDate,
               createdAt: row.created_at ? new Date(row.created_at) : purchasedAt,
-            });
+            };
           });
 
           set({ items: mapped });
