@@ -186,11 +186,11 @@ const usePantryStore = create<PantryState>()(
       },
 
       syncFromSupabase: async () => {
+        const user = useAuthStore.getState().user;
+        const userId = user?.uid;
         try {
-          const { data, error } = await supabase
-            .from("pantry_items")
-            .select("*")
-            .order("purchased_at", { ascending: false });
+          const query = supabase.from("pantry_items").select("*").order("purchased_at", { ascending: false });
+          const { data, error } = userId ? await query.eq("user_id", userId) : await query;
 
           if (error) {
             console.error("❌ Error loading pantry items from Supabase:", error);
