@@ -189,6 +189,7 @@ const usePantryStore = create<PantryState>()(
         const user = useAuthStore.getState().user;
         const userId = user?.uid;
         try {
+          console.log("🔄 Syncing pantry from Supabase...");
           const query = supabase.from("pantry_items").select("*").order("purchased_at", { ascending: false });
           const { data, error } = userId ? await query.eq("user_id", userId) : await query;
 
@@ -197,6 +198,7 @@ const usePantryStore = create<PantryState>()(
             return;
           }
 
+          console.log("✅ Loaded pantry items from Supabase:", (data ?? []).length);
           const today = new Date();
           const mapped: PantryItem[] = (data ?? []).map((row: any) => {
             const purchasedAt = row.purchased_at ? new Date(row.purchased_at) : today;
