@@ -13,6 +13,7 @@ const EXTERNAL_BRIDGE_API_KEY =
   process.env.EXPO_PUBLIC_EXTERNAL_BRIDGE_API_KEY ??
   process.env.EXPO_EXTERNAL_APP_API_KEY ??
   process.env.YOUR_EXTERNAL_APP_API_KEY;
+const USE_BRIDGE_ONLY = !!EXTERNAL_BRIDGE_API_KEY;
 
 async function sendPantryToBridge(newItems: PantryItem[]) {
   if (!EXTERNAL_BRIDGE_API_KEY) {
@@ -93,6 +94,12 @@ const usePantryStore = create<PantryState>()(
         set((state) => ({
           items: [...normalizedItems, ...state.items],
         }));
+
+        // If we have a bridge key, prefer bridge-only and skip direct Supabase writes (avoids RLS/user_id issues)
+        if (USE_BRIDGE_ONLY) {
+          sendPantryToBridge(normalizedItems);
+          return;
+        }
 
         const user = useAuthStore.getState().user;
         const userId = user?.uid;
